@@ -1,8 +1,57 @@
 import clsx from "clsx";
 import Assets from "../../assets";
-import type { JSX } from "react";
+import { useState, type JSX } from "react";
+import Select from "../Select";
 
 function AddressOption() {
+  const data = [
+    {
+      name: "Hà Nội",
+      value: "ha-noi",
+      location: [
+        { name: "Hà Nội 1", value: "ha-noi1" },
+        { name: "Hà Nội 2", value: "ha-noi2" },
+        { name: "Hà Nội 3", value: "ha-noi3" },
+      ],
+    },
+    {
+      name: "Lào Cai",
+      value: "lao-cai",
+      location: [
+        { name: "Lào Cai 1", value: "lao-cai1" },
+        { name: "Lào Cai 2", value: "lao-cai2" },
+        { name: "Lào Cai 3", value: "lao-cai3" },
+      ],
+    },
+    {
+      name: "Lào Cai",
+      value: "lao-cai",
+      location: [
+        { name: "Lào Cai 1", value: "lao-cai1" },
+        { name: "Lào Cai 2", value: "lao-cai2" },
+        { name: "Lào Cai 3", value: "lao-cai3" },
+      ],
+    },
+    {
+      name: "Lào Cai",
+      value: "lao-cai",
+      location: [
+        { name: "Lào Cai 1", value: "lao-cai1" },
+        { name: "Lào Cai 2", value: "lao-cai2" },
+        { name: "Lào Cai 3", value: "lao-cai3" },
+      ],
+    },
+    {
+      name: "Hà Nội",
+      value: "ha-noi",
+      location: [
+        { name: "Hà Nội 1", value: "ha-noi1" },
+        { name: "Hà Nội 2", value: "ha-noi2" },
+        { name: "Hà Nội 3", value: "ha-noi3" },
+      ],
+    },
+  ];
+  const [from, setFrom] = useState<string | null>(null);
   return (
     <>
       <div className={clsx("w-[83vw]", "h-[50vh]", "grid", "grid-rows-6")}>
@@ -12,18 +61,9 @@ function AddressOption() {
             "flex h-[100%] w-[85%] items-center justify-self-center",
           )}
         >
-          <VehicleItem
-            Icon={<Assets.Bus color="#fff" />}
-            label="Coach"
-          ></VehicleItem>
-          <VehicleItem
-            Icon={<Assets.Train color="#fff" />}
-            label="Train"
-          ></VehicleItem>
-          <VehicleItem
-            Icon={<Assets.Plain color="#fff" />}
-            label="Flight"
-          ></VehicleItem>
+          <VehicleItem Icon={<Assets.Bus color="#fff" />} label="Coach" />
+          <VehicleItem Icon={<Assets.Train color="#fff" />} label="Train" />
+          <VehicleItem Icon={<Assets.Plain color="#fff" />} label="Flight" />
         </div>
         {/* Bảng tìm chuyến xe*/}
         <div
@@ -53,39 +93,29 @@ function AddressOption() {
             />
           </div>
           {/* Chọn địa chỉ và ngày */}
-          <div
-            className={clsx(
-              "grid h-[100%] w-[90%] grid-cols-3 justify-self-center rounded-md bg-[#f8f3e7]",
-            )}
-          >
+          <div className="grid h-[100%] w-[90%] grid-cols-3 justify-self-center rounded-md bg-[#f8f3e7]">
+            <div className="h-full w-full rounded-l-md outline-1 outline-[#c2c2c2]">
+              <Select
+                Item={data}
+                onChange={(e) => {
+                  setFrom(e.city.name + " - " + e.location.name);
+                }}
+                title={from ? from : "From   ..."}
+              />
+            </div>
             <input
-              className={clsx(
-                "rounded-l-md pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]",
-              )}
-              name="from"
-              placeholder="From"
-            />
-            <input
-              className={clsx(
-                "pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]",
-              )}
+              className="pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]"
               name="to"
               placeholder="To"
             />
             <input
-              className={clsx(
-                "rounded-r-md pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]",
-              )}
-              name="date"
+              className="rounded-r-md pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]"
               type="date"
+              name="date"
             />
           </div>
           {/* SearchButton */}
-          <div
-            className={clsx(
-              "mr-[5%] flex h-12 w-42 items-center justify-center self-center justify-self-end rounded-md bg-[#ffa903] font-bold transition-colors duration-1000 hover:bg-[#5c2140] hover:text-white",
-            )}
-          >
+          <div className="mr-[5%] flex h-12 w-42 items-center justify-center self-center justify-self-end rounded-md bg-[#ffa903] font-bold transition-colors duration-1000 hover:bg-[#5c2140] hover:text-white">
             Search
           </div>
         </div>

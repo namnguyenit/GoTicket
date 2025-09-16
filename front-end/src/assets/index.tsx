@@ -7,6 +7,8 @@ import Search from "./Icon/Search";
 import Messenger from "./Icon/Messenger";
 import Road from "./Icon/Road";
 import Refund from "./Icon/Refund";
+import DropDown from "./Icon/DropDown";
+import DropDownCity from "./Icon/DropDownCity";
 
 const Assets = {
   Train,
@@ -18,6 +20,8 @@ const Assets = {
   Messenger,
   Road,
   Refund,
+  DropDown,
+  DropDownCity,
 };
 
 export default Assets;

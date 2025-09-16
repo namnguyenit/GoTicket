@@ -42,7 +42,7 @@ interface HomeContactItemType {
 function HomeContactItem({ Icon, title, content }: HomeContactItemType) {
   return (
     <>
-      <div className="flex h-full w-full items-center justify-center gap-x-2 rounded-md bg-white transition select-none hover:scale-[1.03]">
+      <div className="flex h-full w-full items-center justify-center gap-x-2 rounded-md bg-white outline-[#62224368] transition select-none hover:outline-4">
         <div className="aspect-square w-16">{Icon}</div>
         <div className="w-[55%]">
           <div className="text-lg font-bold">{title}</div>
