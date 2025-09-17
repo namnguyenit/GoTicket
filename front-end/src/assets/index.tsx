@@ -9,6 +9,10 @@ import Road from "./Icon/Road";
 import Refund from "./Icon/Refund";
 import DropDown from "./Icon/DropDown";
 import DropDownCity from "./Icon/DropDownCity";
+import Sunrise from "./Icon/Sunrise";
+import Sunny from "./Icon/Sunny";
+import Sunset from "./Icon/Sunset";
+import Moon from "./Icon/Moon";
 
 const Assets = {
   Train,
@@ -22,6 +26,10 @@ const Assets = {
   Refund,
   DropDown,
   DropDownCity,
+  Sunrise,
+  Sunny,
+  Sunset,
+  Moon,
 };
 
 export default Assets;
