@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('route_id')->constrained('routes')->cascadeOnDelete();
+            $table->dateTime('departure_datetime');
+            $table->dateTime('arrival_datetime');
+            $table->decimal('base_price', 10, 2);
+            $table->enum('status', ['scheduled','ongoing','completed','cancelled'])->default('scheduled');
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
     }
 

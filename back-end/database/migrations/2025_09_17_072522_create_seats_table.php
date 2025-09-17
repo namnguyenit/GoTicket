@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicles', function (Blueprint $table) {
+        Schema::create('seats', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('coach_id')->constrained('coaches')->cascadeOnDelete();
+            $table->string('seat_number', 10); // ví dụ A1, B12
+            $table->unique(['coach_id','seat_number']);
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicles');
+        Schema::dropIfExists('seats');
     }
 };

@@ -12,8 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_coaches', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
+            $table->foreignId('coach_id')->constrained('coaches')->cascadeOnDelete();
+            $table->unsignedSmallInteger('coach_order')->default(1);
+            $table->primary(['trip_id','coach_id']);
         });
     }
 

@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('company_name');
+            $table->string('address')->nullable();
+            $table->enum('status', ['active','pending','suspended'])->default('pending');
         });
     }
 
