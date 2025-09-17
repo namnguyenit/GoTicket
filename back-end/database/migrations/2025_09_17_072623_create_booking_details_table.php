@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('booking_details', function (Blueprint $table) {
-            $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
-            $table->unsignedBigInteger('trip_id');// miss nullable()
-            $table->unsignedBigInteger('seat_id');// miss nullable()
-            $table->decimal('price_at_booking', 10, 2);// miss nullable()
+            $table->unsignedInteger('booking_id');
+            $table->unsignedInteger('trip_id');
+            $table->unsignedInteger('seat_id');
+            $table->decimal('price_at_booking', 10, 2);
             $table->primary(['booking_id','trip_id','seat_id']);
             $table->foreign(['trip_id','seat_id'])->references(['trip_id','seat_id'])->on('trip_seats')->cascadeOnDelete();
+            $table->foreign('booking_id')->references('id')->on('bookings')->cascadeOnDelete();
         });
     }
 

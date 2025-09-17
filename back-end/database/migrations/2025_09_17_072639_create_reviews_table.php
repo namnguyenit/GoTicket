@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
+            $table->increments('id');
+            $table->unsignedInteger('trip_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('booking_id');
             $table->unsignedTinyInteger('rating'); // validation logic enforce 1..5
             $table->text('comment')->nullable();
             $table->timestamp('created_at')->useCurrent();
@@ -24,6 +24,9 @@ return new class extends Migration
             if (Schema::getConnection()->getDriverName() === 'mysql') {
                 $table->check('`rating` BETWEEN 1 AND 5');
             } // undo check `rating`
+            $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->foreign('booking_id')->references('id')->on('bookings')->cascadeOnDelete();
         });
     }
 

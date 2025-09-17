@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_stops', function (Blueprint $table) {
-            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();// miss nullable()
-            $table->foreignId('stop_id')->constrained('stops')->cascadeOnDelete();// miss nullable()
+            $table->unsignedInteger('trip_id');
+            $table->unsignedInteger('stop_id');
             $table->enum('stop_type', ['pickup','dropoff']);
-            $table->time('scheduled_time'); // miss nullable()
+            $table->time('scheduled_time');
             $table->primary(['trip_id','stop_id']);
+            $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
+            $table->foreign('stop_id')->references('id')->on('stops')->cascadeOnDelete();
         });
     }
 

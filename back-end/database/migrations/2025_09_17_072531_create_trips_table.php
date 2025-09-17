@@ -12,14 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trips', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('route_id')->constrained('routes')->cascadeOnDelete();
-            $table->dateTime('departure_datetime');//miss nullable()
-            $table->dateTime('arrival_datetime');// miss nullable()
-            $table->decimal('base_price', 10, 2);// miss nullable()
+            $table->increments('id');
+            $table->unsignedInteger('route_id');
+            $table->dateTime('departure_datetime');
+            $table->dateTime('arrival_datetime');
+            $table->decimal('base_price', 10, 2);
             $table->enum('status', ['scheduled','ongoing','completed','cancelled'])->default('scheduled');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->foreign('route_id')->references('id')->on('routes')->cascadeOnDelete();
         });
     }
 

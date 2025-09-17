@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendors', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete(); //constrained don't see relationship
-            $table->string('company_name');    //#
-            $table->string('address')->nullable(); //#
+            $table->increments('id');
+            $table->unsignedInteger('user_id')->unique();
+            $table->string('company_name');
+            $table->string('address')->nullable();
             $table->enum('status', ['active','pending','suspended'])->default('pending');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
 

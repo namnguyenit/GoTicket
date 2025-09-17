@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('seats', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('coach_id')->constrained('coaches')->cascadeOnDelete();
-            $table->string('seat_number', 10); // miss not null
+            $table->increments('id');
+            $table->unsignedInteger('coach_id');
+            $table->string('seat_number', 10);
             $table->unique(['coach_id','seat_number']); 
+            $table->foreign('coach_id')->references('id')->on('coaches')->cascadeOnDelete();
         });
     }
 

@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('blog_trip', function (Blueprint $table) {
-            $table->foreignId('blog_id')->constrained('blogs')->cascadeOnDelete();// miss nullable()
-            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();// miss nullable()
+            $table->unsignedInteger('blog_id');
+            $table->unsignedInteger('trip_id');
             $table->primary(['blog_id','trip_id']);
+            $table->foreign('blog_id')->references('id')->on('blogs')->cascadeOnDelete();
+            $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
         });
     }
 
