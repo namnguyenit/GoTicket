@@ -5,6 +5,12 @@
   justify-content: space-between;
   user-select: none;
   align-items: center;
+  background-color: transparent;
+  transition: background-color 0.6s ease-out;
+}
+
+.box:hover {
+  background-color: #13171d;
 }
 
 .logo {

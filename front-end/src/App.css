@@ -8,6 +8,10 @@ body {
   background-color: #fbf2f2;
 }
 
+.after-overlay {
+  @apply after:absolute after:top-0 after:left-0 after:h-full after:w-full after:bg-[#003580] after:opacity-85 after:content-[''];
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

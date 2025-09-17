@@ -3,6 +3,30 @@ import Assets from "../../assets";
 import { useState, type JSX } from "react";
 import Select from "../Select";
 
+const initSchedule = {
+  from: {
+    city: { name: "", value: "" },
+    location: { name: "", value: "" },
+  },
+  to: {
+    city: { name: "", value: "" },
+    location: { name: "", value: "" },
+  },
+  date: "",
+};
+
+interface schedule {
+  from: {
+    city: { name: string; value: string };
+    location: { name: string; value: string };
+  };
+  to: {
+    city: { name: string; value: string };
+    location: { name: string; value: string };
+  };
+  date: string;
+}
+
 function AddressOption() {
   const data = [
     {
@@ -51,10 +75,11 @@ function AddressOption() {
       ],
     },
   ];
-  const [from, setFrom] = useState<string | null>(null);
+  const [schedule, setSchedule] = useState<schedule>(initSchedule);
+  console.log(schedule);
   return (
     <>
-      <div className={clsx("w-[83vw]", "h-[50vh]", "grid", "grid-rows-6")}>
+      <div className="grid h-[40vh] w-[83vw] grid-rows-6 gap-2">
         {/* Vehicle Navigatior */}
         <div
           className={clsx(
@@ -74,7 +99,7 @@ function AddressOption() {
           {/* OptionItem */}
           <div
             className={clsx(
-              "grid h-[50%] w-[100%] grid-cols-3 justify-items-center overflow-hidden rounded-t-2xl bg-[#622243]",
+              "grid h-[55%] w-[100%] grid-cols-3 justify-items-center overflow-hidden rounded-t-2xl bg-[#622243]",
             )}
           >
             <OptionItem
@@ -98,24 +123,61 @@ function AddressOption() {
               <Select
                 Item={data}
                 onChange={(e) => {
-                  setFrom(e.city.name + " - " + e.location.name);
+                  setSchedule((prev) => ({
+                    ...prev,
+                    from: {
+                      city: { name: e.city.name, value: e.city.value },
+                      location: {
+                        name: e.location.name,
+                        value: e.location.value,
+                      },
+                    },
+                  }));
                 }}
-                title={from ? from : "From   ..."}
+                title={
+                  schedule.from.city.name
+                    ? schedule.from.city.name +
+                      " - " +
+                      schedule.from.location.name
+                    : "From ..."
+                }
               />
             </div>
-            <input
-              className="pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]"
-              name="to"
-              placeholder="To"
-            />
-            <input
-              className="rounded-r-md pl-2.5 font-bold placeholder-[#622243] outline-1 outline-[#c2c2c2]"
-              type="date"
-              name="date"
-            />
+            <div className="h-full w-full outline-1 outline-[#c2c2c2]">
+              <Select
+                Item={data}
+                onChange={(e) => {
+                  setSchedule((prev) => ({
+                    ...prev,
+                    to: {
+                      city: { name: e.city.name, value: e.city.value },
+                      location: {
+                        name: e.location.name,
+                        value: e.location.value,
+                      },
+                    },
+                  }));
+                }}
+                title={
+                  schedule.to.city.name
+                    ? schedule.to.city.name + " - " + schedule.to.location.name
+                    : "To ..."
+                }
+              />
+            </div>
+            <div className="grid grid-cols-[85%] justify-center rounded-r-md font-bold text-[#622243] placeholder-[#622243] outline-1 outline-[#c2c2c2]">
+              <input
+                className="focus:outline-0"
+                type="date"
+                name="date"
+                onChange={(e) => {
+                  setSchedule((prev) => ({ ...prev, date: e.target.value }));
+                }}
+              />
+            </div>
           </div>
           {/* SearchButton */}
-          <div className="mr-[5%] flex h-12 w-42 items-center justify-center self-center justify-self-end rounded-md bg-[#ffa903] font-bold transition-colors duration-1000 hover:bg-[#5c2140] hover:text-white">
+          <div className="mr-[5%] flex h-10 w-36 items-center justify-center self-center justify-self-end rounded-sm bg-[#ffa903] font-bold transition-colors duration-1000 hover:bg-[#5c2140] hover:text-white">
             Search
           </div>
         </div>
@@ -185,7 +247,7 @@ function OptionItem({
         <div>{Icon}</div>
         <div
           className={clsx(
-            "ml-2 flex h-[30px] w-[50px] w-[100px] items-center text-[18px] font-semibold",
+            "ml-2 flex h-[30px] w-[50px] w-[100px] items-center text-[16px] font-semibold",
             color,
           )}
         >

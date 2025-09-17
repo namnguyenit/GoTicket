@@ -1,11 +1,12 @@
-import style from "./Body.module.css";
-import Home from "../../../page/Home";
+// import style from "./Body.module.css";
+
+import { Outlet } from "react-router-dom";
 
 function Body() {
   return (
     <>
-      <div className={style.box}>
-        <Home />
+      <div className="grid grid-cols-1 items-center justify-items-center">
+        <Outlet />
       </div>
     </>
   );

@@ -1,3 +1,31 @@
 .box {
   background-color: transparent;
 }
+
+/* Thêm vào file CSS global hoặc module nếu muốn */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(38%) sepia(80%) saturate(2000%) hue-rotate(300deg);
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+}
+input[type="date"]::-webkit-input-placeholder {
+  color: #622243;
+}
+input[type="date"]:focus {
+  border-color: #ffa903;
+  box-shadow: 0 0 0 2px #ffa90344;
+}
+input[type="date"] {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #c2c2c2;
+  padding: 8px 12px;
+  color: #622243;
+  font-weight: bold;
+  font-size: 16px;
+  outline: none;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
+}

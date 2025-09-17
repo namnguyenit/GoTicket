@@ -1,6 +1,7 @@
+import { Outlet } from "react-router-dom";
+
 import style from "./Main.module.css";
 import Navigator from "../../components/Navigator";
-import Body from "./Body";
 import Footer from "./Footer";
 
 function Main() {
@@ -10,9 +11,9 @@ function Main() {
         <div className={style.nav}>
           <Navigator />
         </div>
-        <Body />
-        <Footer />
       </div>
+      <Outlet />
+      <Footer />
     </>
   );
 }
