@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vehicles', function (Blueprint $table) {
-            $table->id(); // BIGINT unsigned
+            $table->id(); 
             $table->foreignId('vendor_id')
                   ->constrained()
-                  ->cascadeOnDelete();
+                  ->cascadeOnDelete(); //don't see relationship
 
-            $table->string('name', 100); // ví dụ: "Tàu SE1" hoặc tên xe bus
-            $table->enum('vehicle_type', ['bus', 'train']);
-            $table->string('license_plate', 50)->unique()->nullable(); // nullable cho tàu
+            $table->string('name', 100); 
+            $table->enum('vehicle_type', ['bus', 'train']); // miss nullable
+            $table->string('license_plate', 50)->unique()->nullable(); 
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });

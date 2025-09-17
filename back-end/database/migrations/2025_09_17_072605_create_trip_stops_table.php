@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_stops', function (Blueprint $table) {
-            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
-            $table->foreignId('stop_id')->constrained('stops')->cascadeOnDelete();
+            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();// miss nullable()
+            $table->foreignId('stop_id')->constrained('stops')->cascadeOnDelete();// miss nullable()
             $table->enum('stop_type', ['pickup','dropoff']);
-            $table->time('scheduled_time');
+            $table->time('scheduled_time'); // miss nullable()
             $table->primary(['trip_id','stop_id']);
         });
     }

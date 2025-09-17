@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('route_id')->constrained('routes')->cascadeOnDelete();
-            $table->dateTime('departure_datetime');
-            $table->dateTime('arrival_datetime');
-            $table->decimal('base_price', 10, 2);
+            $table->dateTime('departure_datetime');//miss nullable()
+            $table->dateTime('arrival_datetime');// miss nullable()
+            $table->decimal('base_price', 10, 2);// miss nullable()
             $table->enum('status', ['scheduled','ongoing','completed','cancelled'])->default('scheduled');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();

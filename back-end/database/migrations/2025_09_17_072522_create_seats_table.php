@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('seats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('coach_id')->constrained('coaches')->cascadeOnDelete();
-            $table->string('seat_number', 10); // ví dụ A1, B12
-            $table->unique(['coach_id','seat_number']);
+            $table->string('seat_number', 10); // miss not null
+            $table->unique(['coach_id','seat_number']); 
         });
     }
 

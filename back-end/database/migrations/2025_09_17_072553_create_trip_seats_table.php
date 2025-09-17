@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_seats', function (Blueprint $table) {
-            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
-            $table->foreignId('seat_id')->constrained('seats')->cascadeOnDelete();
-            $table->decimal('price', 10, 2);
+            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete(); // miss nullable()
+            $table->foreignId('seat_id')->constrained('seats')->cascadeOnDelete(); // miss nullable()
+            $table->decimal('price', 10, 2); // miss nullable()
             $table->enum('status', ['available','booked','locked','disabled'])->default('available');
             $table->primary(['trip_id','seat_id']);
         });

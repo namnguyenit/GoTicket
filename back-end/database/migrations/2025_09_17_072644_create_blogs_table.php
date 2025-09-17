@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('blogs', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title');// miss nullable()
             $table->text('content')->nullable();
             $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('published_at')->nullable();

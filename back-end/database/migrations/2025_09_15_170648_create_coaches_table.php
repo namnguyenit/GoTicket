@@ -12,13 +12,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('vehicle_id')
                   ->constrained()
-                  ->cascadeOnDelete();
+                  ->cascadeOnDelete(); // don't see relationship
 
-            // identifier: mã định danh toa hoặc chính xe bus (nếu bus chỉ có 1 coach)
-            $table->string('identifier', 50);
-            $table->enum('coach_type', ['sleeper_vip', 'sleeper_regular', 'seat_soft', 'seat_hard', 'limousine']);
-            $table->unsignedSmallInteger('total_seats');
-            $table->unique(['vehicle_id', 'identifier']);
+            
+            $table->string('identifier', 50); // miss nullable()
+            $table->enum('coach_type', ['sleeper_vip', 'sleeper_regular', 'seat_soft', 'seat_hard', 'limousine']); // miss nullable()
+            $table->unsignedSmallInteger('total_seats'); //miss nullable()
+            $table->unique(['vehicle_id', 'identifier']); // ??? what unique ??? 
         });
     }
 

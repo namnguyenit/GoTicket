@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('stops', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('address');
+            $table->string('name'); // miss nullable()
+            $table->string('address'); // miss nullable()
         });
     }
 

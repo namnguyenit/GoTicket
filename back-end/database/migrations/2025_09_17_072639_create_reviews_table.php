@@ -20,11 +20,10 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->unique('booking_id');
-            // MySQL 8+ check constraint
+            $table->unique('booking_id');            
             if (Schema::getConnection()->getDriverName() === 'mysql') {
                 $table->check('`rating` BETWEEN 1 AND 5');
-            }
+            } // undo check `rating`
         });
     }
 

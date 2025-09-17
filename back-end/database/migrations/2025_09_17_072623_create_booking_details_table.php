@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('booking_details', function (Blueprint $table) {
             $table->foreignId('booking_id')->constrained('bookings')->cascadeOnDelete();
-            $table->unsignedBigInteger('trip_id');
-            $table->unsignedBigInteger('seat_id');
-            $table->decimal('price_at_booking', 10, 2);
+            $table->unsignedBigInteger('trip_id');// miss nullable()
+            $table->unsignedBigInteger('seat_id');// miss nullable()
+            $table->decimal('price_at_booking', 10, 2);// miss nullable()
             $table->primary(['booking_id','trip_id','seat_id']);
-            // composite foreign key to trip_seats (trip_id, seat_id)
             $table->foreign(['trip_id','seat_id'])->references(['trip_id','seat_id'])->on('trip_seats')->cascadeOnDelete();
         });
     }
