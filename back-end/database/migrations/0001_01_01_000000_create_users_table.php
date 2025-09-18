@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('phone_number', 20)->nullable();
-            $table->enum('role', ['customer','vendor','admin']); 
+            $table->enum('role', ['customer','vendor','admin'])->default('customer'); 
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
         });
