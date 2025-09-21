@@ -20,8 +20,8 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className="relative h-[30vh] w-[100vw]">
-        <div className="absolute left-[50%] translate-x-[-50%] translate-y-[-150px]">
+      <div className="relative h-[20vh] w-[70vw]">
+        <div className="absolute left-[50%] h-[35vh] w-[70vw] translate-x-[-50%] translate-y-[-150px]">
           <AddressOption></AddressOption>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Assets from "../../assets";
 import clsx from "clsx";
 import style from "./Select.module.css";
+import { ChevronDown } from "lucide-react";
 
 interface SelectType {
   Item: {
@@ -10,10 +10,9 @@ interface SelectType {
     location: { name: string; value: string }[];
   }[];
   onChange: (value: any) => void;
-  title?: string;
 }
 
-function Select({ Item, onChange, title = "Select . . ." }: SelectType) {
+function Select({ Item, onChange }: SelectType) {
   const [focus, setFocus] = useState<boolean | null>(null);
   return (
     <>
@@ -24,14 +23,13 @@ function Select({ Item, onChange, title = "Select . . ." }: SelectType) {
             setFocus(!focus);
           }}
         >
-          {title}
           <div
             className={clsx(
-              "absolute top-1/2 right-2 -translate-1/2 transition-transform",
-              !focus && "-rotate-180",
+              "absolute top-1/2 right-3 -translate-1/2 transition-transform",
+              focus && "-rotate-180",
             )}
           >
-            <Assets.DropDown />
+            <ChevronDown color="#5B2642" size={25} />
           </div>
         </div>
 
@@ -75,7 +73,7 @@ function City({ Item, onChange }: CityType) {
     <>
       <div>
         <div
-          className="relative flex h-8 w-full items-center justify-center bg-[#d6cfc1]"
+          className="relative flex h-8 w-full items-center justify-center bg-[#ffdfc0]"
           onClick={() => {
             setFocus(!focus);
           }}
@@ -84,10 +82,10 @@ function City({ Item, onChange }: CityType) {
           <div
             className={clsx(
               "absolute top-1/2 right-2 -translate-1/2 transition-transform",
-              !focus && "-rotate-180",
+              focus && "-rotate-180",
             )}
           >
-            <Assets.DropDownCity />
+            <ChevronDown color="#5B2642" size={20} />
           </div>
         </div>
         {focus && (
