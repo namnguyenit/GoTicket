@@ -36,6 +36,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
+        'role',
     ];
 
     public $timestamps = true;
@@ -43,21 +44,19 @@ class User extends Authenticatable
     protected $hidden = ['password'];
 
     public function bookings(){
-        return $this->hasMany(Bookings::class);
+        return $this->hasMany(Bookings::class, 'user_id');
     }
 
     public function reviews(){
-        return $this->hasMany(Reviews::class);
+        return $this->hasMany(Reviews::class, 'user_id');
     }
-
 
     public function blogs(){
-        return $this->hasMany(Blogs::class);
+        return $this->hasMany(Blogs::class, 'author_id');
     }
 
-
-    public function vendors(){
-        return $this->hasMany(Vendor::class);
+    public function vendor(){
+        return $this->hasOne(Vendor::class, 'user_id');
     }
 
         

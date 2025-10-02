@@ -13,10 +13,15 @@ class Blogs extends Model
 
     protected $fillable = ['title',
                             'content',
+                            'author_id',
                             'published_at'];
 
     public function author(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function trips(){
+        return $this->belongsToMany(Trips::class, 'blog_trip', 'blog_id', 'trip_id');
     }
 
 }

@@ -10,13 +10,25 @@ class Vendor extends Model
 
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
 
-    protected $fillable =['company_name',
-                            'address',
-                        'status',];
+    protected $fillable = [
+        'user_id',
+        'company_name',
+        'address',
+        'status',
+    ];
 
 
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function vehicles(){
+        return $this->hasMany(Vehicles::class, 'vendor_id');
+    }
+
+    public function vendorRoutes(){
+        return $this->hasMany(VendorRoute::class, 'vendor_id');
     }
 }
