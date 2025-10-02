@@ -8,16 +8,17 @@ class Trips extends Model
 {
     protected $table = 'trips';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    public $timestamps = true; 
 
     protected $fillable = [
-        'vendor_route_id',
+        'vendor_route_id', 
         'departure_datetime',
         'arrival_datetime',
         'base_price',
         'status',
     ];
 
+    // ĐỊNH NGHĨA LẠI MỐI QUAN HỆ NÀY
     public function vendorRoute(){
         return $this->belongsTo(VendorRoute::class, 'vendor_route_id');
     }

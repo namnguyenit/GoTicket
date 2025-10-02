@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->string('payment_method', 50);
             $table->enum('status', ['success','failed','pending'])->default('pending');
-            $table->timestamp('paid_at');
+            $table->timestamp('paid_at')->nullable();
             $table->unique('booking_id');
             $table->foreign('booking_id')->references('id')->on('bookings')->cascadeOnDelete();
         });

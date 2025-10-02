@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('stop_id');
             $table->enum('stop_type', ['pickup','dropoff']);
             $table->time('scheduled_time');
-            $table->primary(['trip_id','stop_id']);
+            $table->primary(['trip_id', 'stop_id', 'stop_type']);
             $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
             $table->foreign('stop_id')->references('id')->on('stops')->cascadeOnDelete();
         });
