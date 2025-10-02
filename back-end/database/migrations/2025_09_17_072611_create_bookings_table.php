@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vendors', function (Blueprint $table) {
+        Schema::create('bookings', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id')->unique();
-            $table->string('company_name');
-            $table->string('address')->nullable();
-            $table->enum('status', ['active','pending','suspended'])->default('pending');
+            $table->unsignedInteger('user_id'); 
+            $table->string('booking_code', 50)->unique();  
+            $table->decimal('total_price', 10, 2); 
+            $table->enum('status', ['pending','confirmed','cancelled'])->default('pending');
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vendors');
+        Schema::dropIfExists('bookings');
     }
 };

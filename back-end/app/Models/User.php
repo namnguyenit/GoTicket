@@ -39,52 +39,25 @@ class User extends Authenticatable
         'role',
     ];
 
-    /**
-     * Các thuộc tính nên được ẩn khi chuyển thành mảng hoặc JSON.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-    ];
+    public $timestamps = true;
 
-    /**
-     * Các thuộc tính nên được ép kiểu.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    protected $hidden = ['password'];
 
-    /**
-     * Định nghĩa mối quan hệ một-một với Vendor.
-     *
-     * @return HasOne
-     */
-    public function vendor(): HasOne
-    {
-        return $this->hasOne(Vendor::class, 'user_id', 'id');
+    public function bookings(){
+        return $this->hasMany(Bookings::class, 'user_id');
     }
 
-    /**
-     * Định nghĩa mối quan hệ một-nhiều với Booking.
-     *
-     * @return HasMany
-     */
-    public function bookings(): HasMany
-    {
-        return $this->hasMany(Booking::class, 'user_id', 'id');
+    public function reviews(){
+        return $this->hasMany(Reviews::class, 'user_id');
     }
 
-    /**
-     * Định nghĩa mối quan hệ một-nhiều với Blog.
-     *
-     * @return HasMany
-     */
-    public function blogs(): HasMany
-    {
-        return $this->hasMany(Blog::class, 'author_id', 'id');
+    public function blogs(){
+        return $this->hasMany(Blogs::class, 'author_id');
     }
+
+    public function vendor(){
+        return $this->hasOne(Vendor::class, 'user_id');
+    }
+
+        
 }
