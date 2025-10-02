@@ -11,12 +11,23 @@ class Bookings extends Model
 
     protected $primaryKey = 'id';
 
-    protected $fillable = ['booking_code',
-                           'total_price',
-                        'status'];
+    protected $fillable = [
+        'user_id',
+        'booking_code',
+        'total_price',
+        'status'
+    ];
 
 
     public function user(){
-        return belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function details(){
+        return $this->hasMany(BookingDetails::class, 'booking_id');
+    }
+
+    public function payment(){
+        return $this->hasOne(Payments::class, 'booking_id');
     }
 }
