@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
@@ -39,52 +39,43 @@ class User extends Authenticatable
         'role',
     ];
 
-    /**
-     * Các thuộc tính nên được ẩn khi chuyển thành mảng hoặc JSON.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-    ];
+    public $timestamps = true;
 
-    /**
-     * Các thuộc tính nên được ép kiểu.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
+    protected $hidden = ['password'];
 
-    /**
-     * Định nghĩa mối quan hệ một-một với Vendor.
-     *
-     * @return HasOne
-     */
-    public function vendor(): HasOne
-    {
-        return $this->hasOne(Vendor::class, 'user_id', 'id');
+    public function bookings(){
+        return $this->hasMany(Bookings::class, 'user_id');
+    }
+
+    public function reviews(){
+        return $this->hasMany(Reviews::class, 'user_id');
+    }
+
+    public function blogs(){
+        return $this->hasMany(Blogs::class, 'author_id');
+    }
+
+    public function vendor(){
+        return $this->hasOne(Vendor::class, 'user_id');
     }
 
     /**
-     * Định nghĩa mối quan hệ một-nhiều với Booking.
+     * Get the identifier that will be stored in the subject claim of the JWT.
      *
-     * @return HasMany
+     * @return mixed
      */
-    public function bookings(): HasMany
+    public function getJWTIdentifier()
     {
-        return $this->hasMany(Booking::class, 'user_id', 'id');
+        return $this->getKey();
     }
 
     /**
-     * Định nghĩa mối quan hệ một-nhiều với Blog.
+     * Return a key value array, containing any custom claims to be added to the JWT.
      *
-     * @return HasMany
+     * @return array
      */
-    public function blogs(): HasMany
+    public function getJWTCustomClaims()
     {
-        return $this->hasMany(Blog::class, 'author_id', 'id');
-    }
+        return [];
+    } 
 }
