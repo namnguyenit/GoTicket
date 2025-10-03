@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
-
+use App\Enums\ApiSuccess;
 class AuthController extends Controller
 {
     use ResponseHelper;
@@ -36,6 +36,6 @@ class AuthController extends Controller
                 'token' => $token,
                 'type' => 'bearer',
             ]
-        ], 'Đăng ký tài khoản thành công', 201);
+        ], ApiSuccess::CREATED_SUCCESS);
     }
 }

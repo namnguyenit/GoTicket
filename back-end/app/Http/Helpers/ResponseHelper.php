@@ -3,43 +3,33 @@
 namespace App\Http\Helpers;
 
 use App\Enums\ApiError;
+use App\Enums\ApiSuccess; // Import ApiSuccess
 use Illuminate\Http\JsonResponse;
 
 trait ResponseHelper
 {
-    /**
-     * Trả về response thành công.
-     *
-     * @param mixed|null $data Dữ liệu trả về
-     * @param string $message Thông điệp
-     * @param int $statusCode Mã HTTP
-     * @return JsonResponse
-     */
-    public function success(mixed $data = null, string $message = 'Thành công', int $statusCode = 200): JsonResponse
+    public function success(mixed $data = null, ApiSuccess $apiSuccess = ApiSuccess::ACTION_SUCCESS): JsonResponse
     {
+        $httpCode = $apiSuccess->getHttpCode(); // Lấy mã code ra biến
         $response = [
             'success' => true,
-            'message' => $message,
+            'status' => $httpCode, // <-- THÊM DÒNG NÀY
+            'message' => $apiSuccess->getMessage(),
         ];
 
         if ($data !== null) {
             $response['data'] = $data;
         }
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $httpCode);
     }
 
-    /**
-     * Trả về response lỗi.
-     *
-     * @param ApiError $apiError Enum lỗi
-     * @param mixed|null $errors Chi tiết lỗi (ví dụ từ Validator)
-     * @return JsonResponse
-     */
     public function error(ApiError $apiError, mixed $errors = null): JsonResponse
     {
+        $httpCode = $apiError->getHttpCode(); 
         $response = [
             'success' => false,
+            'status' => $httpCode, 
             'error_code' => $apiError->value,
             'message' => $apiError->getMessage(),
         ];
@@ -48,6 +38,6 @@ trait ResponseHelper
             $response['errors'] = $errors;
         }
 
-        return response()->json($response, $apiError->getHttpCode());
+        return response()->json($response, $httpCode);
     }
 }
