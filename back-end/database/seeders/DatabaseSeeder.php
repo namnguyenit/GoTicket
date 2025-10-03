@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('admin123'), // Mật khẩu là 'admin123'
+                'password' => Hash::make('123456'), 
                 'phone_number' => '0987654321',
-                'role' => 'admin', // Gán vai trò là admin
+                'role' => 'admin', 
             ]
         );
 
