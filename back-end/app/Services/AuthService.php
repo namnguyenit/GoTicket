@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\UserRepositoryInterface;
+use App\Models\User;
 
 class AuthService
 {
@@ -14,13 +15,10 @@ class AuthService
         $this->userRepository = $userRepository;
     }
 
-    public function registerUser(array $data): ?string
+    public function registerUser(array $data): User
     {
         $user = $this->userRepository->create($data);
 
-        // Tự động đăng nhập và tạo token
-        $token = auth('api')->login($user);
-
-        return $token;
+        return $user;
     }
 }

@@ -15,12 +15,7 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    // Route cho chức năng đăng ký
+    
     Route::post('register', [AuthController::class, 'register']);
 
-    // (Sau này bạn sẽ thêm các route khác vào đây)
-    // Route::post('login', [AuthController::class, 'login']);
-    // Route::post('logout', [AuthController::class, 'logout']);
-    // Route::post('refresh', [AuthController::class, 'refresh']);
-    // Route::get('me', [AuthController::class, 'me']);
 });

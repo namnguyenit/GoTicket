@@ -18,7 +18,7 @@ abstract class ApiRequest extends FormRequest
         $errors = $validator->errors();
         // Tạo response lỗi bằng Enum và Helper của chúng ta
         $response = $this->error(ApiError::VALIDATION_FAILED, $errors);
-        // Ném ra Exception để dừng request và trả về response tùy chỉnh
+
         throw new HttpResponseException($response);
     }
 }

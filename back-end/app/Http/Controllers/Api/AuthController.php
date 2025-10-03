@@ -25,17 +25,13 @@ class AuthController extends Controller
         // Dữ liệu đã được validate tự động bởi RegisterUserRequest
         $validatedData = $request->validated();
 
-        $token = $this->authService->registerUser($validatedData);
+        $user = $this->authService->registerUser($validatedData);
 
-        // Lấy lại thông tin user vừa tạo
-        $user = auth('api')->user();
+        
 
         return $this->success([
-            'user' => new UserResource($user),
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
+            'user' => new UserResource($user)
+            
         ], ApiSuccess::CREATED_SUCCESS);
     }
 }
