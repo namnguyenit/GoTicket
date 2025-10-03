@@ -21,4 +21,17 @@ class AuthService
 
         return $user;
     }
+
+    public function loginUser(array $credentials): ?string
+    {
+        // Dùng guard 'api' để thử xác thực
+        // Hàm `attempt` sẽ tự động hash password và so sánh
+        if (! $token = auth('api')->attempt($credentials)) {
+            // Nếu không khớp, trả về null
+            return null;
+        }
+
+        // Nếu khớp, trả về token
+        return $token;
+    }
 }

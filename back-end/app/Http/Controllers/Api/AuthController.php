@@ -9,6 +9,9 @@ use App\Services\AuthService;
 use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
+use App\Http\Requests\Api\LoginRequest;
+
+
 class AuthController extends Controller
 {
     use ResponseHelper;
@@ -33,5 +36,30 @@ class AuthController extends Controller
             'user' => new UserResource($user)
             
         ], ApiSuccess::CREATED_SUCCESS);
+    }
+
+
+    public function login(LoginRequest $request)
+    {
+        // Dữ liệu đã được validate (email, password phải tồn tại)
+        $credentials = $request->validated();
+
+        // Giao việc cho Service xử lý
+        $token = $this->authService->loginUser($credentials);
+
+        // Kiểm tra kết quả Service trả về
+        if (! $token) {
+            // Nếu không có token, nghĩa là sai email/password
+            // Trả về lỗi xác thực
+            return $this->error(ApiError::AUTHENTICATION_FAILED);
+        }
+
+        // Nếu có token, trả về response thành công
+        return $this->success([
+            'authorisation' => [
+                'token' => $token,
+                'type' => 'bearer',
+            ]
+        ], ApiSuccess::ACTION_SUCCESS);
     }
 }

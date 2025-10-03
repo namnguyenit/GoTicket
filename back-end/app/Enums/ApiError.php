@@ -15,7 +15,7 @@ enum ApiError: string
     case AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED';
     case EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS';
 
-    // ... Thêm các loại lỗi khác của bạn ở đây
+
 
     public function getHttpCode(): int
     {
