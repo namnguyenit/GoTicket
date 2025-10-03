@@ -6,9 +6,11 @@
 ```
 composer install
 npm install && npm run build
-
 ```
-
+# khi thay đổi gì trong .env thì 
+```
+php artisan config:clear
+```
 
 # config .env
 
