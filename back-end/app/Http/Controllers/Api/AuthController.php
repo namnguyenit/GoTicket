@@ -47,8 +47,8 @@ class AuthController extends Controller
     Log::info('validate :' , $credentials);
     $result = $this->authService->loginUser($credentials);
 
-    // Log::info('erro :' , $result['error']);
-    Log::info('erro :' , $result);
+    
+
     if (isset($result['error'])) {
         // Nếu có key 'error', dùng helper để trả về lỗi cụ thể
         return $this->error($result['error']);
