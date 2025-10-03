@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->unsignedInteger('author_id')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->timestamps(); 
             $table->foreign('author_id')->references('id')->on('users')->nullOnDelete();
         });
     }

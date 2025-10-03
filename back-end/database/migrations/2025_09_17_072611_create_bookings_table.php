@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('booking_code', 50)->unique();  
             $table->decimal('total_price', 10, 2); 
             $table->enum('status', ['pending','confirmed','cancelled'])->default('pending');
+            $table->timestamps(); 
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
