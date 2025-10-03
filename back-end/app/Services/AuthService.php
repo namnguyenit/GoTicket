@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Repositories\UserRepositoryInterface;
 use App\Models\User;
+use App\Enums\ApiError;
+
 
 class AuthService
 {
@@ -22,16 +24,23 @@ class AuthService
         return $user;
     }
 
-    public function loginUser(array $credentials): ?string
+    public function loginUser(array $credentials): array
     {
-        // Dùng guard 'api' để thử xác thực
-        // Hàm `attempt` sẽ tự động hash password và so sánh
-        if (! $token = auth('api')->attempt($credentials)) {
-            // Nếu không khớp, trả về null
-            return null;
+        // Bước 1: Kiểm tra xem user có tồn tại không
+        $user = $this->userRepository->findByEmail($credentials['email']);
+
+        if (!$user) {
+            // Nếu không tìm thấy, trả về lỗi USER_NOT_FOUND
+            return ['error' => ApiError::EMAIL_NOT_EXISTS];
         }
 
-        // Nếu khớp, trả về token
-        return $token;
+        // Bước 2: Nếu user tồn tại, thử xác thực mật khẩu
+        if (! $token = auth('api')->attempt($credentials)) {
+            // Nếu `attempt` thất bại, có nghĩa là mật khẩu sai
+            return ['error' => ApiError::WRONG_PASSWORD];
+        }
+
+        // Bước 3: Nếu thành công, trả về token
+        return ['token' => $token];
     }
 }
