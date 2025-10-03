@@ -21,4 +21,39 @@ class UserRepository implements UserRepositoryInterface
     {
         return User::where('email', $email)->first();
     }
+
+    public function all()
+    {
+        return User::all();
+    }
+
+
+    public function findByName(string $name)
+    {
+        return User::where('name', 'LIKE', "%$name%")->get();
+    }
+
+
+    public function delete(string $email): bool
+    {
+        $user = $this->findByEmail($email);
+        if ($user) {
+            return $user->delete(); 
+        }
+        return false;
+    }
+
+
+    public function update(string $email, array $data): bool
+    {
+        $user = $this->findByEmail($email);
+        if ($user) {
+
+            if (isset($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            }
+            return $user->update($data); 
+        }
+        return false;
+    }
 }
