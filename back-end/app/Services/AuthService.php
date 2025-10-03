@@ -43,4 +43,14 @@ class AuthService
         // Bước 3: Nếu thành công, trả về token
         return ['token' => $token];
     }
+
+    public function getMyAccount(): ?User
+    {
+        // Hàm auth('api')->user() sẽ tự động:
+        // 1. Đọc token từ header.
+        // 2. Xác thực token.
+        // 3. Lấy user ID từ token.
+        // 4. Truy vấn database và trả về đối tượng User tương ứng.
+        return auth('api')->user();
+    }
 }

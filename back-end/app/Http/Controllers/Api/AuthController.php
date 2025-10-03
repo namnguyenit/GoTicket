@@ -62,4 +62,21 @@ class AuthController extends Controller
         ]
     ], ApiSuccess::ACTION_SUCCESS);
 }
+    public function getInfoAccout()
+    {
+        // Giao việc cho Service
+        $user = $this->authService->getMyAccount();
+
+        // Nếu Service không tìm thấy user (token không hợp lệ)
+        if (!$user) {
+            return $this->error(ApiError::UNAUTHORIZED);
+        }
+
+        // Nếu thành công, trả về thông tin user qua UserResource
+        return $this->success(
+            new UserResource($user),
+            ApiSuccess::GET_DATA_SUCCESS
+        );
+    }
+
 }
