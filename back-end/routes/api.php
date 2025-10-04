@@ -2,8 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -39,6 +40,15 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::get('/test', function () {
             return response()->json(['message' => 'Chào mừng Admin!']);
         });
+
+
+        Route::get('/users', [UserController::class, 'getAll']);
+        Route::get('/users/search', [UserController::class, 'findByName']); // Đặt trước route có tham số
+        Route::get('/users/{email}', [UserController::class, 'findByEmail']);
+        Route::put('/users/{email}', [UserController::class, 'updateUser']);
+        Route::delete('/users/{email}', [UserController::class, 'delete']);
+
+        
     });
 
     // Nhóm các route chỉ dành cho NHÀ XE (VENDOR)

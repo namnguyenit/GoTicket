@@ -48,10 +48,6 @@ class UserRepository implements UserRepositoryInterface
     {
         $user = $this->findByEmail($email);
         if ($user) {
-
-            if (isset($data['password'])) {
-                $data['password'] = Hash::make($data['password']);
-            }
             return $user->update($data); 
         }
         return false;
