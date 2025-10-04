@@ -39,7 +39,7 @@ class UserController extends Controller
     }
     
     public function findByName(Request $request){
-        $name = $request->query('name'); // Lấy tên từ query string ?name=...
+        $name = $request->query('name'); 
 
         if (!$name) {
             return $this->error(ApiError::VALIDATION_FAILED, ['name' => 'The name field is required.']);

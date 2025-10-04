@@ -10,13 +10,13 @@ use App\Enums\ApiError;
 
 abstract class ApiRequest extends FormRequest
 {
-    use ResponseHelper; // Sử dụng Helper
+    use ResponseHelper; 
 
-    // Ghi đè phương thức xử lý khi validation thất bại
+
     protected function failedValidation(Validator $validator)
     {
         $errors = $validator->errors();
-        // Tạo response lỗi bằng Enum và Helper của chúng ta
+
         $response = $this->error(ApiError::VALIDATION_FAILED, $errors);
 
         throw new HttpResponseException($response);

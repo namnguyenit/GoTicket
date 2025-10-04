@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-       
+        $this->call([
+            LocationsSeeder::class, // Chạy seeder này trước để có dữ liệu tỉnh thành
+            RoutesSeeder::class,    // Chạy seeder này sau
+        ]);
     }
 }

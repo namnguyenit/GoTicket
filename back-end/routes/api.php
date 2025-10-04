@@ -4,12 +4,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
-
+use App\Http\Controllers\Api\RouteController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+Route::post('locations/search', [RouteController::class, 'findLocationByName']);
+Route::get('location', [RouteController::class, 'getAllLocationCity']);
+    
+    // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 
 
 Route::group([
@@ -21,6 +26,9 @@ Route::group([
     Route::post('login', [AuthController::class, 'login']);
     // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 });
+
+
+
 
 
 

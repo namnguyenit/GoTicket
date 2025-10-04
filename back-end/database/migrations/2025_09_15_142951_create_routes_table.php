@@ -13,8 +13,15 @@ return new class extends Migration
     {
         Schema::create('routes', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('origin_location');
-            $table->string('destination_location');
+            $table->unsignedInteger('origin_location_id');
+            $table->unsignedInteger('destination_location_id');
+
+            
+            $table->foreign('origin_location_id')->references('id')->on('locations')->cascadeOnDelete();
+            $table->foreign('destination_location_id')->references('id')->on('locations')->cascadeOnDelete();
+
+            // Đảm bảo không có tuyến đường trùng lặp
+            $table->unique(['origin_location_id', 'destination_location_id']);
         });
     }
 
