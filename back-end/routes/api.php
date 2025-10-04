@@ -32,7 +32,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         
     });
 
-    // --- CÁC ROUTE CẦN PHÂN QUYỀN ---
+  
 
     // Nhóm các route chỉ dành cho ADMIN
     Route::group(['middleware' => 'role:admin', 'prefix' => 'admin'], function() {
@@ -48,7 +48,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::put('/users/{email}', [UserController::class, 'updateUser']);
         Route::delete('/users/{email}', [UserController::class, 'delete']);
 
-        
+
     });
 
     // Nhóm các route chỉ dành cho NHÀ XE (VENDOR)
