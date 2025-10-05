@@ -17,6 +17,8 @@ class SearchRequest extends ApiRequest
         return [
             'origin_location' => 'required|string|max:255',
             'destination_location' => 'required|string|max:255',
+            'date' => 'required|date_format:Y-m-d',
+            'vehicle_type' => 'required|in:bus,train',
         ];
     }
 }

@@ -30,23 +30,5 @@ class RouteController extends Controller
     }
 
     
-    public function findRoute(SearchRequest $request)
-    {
-
-        $validatedData = $request->validated();
-        $originName = $validatedData['origin_location'];
-        $destinationName = $validatedData['destination_location']; 
-
-        $route = $this->routeService->findRouteByLocationIds(
-            $originName,
-            $destinationName
-        );
-
-
-        if (!$route) {
-            return $this->error(ApiError::NOT_FOUND, ['message' => 'Không tìm thấy tuyến đường phù hợp.']);
-        }
-
-        return $this->success(['route_id' => $route->id], ApiSuccess::GET_DATA_SUCCESS);
-    }
+    
 }
