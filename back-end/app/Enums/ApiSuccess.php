@@ -21,7 +21,7 @@ enum ApiSuccess: string
         return match ($this) {
             self::GET_DATA_SUCCESS => 'Lấy dữ liệu thành công.',
             self::ACTION_SUCCESS => 'Thực hiện hành động thành công.',
-            self::CREATED_SUCCESS => 'Đăng ký tài khoản thành công.', // Hoặc 'Tạo mới thành công'
+            self::CREATED_SUCCESS => 'Đăng ký tài khoản thành công.', 
         };
     }
 }

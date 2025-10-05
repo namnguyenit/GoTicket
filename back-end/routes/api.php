@@ -11,9 +11,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('locations/search', [RouteController::class, 'findLocationByName']);
+Route::post('routes/search', [RouteController::class, 'findRoute']);
 Route::get('location', [RouteController::class, 'getAllLocationCity']);
-    
+ 
     // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 
 

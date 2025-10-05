@@ -9,6 +9,9 @@ use App\Services\UserService;
 use App\Services\LocationService;
 use App\Repositories\LocationRepositoryInterface;
 use App\Repositories\LocationRepository;
+use App\Repositories\RouteRepository;
+use App\Repositories\RouteRepositoryInterface;
+use App\Services\RouteService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserService::class); 
         $this->app->bind(LocationRepositoryInterface::class, LocationRepository::class);
         $this->app->bind(LocationService::class);
+        $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
+        $this->app->bind(RouteService::class);
     }
 
     /**
