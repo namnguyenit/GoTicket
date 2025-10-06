@@ -36,26 +36,28 @@ class TestDataSeeder extends Seeder
             );
         });
 
-        // === LẤY 4 TUYẾN ĐƯỜNG NGẪU NHIÊN ĐỂ TẠO DỮ LIỆU ===
-        // Lấy thêm tuyến Hà Nội - TP.HCM để đảm bảo có dữ liệu cho JSON test của bạn
+        // === LẤY ĐÚNG TUYẾN HÀ NỘI - TP.HCM ===
         $routeHNtoHCM = Routes::whereHas('origin', fn($q) => $q->where('name', 'Hà Nội'))
                               ->whereHas('destination', fn($q) => $q->where('name', 'TP. Hồ Chí Minh'))
                               ->first();
         
-        $randomRoutes = Routes::where('id', '!=', $routeHNtoHCM->id)->inRandomOrder()->limit(3)->get()->push($routeHNtoHCM);
+        // Nếu không tìm thấy tuyến, dừng lại để tránh lỗi
+        if (!$routeHNtoHCM) {
+            $this->command->error('Không tìm thấy tuyến đường từ Hà Nội đến TP. Hồ Chí Minh. Vui lòng chạy LocationsSeeder và RoutesSeeder trước.');
+            return;
+        }
 
+        // === TẠO DỮ LIỆU CHO CẢ 2 NHÀ XE TRÊN CÙNG 1 TUYẾN ===
+        foreach ($vendors as $vendor) {
+            // Tạo một vendor route cho nhà xe này
+            $vendorRoute = VendorRoute::create([
+                'vendor_id' => $vendor->id,
+                'route_id' => $routeHNtoHCM->id,
+                'name' => "Tuyến Hà Nội - TP. Hồ Chí Minh (" . $vendor->user->name . ")"
+            ]);
 
-        // === TẠO DỮ LIỆU CHUYẾN ĐI CHO TỪNG TUYẾN VÀ TỪNG NHÀ XE ===
-        foreach ($randomRoutes as $route) {
-            foreach ($vendors as $vendor) {
-                // Tạo một vendor route
-                $vendorRoute = VendorRoute::create([
-                    'vendor_id' => $vendor->id,
-                    'route_id' => $route->id,
-                    'name' => "Tuyến " . $route->origin->name . " - " . $route->destination->name
-                ]);
-
-                // Tạo dữ liệu chuyến đi cho vendor route này
+            // Với mỗi nhà xe, tạo 5 xe khác nhau, mỗi xe chạy 3 chuyến
+            for ($i = 0; $i < 5; $i++) {
                 $this->createTripsForVendorRoute($vendorRoute);
             }
         }
@@ -66,10 +68,10 @@ class TestDataSeeder extends Seeder
      */
     private function createTripsForVendorRoute(VendorRoute $vendorRoute)
     {
-        // 1. Tạo phương tiện và xe (coach)
+        // 1. Tạo phương tiện và xe (coach) duy nhất cho batch này
         $vehicle = Vehicles::create([
             'vendor_id' => $vendorRoute->vendor_id,
-            'name' => 'Xe giường nằm ' . $vendorRoute->id,
+            'name' => 'Xe giường nằm ' . $vendorRoute->id . '-' . rand(1, 100),
             'vehicle_type' => 'bus',
             'license_plate' => '51A-' . rand(10000, 99999)
         ]);
@@ -86,36 +88,36 @@ class TestDataSeeder extends Seeder
             $seats[] = Seats::create(['coach_id' => $coach->id, 'seat_number' => 'A' . $i]);
         }
 
-        // 3. Tạo các chuyến đi cho 7 ngày tới với nhiều khung giờ
+        // 3. Tạo 3 chuyến đi vào đúng ngày 2025-10-06
         $departureHours = [8, 13, 21]; // 8:00, 13:00, 21:00
-        for ($day = 0; $day < 7; $day++) {
-            foreach($departureHours as $hour) {
-                $basePrice = rand(300, 500) * 1000;
-                $departureTime = Carbon::today()->addDays($day)->setTime($hour, 0, 0);
-                $arrivalTime = $departureTime->copy()->addHours(rand(28, 36));
+        $targetDate = Carbon::createFromFormat('Y-m-d', '2025-10-06')->startOfDay();
 
-                $trip = Trips::create([
-                    'vendor_route_id' => $vendorRoute->id,
-                    'departure_datetime' => $departureTime,
-                    'arrival_datetime' => $arrivalTime,
-                    'base_price' => $basePrice,
-                    'status' => 'scheduled'
-                ]);
-                
-                $trip->coaches()->attach($coach->id);
+        foreach($departureHours as $hour) {
+            $basePrice = rand(300, 500) * 1000;
+            $departureTime = $targetDate->copy()->setTime($hour, 0, 0);
+            $arrivalTime = $departureTime->copy()->addHours(rand(28, 36));
 
-                // 4. Mở bán vé
-                $tripSeatsData = [];
-                foreach ($seats as $seat) {
-                    $tripSeatsData[] = [
-                        'trip_id' => $trip->id,
-                        'seat_id' => $seat->id,
-                        'price' => $basePrice,
-                        'status' => 'available'
-                    ];
-                }
-                DB::table('trip_seats')->insert($tripSeatsData);
+            $trip = Trips::create([
+                'vendor_route_id' => $vendorRoute->id,
+                'departure_datetime' => $departureTime,
+                'arrival_datetime' => $arrivalTime,
+                'base_price' => $basePrice,
+                'status' => 'scheduled'
+            ]);
+            
+            $trip->coaches()->attach($coach->id);
+
+            // 4. Mở bán vé
+            $tripSeatsData = [];
+            foreach ($seats as $seat) {
+                $tripSeatsData[] = [
+                    'trip_id' => $trip->id,
+                    'seat_id' => $seat->id,
+                    'price' => $basePrice,
+                    'status' => 'available'
+                ];
             }
+            DB::table('trip_seats')->insert($tripSeatsData);
         }
     }
 }

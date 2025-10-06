@@ -9,6 +9,8 @@ use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
 use App\Http\Resources\TripResource; 
+use App\Http\Resources\TripDetailResource; 
+
 
 class TripController extends Controller
 {
@@ -52,5 +54,17 @@ class TripController extends Controller
         // Điều này sẽ không thay đổi cấu trúc phân trang
         return $this->success($trips, ApiSuccess::GET_DATA_SUCCESS);
 
+    }
+
+    public function getTripDetail(int $id)
+    {
+        $trip = $this->tripService->getTripById($id);
+
+        if (!$trip) {
+            return $this->error(ApiError::NOT_FOUND);
+        }
+
+        // Sử dụng TripDetailResource để định dạng chi tiết đầu ra
+        return $this->success(new TripDetailResource($trip), ApiSuccess::GET_DATA_SUCCESS);
     }
 }

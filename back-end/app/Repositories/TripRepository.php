@@ -6,6 +6,17 @@ use Illuminate\Database\Eloquent\Builder; // Cần import Builder
 
 class TripRepository implements TripRepositoryInterface
 {
+    public function findById(int $id): ?Trips
+    {
+        // Eager load các mối quan hệ cần thiết để hiển thị chi tiết
+        return Trips::with([
+            'vendorRoute.vendor.user:id,name', // Lấy tên nhà xe
+            'coaches.seats', // Lấy danh sách xe và tất cả các ghế của mỗi xe
+            'seats' // Lấy danh sách ghế của chuyến đi này kèm trạng thái (pivot data)
+        ])->find($id);
+    }
+    
+    
     public function search(array $criteria)
     {
         // 1. Bắt đầu câu truy vấn, nhưng chưa thực thi

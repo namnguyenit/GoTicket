@@ -13,10 +13,13 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
+
 Route::get('trips/search', [TripController::class, 'search']);
 Route::get('routes/location', [RouteController::class, 'getAllLocationCity']);
- 
-    // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
+
+Route::get('trips/{id}', [TripController::class, 'getTripDetail']);
+
+// Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 
 
 Route::group([
