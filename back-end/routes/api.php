@@ -13,7 +13,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('trips/search', [TripController::class, 'search']);
+Route::get('trips/search', [TripController::class, 'search']);
 Route::get('routes/location', [RouteController::class, 'getAllLocationCity']);
  
     // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);

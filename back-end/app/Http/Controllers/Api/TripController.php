@@ -8,6 +8,7 @@ use App\Http\Requests\Api\SearchRequest; // Dùng lại SearchRequest bạn đã
 use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
+use App\Http\Resources\TripResource; 
 
 class TripController extends Controller
 {
@@ -23,9 +24,9 @@ class TripController extends Controller
 
     public function search(SearchRequest $request)
     {
+        // SearchRequest đã tự động lấy tất cả tham số từ URL và validate chúng
         $validated = $request->validated();
 
-        // Lấy ID từ tên địa điểm
         $origin = $this->locationService->findIdBYName($validated['origin_location']);
         $destination = $this->locationService->findIdBYName($validated['destination_location']);
 
@@ -33,17 +34,23 @@ class TripController extends Controller
             return $this->error(ApiError::NOT_FOUND, ['message' => 'Điểm đi hoặc điểm đến không hợp lệ.']);
         }
         
-        // Gói các điều kiện tìm kiếm vào một mảng
-        $criteria = [
+        // Gói tất cả các điều kiện, bao gồm cả những cái có thể là null
+        $criteria = array_merge($validated, [
             'origin_id' => $origin->id,
             'destination_id' => $destination->id,
-            'date' => $validated['date'],
-            'vehicle_type' => $validated['vehicle_type'],
-        ];
+        ]);
 
         $trips = $this->tripService->searchTrips($criteria);
+        $requestedPage = $request->query('page', 1);
 
-        // Bạn có thể tạo một TripResource để định dạng dữ liệu trả về nếu muốn
+        // Nếu người dùng yêu cầu một trang lớn hơn trang cuối cùng VÀ tổng số kết quả > 0
+        if ($requestedPage > $trips->lastPage() && $trips->total() > 0) {
+            return $this->error(ApiError::NOT_FOUND, ['message' => 'Trang bạn yêu cầu không tồn tại.']);
+        }
+        $trips->appends($request->query());
+        // THAY ĐỔI Ở ĐÂY: Bọc kết quả trong Resource
+        // Điều này sẽ không thay đổi cấu trúc phân trang
         return $this->success($trips, ApiSuccess::GET_DATA_SUCCESS);
+
     }
 }
