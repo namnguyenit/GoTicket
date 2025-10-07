@@ -19,6 +19,9 @@ use App\Repositories\TripRepositoryInterface;
 use App\Repositories\VehiclesRepository;
 use App\Repositories\VehiclesRepositoryInterface;
 use App\Services\TripService;
+use App\Repositories\BookingRepository;
+use App\Repositories\BookingRepositoryInterface;
+use App\Services\BookingService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TripRepositoryInterface::class, TripRepository::class);
         $this->app->bind(VehiclesRepositoryInterface::class, VehiclesRepository::class);
         $this->app->bind(TripService::class);
+        $this->app->bind(BookingRepositoryInterface::class, BookingRepository::class);
+        $this->app->bind(BookingService::class);
     }
 
     /**

@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LocationsSeeder::class, 
             RoutesSeeder::class,
-            TestDataSeeder::class    
+            StopsSeeder::class, 
+            TestDataSeeder::class  
         ]);
     }
 }

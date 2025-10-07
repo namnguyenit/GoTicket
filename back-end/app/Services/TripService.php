@@ -21,4 +21,9 @@ class TripService
     {
         return $this->tripRepository->findById($id);
     }
+
+    public function getTripStops(int $id): ?Trips
+    {
+        return $this->tripRepository->findWithStops($id);
+    }
 }

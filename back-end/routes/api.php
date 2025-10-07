@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RouteController;
 use App\Http\Controllers\Api\TripController;
-
+use App\Http\Controllers\Api\BookingController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -42,8 +42,14 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
     Route::group(['prefix' => 'auth'], function() {
         Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
+
         
     });
+    Route::group(['prefix' => 'bookings'], function() {
+        Route::post('initiate', [BookingController::class, 'initiate']);
+        Route::post('confirm', [BookingController::class, 'confirm']); 
+    });
+    Route::get('trips/{id}/stops', [TripController::class, 'getTripStops']);
 
   
 

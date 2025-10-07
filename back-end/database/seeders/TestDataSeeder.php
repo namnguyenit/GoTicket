@@ -10,6 +10,7 @@ use App\Models\VendorRoute;
 use App\Models\Vehicles;
 use App\Models\Coaches;
 use App\Models\Seats;
+use App\Models\Stops; // <-- THÊM DÒNG NÀY
 use App\Models\Trips;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,7 @@ class TestDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // === TẠO 2 NHÀ XE ===
+        // ... (phần tạo nhà xe giữ nguyên)
         $vendors = collect([
             User::firstOrCreate(
                 ['email' => 'nhaxephuongtrang@example.com'],
@@ -36,39 +37,37 @@ class TestDataSeeder extends Seeder
             );
         });
 
-        // === LẤY ĐÚNG TUYẾN HÀ NỘI - TP.HCM ===
         $routeHNtoHCM = Routes::whereHas('origin', fn($q) => $q->where('name', 'Hà Nội'))
                               ->whereHas('destination', fn($q) => $q->where('name', 'TP. Hồ Chí Minh'))
                               ->first();
         
-        // Nếu không tìm thấy tuyến, dừng lại để tránh lỗi
         if (!$routeHNtoHCM) {
             $this->command->error('Không tìm thấy tuyến đường từ Hà Nội đến TP. Hồ Chí Minh. Vui lòng chạy LocationsSeeder và RoutesSeeder trước.');
             return;
         }
 
-        // === TẠO DỮ LIỆU CHO CẢ 2 NHÀ XE TRÊN CÙNG 1 TUYẾN ===
+        // ✅ LẤY DANH SÁCH CÁC ĐIỂM DỪNG ĐÃ TẠO
+        $pickupStops = Stops::whereIn('name', ['Bến xe Mỹ Đình', 'Bến xe Giáp Bát'])->get();
+        $dropoffStops = Stops::whereIn('name', ['Bến xe Miền Đông Mới', 'Văn phòng Sài Gòn'])->get();
+
         foreach ($vendors as $vendor) {
-            // Tạo một vendor route cho nhà xe này
             $vendorRoute = VendorRoute::create([
                 'vendor_id' => $vendor->id,
                 'route_id' => $routeHNtoHCM->id,
                 'name' => "Tuyến Hà Nội - TP. Hồ Chí Minh (" . $vendor->user->name . ")"
             ]);
 
-            // Với mỗi nhà xe, tạo 5 xe khác nhau, mỗi xe chạy 3 chuyến
             for ($i = 0; $i < 5; $i++) {
-                $this->createTripsForVendorRoute($vendorRoute);
+                // ✅ TRUYỀN DANH SÁCH ĐIỂM DỪNG VÀO HÀM
+                $this->createTripsForVendorRoute($vendorRoute, $pickupStops, $dropoffStops);
             }
         }
     }
 
-    /**
-     * Hàm trợ giúp để tạo xe, ghế, chuyến đi và vé cho một vendor route
-     */
-    private function createTripsForVendorRoute(VendorRoute $vendorRoute)
+    // ✅ CẬP NHẬT THAM SỐ CỦA HÀM
+    private function createTripsForVendorRoute(VendorRoute $vendorRoute, $pickupStops, $dropoffStops)
     {
-        // 1. Tạo phương tiện và xe (coach) duy nhất cho batch này
+        // ... (phần tạo vehicle, coach, seats giữ nguyên)
         $vehicle = Vehicles::create([
             'vendor_id' => $vendorRoute->vendor_id,
             'name' => 'Xe giường nằm ' . $vendorRoute->id . '-' . rand(1, 100),
@@ -82,14 +81,12 @@ class TestDataSeeder extends Seeder
             'total_seats' => 40
         ]);
 
-        // 2. Tạo ghế cho xe
         $seats = [];
         for ($i = 1; $i <= 40; $i++) {
             $seats[] = Seats::create(['coach_id' => $coach->id, 'seat_number' => 'A' . $i]);
         }
 
-        // 3. Tạo 3 chuyến đi vào đúng ngày 2025-10-06
-        $departureHours = [8, 13, 21]; // 8:00, 13:00, 21:00
+        $departureHours = [8, 13, 21];
         $targetDate = Carbon::createFromFormat('Y-m-d', '2025-10-06')->startOfDay();
 
         foreach($departureHours as $hour) {
@@ -107,7 +104,15 @@ class TestDataSeeder extends Seeder
             
             $trip->coaches()->attach($coach->id);
 
-            // 4. Mở bán vé
+            // ✅ GÁN ĐIỂM ĐÓN/TRẢ CHO CHUYẾN ĐI
+            foreach($pickupStops as $stop) {
+                $trip->stops()->attach($stop->id, ['stop_type' => 'pickup', 'scheduled_time' => $departureTime->copy()->addMinutes(rand(0, 30))]);
+            }
+            foreach($dropoffStops as $stop) {
+                $trip->stops()->attach($stop->id, ['stop_type' => 'dropoff', 'scheduled_time' => $arrivalTime->copy()->subMinutes(rand(0, 30))]);
+            }
+
+            // ... (phần mở bán vé giữ nguyên)
             $tripSeatsData = [];
             foreach ($seats as $seat) {
                 $tripSeatsData[] = [

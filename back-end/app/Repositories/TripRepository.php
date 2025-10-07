@@ -16,6 +16,12 @@ class TripRepository implements TripRepositoryInterface
         ])->find($id);
     }
     
+     public function findWithStops(int $id): ?Trips
+    {
+        // Eager load mối quan hệ 'stops' đã được định nghĩa trong Model Trips
+        // để lấy thông tin chuyến đi VÀ tất cả các điểm dừng liên quan
+        return Trips::with('stops')->find($id);
+    }
     
     public function search(array $criteria)
     {

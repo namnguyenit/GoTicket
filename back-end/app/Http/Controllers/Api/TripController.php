@@ -64,7 +64,31 @@ class TripController extends Controller
             return $this->error(ApiError::NOT_FOUND);
         }
 
-        // Sử dụng TripDetailResource để định dạng chi tiết đầu ra
+
         return $this->success(new TripDetailResource($trip), ApiSuccess::GET_DATA_SUCCESS);
+    }
+
+
+    public function getTripStops(int $id)
+    {
+        $trip = $this->tripService->getTripStops($id);
+
+        if (!$trip) {
+            return $this->error(ApiError::NOT_FOUND);
+        }
+
+        // $trip->stops sẽ chứa một collection tất cả các điểm dừng của chuyến đi
+        $stops = $trip->stops;
+
+        // Dùng collection của Laravel để lọc ra 2 danh sách riêng biệt
+        // Dựa vào cột 'stop_type' trong bảng trung gian 'trip_stops'
+        $pickupPoints = $stops->where('pivot.stop_type', 'pickup')->values();
+        $dropoffPoints = $stops->where('pivot.stop_type', 'dropoff')->values();
+
+        // Trả về dữ liệu thành công dưới dạng JSON
+        return $this->success([
+            'pickup_points' => $pickupPoints,
+            'dropoff_points' => $dropoffPoints,
+        ], ApiSuccess::GET_DATA_SUCCESS);
     }
 }
