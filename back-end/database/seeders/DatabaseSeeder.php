@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-       
+        $this->call([
+            LocationsSeeder::class, 
+            RoutesSeeder::class,
+            TestDataSeeder::class    
+        ]);
     }
 }

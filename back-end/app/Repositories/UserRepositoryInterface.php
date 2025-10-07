@@ -12,5 +12,5 @@ interface UserRepositoryInterface
     public function findByName(string $name);
     public function delete(string $email): bool;
     public function update(string $email , array $data): bool;
-
+    
 }

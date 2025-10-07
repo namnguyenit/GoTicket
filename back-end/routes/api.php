@@ -4,12 +4,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\RouteController;
+use App\Http\Controllers\Api\TripController;
 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+
+Route::get('trips/search', [TripController::class, 'search']);
+Route::get('routes/location', [RouteController::class, 'getAllLocationCity']);
+ 
+    // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 
 
 Route::group([
@@ -24,9 +31,12 @@ Route::group([
 
 
 
+
+
+
 Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
-    // Route cho các nghiệp vụ xác thực
+
     Route::group(['prefix' => 'auth'], function() {
         Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
         
