@@ -56,7 +56,7 @@ class TestDataSeeder extends Seeder
                 'route_id' => $routeHNtoHCM->id,
                 'name' => "Tuyến Hà Nội - TP. Hồ Chí Minh (" . $vendor->user->name . ")"
             ]);
-
+            $this->createSampleBookings();
             for ($i = 0; $i < 5; $i++) {
                 // ✅ TRUYỀN DANH SÁCH ĐIỂM DỪNG VÀO HÀM
                 $this->createTripsForVendorRoute($vendorRoute, $pickupStops, $dropoffStops);
@@ -123,6 +123,49 @@ class TestDataSeeder extends Seeder
                 ];
             }
             DB::table('trip_seats')->insert($tripSeatsData);
+        }
+    }
+
+    private function createSampleBookings()
+    {
+        $customer = User::where('email', 'customer@example.com')->first();
+        if (!$customer) return;
+
+        // Lấy 2 chuyến đi đầu tiên của Phương Trang để tạo booking
+        $phuongTrangVendor = Vendor::where('company_name', 'Công ty Phương Trang')->first();
+        $tripsToBook = Trips::whereHas('vendorRoute', fn($q) => $q->where('vendor_id', $phuongTrangVendor->id))
+            ->with('seats')
+            ->take(2)
+            ->get();
+
+        foreach ($tripsToBook as $trip) {
+            $availableSeats = $trip->seats()->wherePivot('status', 'available')->take(2)->get();
+            if ($availableSeats->count() < 2) continue;
+
+            $totalPrice = $availableSeats->sum('pivot.price');
+
+            $booking = \App\Models\Bookings::create([
+                'user_id' => $customer->id,
+                'booking_code' => 'BK-TEST-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                'total_price' => $totalPrice,
+                'status' => 'confirmed',
+                'created_at' => now(), // Đảm bảo booking nằm trong tháng/tuần hiện tại
+                'updated_at' => now(),
+            ]);
+
+            foreach ($availableSeats as $seat) {
+                $booking->details()->create([
+                    'trip_id' => $trip->id,
+                    'seat_id' => $seat->id,
+                    'price_at_booking' => $seat->pivot->price,
+                    'pickup_stop_id' => 1, // Giả sử ID điểm đón là 1
+                    'dropoff_stop_id' => 5, // Giả sử ID điểm trả là 5
+                ]);
+                // Cập nhật trạng thái ghế
+                 \App\Models\TripSeats::where('trip_id', $trip->id)
+                    ->where('seat_id', $seat->id)
+                    ->update(['status' => 'booked']);
+            }
         }
     }
 }

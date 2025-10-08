@@ -36,4 +36,8 @@ class BookingDetails extends Model
     public function dropoffStop(){
         return $this->belongsTo(Stops::class, 'dropoff_stop_id');
     }
+    public function trip()
+    {
+    return $this->belongsTo(Trips::class, 'trip_id');
+    }
 }
