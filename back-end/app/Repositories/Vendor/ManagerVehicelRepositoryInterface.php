@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Vendor;
 use Illuminate\Support\Collection;
-interface ManagerVehicleRepositoryInterface
+interface ManagerVehicelRepositoryInterface
 {
     public function getAllVehicle();
 }

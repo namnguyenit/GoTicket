@@ -2,7 +2,7 @@
 
 namespace App\Services\Vendor;
 
-use App\Repositories\Vendor\ManagerVehicleRepositoryInterface;
+use App\Repositories\Vendor\ManagerVehicelRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,6 +18,6 @@ class ManagerVehicleService{
 
 
     public function getAllvehicle(){
-        
+
     }
 }

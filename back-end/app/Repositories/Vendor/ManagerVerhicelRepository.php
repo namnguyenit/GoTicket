@@ -2,13 +2,13 @@
 
 namespace App\Repositories\Vendor;
 
-use App\Models\Bookings;
+use App\Models\Vehicles;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
 
-class ManagerVerhicleRepository implements ManagerVehicleRepositoryInterface{
+class ManagerVerhicelRepository implements ManagerVehicleRepositoryInterface{
     public function getAllVehicle(){
         
     }
