@@ -14,7 +14,7 @@ use App\Repositories\RouteRepositoryInterface;
 use App\Services\RouteService;
 use App\Repositories\VendorRoutesRepository;
 use App\Repositories\VendorRoutesRepositoryInterface;
-use App\Repositories\TripRepository; // Sửa tên file/class cho đúng
+use App\Repositories\TripRepository;
 use App\Repositories\TripRepositoryInterface;
 use App\Repositories\VehiclesRepository;
 use App\Repositories\VehiclesRepositoryInterface;
@@ -25,6 +25,9 @@ use App\Services\BookingService;
 use App\Repositories\Vendor\DashboardRepository;
 use App\Repositories\Vendor\DashboardRepositoryInterface;
 use App\Services\Vendor\DashboardService;
+use App\Repositories\Vendor\ManagerVerhicleRepository;
+use App\Repositories\Vendor\ManagerVehicleRepositoryInterface;
+use App\Services\Vendor\ManagerVehicelService;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -48,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BookingService::class);
         $this->app->bind(DashboardRepositoryInterface::class, DashboardRepository::class);
         $this->app->bind(DashboardService::class);
+        $this->app->blind(ManagerVerhicleRepository::class , ManagerVerhicleRepository::class);
     }
 
     /**

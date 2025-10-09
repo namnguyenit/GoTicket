@@ -78,7 +78,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         });
 
         Route::group(['prefix' => 'Quanlyve'],function(){
-            
+           Route::get('/getallverhicel', []); 
         });
 
         Route::group(['prefix' => 'Quanlyxe'],function(){
