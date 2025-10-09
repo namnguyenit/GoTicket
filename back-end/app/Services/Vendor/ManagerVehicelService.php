@@ -8,16 +8,21 @@ use Illuminate\Support\Facades\Auth;
 
 
 
-class ManagerVehicleService{
+class ManagerVehicelService{
     protected $managervehicleRepository;
 
-    public function __construct(ManagerVehicleRepositoryInterface $managervehicleRepository)
+    public function __construct(ManagerVehicelRepositoryInterface $managervehicleRepository)
     {
-        $this->managervehicleRepository = $$managervehicleRepository;
+        $this->managervehicleRepository = $managervehicleRepository;
     }
 
 
-    public function getAllvehicle(){
-
+    public function getAllvehicel()
+    {
+        // Lấy thông tin nhà xe đang đăng nhập
+        $vendor = Auth::user()->vendor;
+        
+        // Gọi hàm đã sửa ở Repository
+        return $this->managervehicleRepository->allForVendor($vendor->id);
     }
 }

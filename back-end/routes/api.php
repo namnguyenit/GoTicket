@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\RouteController;
 use App\Http\Controllers\Api\TripController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
+use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -78,11 +80,12 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         });
 
         Route::group(['prefix' => 'Quanlyve'],function(){
-           Route::get('/getallverhicel', []); 
+
+
         });
 
         Route::group(['prefix' => 'Quanlyxe'],function(){
-            
+             Route::get('/getallverhicel', [ManagerVehicleController::class, 'showAllVerhicel']);
         });
         Route::group(['prefix' => 'Quanlychuyendi'],function(){
             

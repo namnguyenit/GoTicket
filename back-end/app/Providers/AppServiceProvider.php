@@ -25,8 +25,8 @@ use App\Services\BookingService;
 use App\Repositories\Vendor\DashboardRepository;
 use App\Repositories\Vendor\DashboardRepositoryInterface;
 use App\Services\Vendor\DashboardService;
-use App\Repositories\Vendor\ManagerVerhicleRepository;
-use App\Repositories\Vendor\ManagerVehicleRepositoryInterface;
+use App\Repositories\Vendor\ManagerVehicelRepository;
+use App\Repositories\Vendor\ManagerVehicelRepositoryInterface;
 use App\Services\Vendor\ManagerVehicelService;
 
 
@@ -51,7 +51,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BookingService::class);
         $this->app->bind(DashboardRepositoryInterface::class, DashboardRepository::class);
         $this->app->bind(DashboardService::class);
-        $this->app->blind(ManagerVerhicleRepository::class , ManagerVerhicleRepository::class);
+        $this->app->bind(ManagerVehicelRepositoryInterface::class , ManagerVehicelRepository::class);
+        $this->app->bind(ManagerVehicelService::class);
     }
 
     /**
