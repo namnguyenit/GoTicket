@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import Assets from "../../assets";
-import { useState } from "react";
-import Select from "../Select";
+import { useEffect, useState } from "react";
 import {
   Bus,
   Train,
@@ -19,80 +18,49 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { useFetch } from "@/hooks/useFetch";
+import { useLocation, useNavigate } from "react-router-dom";
+
 const initSchedule = {
-  from: {
-    city: { name: "", value: "" },
-    location: { name: "", value: "" },
-  },
-  to: {
-    city: { name: "", value: "" },
-    location: { name: "", value: "" },
-  },
+  region: null,
   date: undefined,
   vehicle: "bus",
 };
 
 interface schedule {
-  from: {
-    city: { name: string; value: string };
-    location: { name: string; value: string };
-  };
-  to: {
-    city: { name: string; value: string };
-    location: { name: string; value: string };
-  };
+  region: {
+    from: { name: string; id: number } | null;
+    to: { name: string; id: number } | null;
+  } | null;
   date: Date | undefined;
   vehicle: string;
 }
 
+// interface location {
+//   name: string;
+//   id: number;
+// }
+
 function AddressOption() {
-  const data = [
-    {
-      name: "Hà Nội",
-      value: "ha-noi",
-      location: [
-        { name: "Hà Nội 1", value: "ha-noi1" },
-        { name: "Hà Nội 2", value: "ha-noi2" },
-        { name: "Hà Nội 3", value: "ha-noi3" },
-      ],
-    },
-    {
-      name: "Lào Cai",
-      value: "lao-cai",
-      location: [
-        { name: "Lào Cai 1", value: "lao-cai1" },
-        { name: "Lào Cai 2", value: "lao-cai2" },
-        { name: "Lào Cai 3", value: "lao-cai3" },
-      ],
-    },
-    {
-      name: "Lào Cai",
-      value: "lao-cai",
-      location: [
-        { name: "Lào Cai 1", value: "lao-cai1" },
-        { name: "Lào Cai 2", value: "lao-cai2" },
-        { name: "Lào Cai 3", value: "lao-cai3" },
-      ],
-    },
-    {
-      name: "Lào Cai",
-      value: "lao-cai",
-      location: [
-        { name: "Lào Cai 1", value: "lao-cai1" },
-        { name: "Lào Cai 2", value: "lao-cai2" },
-        { name: "Lào Cai 3", value: "lao-cai3" },
-      ],
-    },
-    {
-      name: "Hà Nội",
-      value: "ha-noi",
-      location: [
-        { name: "Hà Nội 1", value: "ha-noi1" },
-        { name: "Hà Nội 2", value: "ha-noi2" },
-        { name: "Hà Nội 3", value: "ha-noi3" },
-      ],
-    },
-  ];
+  const navigate = useNavigate();
+  const { data, loading, error, get } = useFetch<any>("http://127.0.0.1:8000");
+
+  const region = data?.data;
+
+  useEffect(() => {
+    get("/api/routes/location");
+  }, [get]);
+
   const [schedule, setSchedule] = useState<schedule>(initSchedule);
   const [toggleAddress, setToggleAddress] = useState(false);
   const [indexNav, setIndexNav] = useState(0);
@@ -100,6 +68,25 @@ function AddressOption() {
   //
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+
+  // const param = new URLSearchParams({
+  //   data: encodeURIComponent(JSON.stringify(schedule)),
+  // });
+
+  // const getData = JSON.parse(decodeURIComponent(param.get("data") || ""));
+
+  // const toBook = () => {
+  //   navigate(`/book?data=${encodeURIComponent(JSON.stringify(schedule))}`);
+  // };
+
+  // console.log(getData);
+
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const data = JSON.parse(decodeURIComponent(params.get("data") || "null"));
+    if (data) setSchedule(data);
+  }, [location]);
 
   return (
     <>
@@ -179,25 +166,49 @@ function AddressOption() {
                 <Circle size={15} strokeWidth={3} color="#5B2642" />
               </div>
               <div className="font-bold text-[#5B2642]">
-                {schedule.from.city.name
-                  ? schedule.from.city.name +
-                    " - " +
-                    schedule.from.location.name
+                {schedule.region?.from
+                  ? schedule.region.from.name
                   : "Chọn điểm đi"}
               </div>
               <div className="absolute top-0 left-0 z-1 size-full rounded-l-2xl hover:outline-3 hover:outline-[#5b26427e]">
                 <Select
-                  Item={data}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     setSchedule((prev) => ({
                       ...prev,
-                      from: {
-                        city: e.city,
-                        location: e.location,
+                      region: {
+                        from: JSON.parse(e),
+                        to: prev.region?.to || null,
                       },
                     }));
                   }}
-                />
+                >
+                  {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
+                  <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
+                    <SelectValue placeholder="Chọn điểm đi" />
+                  </SelectTrigger>
+                  {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
+                  <SelectContent align="start" className="min-w-full">
+                    <SelectGroup>
+                      <SelectLabel>Điểm đón</SelectLabel>
+
+                      {region ? (
+                        region.map((item: any) => (
+                          <SelectItem
+                            value={JSON.stringify({
+                              name: item.name,
+                              id: item.id,
+                            })}
+                            key={item.id}
+                          >
+                            {item.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <></>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             {/* To */}
@@ -220,23 +231,48 @@ function AddressOption() {
                 <MapPin size={15} strokeWidth={3} color="#5B2642" />
               </div>
               <div className="font-bold text-[#5B2642]">
-                {schedule.to.city.name
-                  ? schedule.to.city.name + " - " + schedule.to.location.name
+                {schedule.region?.to
+                  ? schedule.region.to.name
                   : "Chọn điểm đến"}
               </div>
               <div className="absolute top-0 left-0 z-1 size-full hover:outline-3 hover:outline-[#5b26427e]">
                 <Select
-                  Item={data}
-                  onChange={(e) => {
+                  onValueChange={(e) => {
                     setSchedule((prev) => ({
                       ...prev,
-                      to: {
-                        city: e.city,
-                        location: e.location,
+                      region: {
+                        from: prev.region?.from || null,
+                        to: JSON.parse(e),
                       },
                     }));
                   }}
-                />
+                >
+                  {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
+                  <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
+                    <SelectValue placeholder="Chọn điểm đi" />
+                  </SelectTrigger>
+                  {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
+                  <SelectContent align="start" className="min-w-full">
+                    <SelectGroup>
+                      <SelectLabel>Điểm đến</SelectLabel>
+                      {region ? (
+                        region.map((item: any) => (
+                          <SelectItem
+                            value={JSON.stringify({
+                              name: item.name,
+                              id: item.id,
+                            })}
+                            key={item.id}
+                          >
+                            {item.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <></>
+                      )}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             {/* Calender */}
@@ -247,9 +283,6 @@ function AddressOption() {
               <div className="flex w-7 justify-end">
                 <CalendarCheck size={15} strokeWidth={3} color="#5B2642" />
               </div>
-              {!date && (
-                <div className="font-bold text-[#5B2642]">Chọn lịch</div>
-              )}
               <div className="absolute top-0 left-0 z-1 size-full rounded-r-2xl hover:outline-3 hover:outline-[#5b26427e]">
                 <div className="flex size-full flex-col gap-3">
                   <Popover open={open} onOpenChange={setOpen}>
@@ -259,7 +292,14 @@ function AddressOption() {
                         id="date"
                         className="ml-6 size-full justify-between border-0 bg-[transparent] text-base font-bold text-[#5B2642] hover:bg-[transparent] hover:text-[#5B2642]"
                       >
-                        {date ? date.toLocaleDateString() : ""}
+                        {schedule.date
+                          ? new Date(schedule.date).toLocaleDateString(
+                              "en-CA",
+                              {
+                                timeZone: "Asia/Ho_Chi_Minh",
+                              },
+                            )
+                          : "Chọn lịch"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -273,7 +313,17 @@ function AddressOption() {
                         onSelect={(date) => {
                           setDate(date);
                           setOpen(false);
-                          setSchedule((prev) => ({ ...prev, date: date }));
+
+                          // const onlyDate = date
+                          //   ? date.toLocaleDateString("en-CA", {
+                          //       timeZone: "Asia/Ho_Chi_Minh",
+                          //     })
+                          //   : undefined;
+
+                          setSchedule((prev) => ({
+                            ...prev,
+                            date: date,
+                          }));
                         }}
                       />
                     </PopoverContent>
@@ -282,7 +332,14 @@ function AddressOption() {
               </div>
             </div>
           </div>
-          <div className="mr-[5%] flex h-1/2 w-1/8 items-center justify-center self-center justify-self-end rounded-full bg-[#F7AC3D] text-sm font-bold text-white transition-colors duration-500 hover:bg-[#5b2642]">
+          <div
+            className="mr-[5%] flex h-1/2 w-1/8 items-center justify-center self-center justify-self-end rounded-full bg-[#F7AC3D] text-sm font-bold text-white transition-colors duration-500 hover:bg-[#5b2642]"
+            onClick={() => {
+              navigate(
+                `/book?data=${encodeURIComponent(JSON.stringify(schedule))}`,
+              );
+            }}
+          >
             Tìm kiếm
           </div>
         </div>

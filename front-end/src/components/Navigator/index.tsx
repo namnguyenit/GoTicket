@@ -22,8 +22,12 @@ function Navigator() {
             <div className={style.link}>Contact</div>
           </div>
           <div className={style.auth}>
-            <div className={clsx(style.register, style.button)}>Register</div>
-            <div className={clsx(style.logIn, style.button)}>Sign in</div>
+            <Link to="/sign-up">
+              <div className={clsx(style.register, style.button)}>Register</div>
+            </Link>
+            <Link to="/sign-in">
+              <div className={clsx(style.logIn, style.button)}>Sign in</div>
+            </Link>
           </div>
         </div>
       </div>
