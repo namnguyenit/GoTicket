@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Vendor; 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash; // <-- Import Hash facade
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,24 +14,63 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Sử dụng firstOrCreate để chỉ tạo nếu chưa tồn tại
-        // Nó sẽ tìm user có email là 'admin@vexe.com'
+
         User::firstOrCreate(
-            [
-                'email' => 'admin@vexe.com'
-            ],
+            ['email' => 'admin@vexe.com'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('123456'), 
+                'password' => Hash::make('123456'),
                 'phone_number' => '0987654321',
-                'role' => 'admin', 
+                'role' => 'admin',
             ]
         );
 
+
+        $phuongTrangUser = User::firstOrCreate(
+            ['email' => 'nhaxephuongtrang@example.com'],
+            [
+                'name' => 'Nhà Xe Phương Trang',
+                'password' => Hash::make('123456'),
+                'phone_number' => '19006067',
+                'role' => 'vendor'
+            ]
+        );
+        Vendor::firstOrCreate(
+            ['user_id' => $phuongTrangUser->id],
+            ['company_name' => 'Công ty Phương Trang', 'status' => 'active']
+        );
+
+        $thanhBuoiUser = User::firstOrCreate(
+            ['email' => 'nhaxethanhbuoi@example.com'],
+            [
+                'name' => 'Nhà Xe Thành Bưởi',
+                'password' => Hash::make('123456'),
+                'phone_number' => '19006079',
+                'role' => 'vendor'
+            ]
+        );
+        Vendor::firstOrCreate(
+            ['user_id' => $thanhBuoiUser->id],
+            ['company_name' => 'Công ty Thành Bưởi', 'status' => 'active']
+        );
+        
+        // === TẠO TÀI KHOẢN KHÁCH HÀNG (CUSTOMER) ĐỂ TEST ===
+        User::firstOrCreate(
+            ['email' => 'customer@example.com'],
+            [
+                'name' => 'Khách Hàng A',
+                'password' => Hash::make('123456'),
+                'phone_number' => '0123456789',
+                'role' => 'customer'
+            ]
+        );
+
+        // === CHẠY CÁC SEEDER KHÁC ===
         $this->call([
-            LocationsSeeder::class, 
+            LocationsSeeder::class,
             RoutesSeeder::class,
-            TestDataSeeder::class    
+            StopsSeeder::class,
+            TestDataSeeder::class
         ]);
     }
 }

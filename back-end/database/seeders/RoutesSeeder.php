@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Location; // <-- Import model Location
-use App\Models\Routes;   // <-- Import model Routes
+use App\Models\Location; 
+use App\Models\Routes;   
 use Illuminate\Support\Facades\DB;
 
 class RoutesSeeder extends Seeder

@@ -9,6 +9,8 @@ use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
 use App\Http\Resources\TripResource; 
+use App\Http\Resources\TripDetailResource; 
+
 
 class TripController extends Controller
 {
@@ -48,9 +50,46 @@ class TripController extends Controller
             return $this->error(ApiError::NOT_FOUND, ['message' => 'Trang bạn yêu cầu không tồn tại.']);
         }
         $trips->appends($request->query());
-        // THAY ĐỔI Ở ĐÂY: Bọc kết quả trong Resource
-        // Điều này sẽ không thay đổi cấu trúc phân trang
-        return $this->success($trips, ApiSuccess::GET_DATA_SUCCESS);
 
+        // Dùng Resource::collection với paginator (Laravel giữ nguyên meta/links)
+        $resource = TripResource::collection($trips);
+        return $this->success($resource, ApiSuccess::GET_DATA_SUCCESS);
+
+    }
+
+    public function getTripDetail(int $id)
+    {
+        $trip = $this->tripService->getTripById($id);
+
+        if (!$trip) {
+            return $this->error(ApiError::NOT_FOUND);
+        }
+
+
+        return $this->success(new TripDetailResource($trip), ApiSuccess::GET_DATA_SUCCESS);
+    }
+
+
+    public function getTripStops(int $id)
+    {
+        $trip = $this->tripService->getTripStops($id);
+
+        if (!$trip) {
+            return $this->error(ApiError::NOT_FOUND);
+        }
+
+        // $trip->stops sẽ chứa một collection tất cả các điểm dừng của chuyến đi
+        $stops = $trip->stops;
+
+        // Dùng collection của Laravel để lọc ra 2 danh sách riêng biệt
+        // Dựa vào cột 'stop_type' trong bảng trung gian 'trip_stops'
+        $pickupPoints = $stops->where('pivot.stop_type', 'pickup')->values();
+        $dropoffPoints = $stops->where('pivot.stop_type', 'dropoff')->values();
+
+        // Trả về dữ liệu thành công dưới dạng JSON
+        return $this->success([
+            'pickup_points' => $pickupPoints,
+            'dropoff_points' => $dropoffPoints,
+        ], ApiSuccess::GET_DATA_SUCCESS);
     }
 }

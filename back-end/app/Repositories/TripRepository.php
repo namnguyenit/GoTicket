@@ -6,6 +6,23 @@ use Illuminate\Database\Eloquent\Builder; // Cần import Builder
 
 class TripRepository implements TripRepositoryInterface
 {
+    public function findById(int $id): ?Trips
+    {
+        // Eager load các mối quan hệ cần thiết để hiển thị chi tiết
+        return Trips::with([
+            'vendorRoute.vendor.user:id,name', // Lấy tên nhà xe
+            'coaches.seats', // Lấy danh sách xe và tất cả các ghế của mỗi xe
+            'seats' // Lấy danh sách ghế của chuyến đi này kèm trạng thái (pivot data)
+        ])->find($id);
+    }
+    
+     public function findWithStops(int $id): ?Trips
+    {
+        // Eager load mối quan hệ 'stops' đã được định nghĩa trong Model Trips
+        // để lấy thông tin chuyến đi VÀ tất cả các điểm dừng liên quan
+        return Trips::with('stops')->find($id);
+    }
+    
     public function search(array $criteria)
     {
         // 1. Bắt đầu câu truy vấn, nhưng chưa thực thi
@@ -48,10 +65,24 @@ class TripRepository implements TripRepositoryInterface
         });
 
         // --- 4. CUỐI CÙNG: LẤY KẾT QUẢ VÀ PHÂN TRANG ---
-        return $query->with([
+        return $query
+                    ->with([
+                        // Thông tin nhà xe
                         'vendorRoute.vendor.user:id,name',
-                        'coaches'
+                        // Thông tin tuyến: tên điểm đi/đến
+                        'vendorRoute.route.origin',
+                        'vendorRoute.route.destination',
+                        // Thông tin loại xe để lấy vendorType
+                        'coaches.vehicle',
                     ])
+                    // Đếm số ghế còn trống (status = available) từ bảng trung gian trip_seats
+                    ->withCount([
+                        'seats as empty_number' => function ($q) {
+                            // Dùng điều kiện trực tiếp trên bảng trung gian để tương thích withCount
+                            $q->where('trip_seats.status', 'available');
+                        },
+                    ])
+                    ->orderBy('departure_datetime')
                     ->paginate(12); // Tự động phân trang 12 cái/trang
     }
 }
