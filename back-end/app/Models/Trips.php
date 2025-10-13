@@ -18,6 +18,11 @@ class Trips extends Model
         'status',
     ];
 
+    protected $casts = [
+        'departure_datetime' => 'datetime',
+        'arrival_datetime' => 'datetime',
+    ];
+
     // ĐỊNH NGHĨA LẠI MỐI QUAN HỆ NÀY
     public function vendorRoute(){
         return $this->belongsTo(VendorRoute::class, 'vendor_route_id');

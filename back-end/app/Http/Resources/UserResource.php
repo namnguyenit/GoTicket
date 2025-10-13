@@ -15,7 +15,9 @@ class UserResource extends JsonResource
             'phone' => $this->phone_number,
             'email' => $this->email,
             'role' => $this->role,
-            'created_at' => $this->created_at->toDateTimeString(),
+            'created_at' => $this->created_at
+                ? $this->created_at->copy()->utc()->format('Y-m-d\\TH:i:s.u\\Z')
+                : null,
         ];
     }
 }

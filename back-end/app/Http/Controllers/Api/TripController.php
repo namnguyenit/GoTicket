@@ -50,9 +50,10 @@ class TripController extends Controller
             return $this->error(ApiError::NOT_FOUND, ['message' => 'Trang bạn yêu cầu không tồn tại.']);
         }
         $trips->appends($request->query());
-        // THAY ĐỔI Ở ĐÂY: Bọc kết quả trong Resource
-        // Điều này sẽ không thay đổi cấu trúc phân trang
-        return $this->success($trips, ApiSuccess::GET_DATA_SUCCESS);
+
+        // Dùng Resource::collection với paginator (Laravel giữ nguyên meta/links)
+        $resource = TripResource::collection($trips);
+        return $this->success($resource, ApiSuccess::GET_DATA_SUCCESS);
 
     }
 

@@ -12,8 +12,12 @@ class TripDetailResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'departure_datetime' => $this->departure_datetime,
-            'arrival_datetime' => $this->arrival_datetime,
+            'departure_datetime' => $this->departure_datetime
+                ? $this->departure_datetime->copy()->utc()->format('Y-m-d\TH:i:s.u\Z')
+                : null,
+            'arrival_datetime' => $this->arrival_datetime
+                ? $this->arrival_datetime->copy()->utc()->format('Y-m-d\TH:i:s.u\Z')
+                : null,
             'vendor_name' => $this->vendorRoute->vendor->user->name,
             'coaches' => $this->whenLoaded('coaches', function () use ($tripSeatStatusMap) {
                 // Với mỗi coach, ta sẽ thêm thông tin ghế và trạng thái của chúng

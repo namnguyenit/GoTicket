@@ -65,10 +65,24 @@ class TripRepository implements TripRepositoryInterface
         });
 
         // --- 4. CUỐI CÙNG: LẤY KẾT QUẢ VÀ PHÂN TRANG ---
-        return $query->with([
+        return $query
+                    ->with([
+                        // Thông tin nhà xe
                         'vendorRoute.vendor.user:id,name',
-                        'coaches'
+                        // Thông tin tuyến: tên điểm đi/đến
+                        'vendorRoute.route.origin',
+                        'vendorRoute.route.destination',
+                        // Thông tin loại xe để lấy vendorType
+                        'coaches.vehicle',
                     ])
+                    // Đếm số ghế còn trống (status = available) từ bảng trung gian trip_seats
+                    ->withCount([
+                        'seats as empty_number' => function ($q) {
+                            // Dùng điều kiện trực tiếp trên bảng trung gian để tương thích withCount
+                            $q->where('trip_seats.status', 'available');
+                        },
+                    ])
+                    ->orderBy('departure_datetime')
                     ->paginate(12); // Tự động phân trang 12 cái/trang
     }
 }
