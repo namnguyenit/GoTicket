@@ -1,4 +1,5 @@
-// import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AddressOption from "../../components/AddressOption";
 import {
   Sunrise,
@@ -9,6 +10,9 @@ import {
   Clock,
   BusFront,
 } from "lucide-react";
+import clsx from "clsx";
+import { URL } from "@/config";
+import { useFetch } from "@/hooks/useFetch";
 
 const Tickets = [
   {
@@ -102,12 +106,33 @@ const Tickets = [
 ];
 
 function Book() {
-  // const location = useLocation();
-  // const params = new URLSearchParams(location.search);
-  // const data = JSON.parse(decodeURIComponent(params.get("data") || "null"));
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const json = JSON.parse(decodeURIComponent(params.get("data") || "null"));
 
-  // console.log(data);
+  const { data, loading, error, get } = useFetch(URL);
 
+  useEffect(() => {
+    const date = json?.date
+      ? new Date(json.date).toLocaleDateString("en-CA", {
+          timeZone: "Asia/Ho_Chi_Minh",
+        })
+      : null;
+
+    // const params = encodeURIComponent(
+    //   `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`,
+    // );
+
+    const params = json?.region
+      ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
+      : null;
+    if (json?.region) {
+      get(`/api/trips/search?${params}`); // gọi API khi component mount
+    }
+
+    console.log(params);
+  }, [location]);
+  console.log(data);
   return (
     <>
       <div className="flex w-screen flex-col items-center">
@@ -176,10 +201,12 @@ function Book() {
             </div>
           </div>
           {/* Tickets */}
-          <div className="grid auto-rows-[180px] gap-5">
-            {Tickets.map((item) => (
-              <Ticket data={item} key={item.id} />
-            ))}
+          <div>
+            {data && data.data ? (
+              data.data.map((item: any) => <Ticket data={item} key={item.id} />)
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>
@@ -204,71 +231,170 @@ interface Ticket {
 }
 
 function Ticket({ data }: Ticket) {
+  const [book, setBook] = useState<boolean>(false);
+
   return (
     <>
-      <div className="grid size-full grid-cols-[20%_50%_30%] rounded-2xl bg-white shadow-sm">
-        {/* Logo */}
-        <div className="flex flex-col items-center justify-evenly">
-          <img
-            className="w-2/3 rounded-sm object-cover object-center"
-            src={data.imageLink}
-            alt="Trip Logo"
-          />
-          <div className="text-sm font-bold text-[#6a314b]">
-            {data.vendorName}
-          </div>
-        </div>
-        {/* Info */}
-        <div className="grid grid-rows-[40%_40%] content-evenly">
-          <div className="flex flex-col justify-evenly">
-            <div className="text-lg font-bold text-[#6a314b]">{data.trip}</div>
-            <div className="flex">
-              <MapPin className="mr-2" color="#aaa" />
-              <div className="text-[#aaa]">{data.pickTake}</div>
+      <div className="mb-5">
+        {/* Ticket */}
+        <div className="mb-5 grid h-[180px] grid-cols-[20%_50%_30%] rounded-2xl bg-white shadow-sm">
+          {/* Logo */}
+          <div className="flex flex-col items-center justify-evenly">
+            <img
+              className="w-2/3 rounded-sm object-cover object-center"
+              src={data.imageLink || "trip-logo.png"}
+              alt="Trip Logo"
+            />
+            <div className="flex w-[80%] text-center text-sm font-bold text-[#6a314b]">
+              {data.vendorName}
             </div>
           </div>
-          <div className="grid grid-cols-[45%_45%] justify-between">
+          {/* Info */}
+          <div className="grid grid-rows-[40%_40%] content-evenly">
             <div className="flex flex-col justify-evenly">
+              <div className="text-lg font-bold text-[#6a314b]">
+                {data.trip}
+              </div>
               <div className="flex">
-                <Clock color="#6a314b" className="mr-2" />
-                <div className="text-lg font-bold text-[#6a314b]">
+                <MapPin className="mr-2" color="#aaa" />
+                <div className="text-[#aaa]">
+                  {data.pickTake || "Điểm đón - trả"}
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-[45%_45%] justify-between">
+              <div className="flex flex-col justify-evenly">
+                <div className="flex">
+                  <Clock color="#6a314b" className="mr-2" />
+                  <div className="text-lg font-bold text-[#6a314b]">
+                    {data.departureDate
+                      ? new Date(data.departureDate).toLocaleTimeString(
+                          "en-GB",
+                          {
+                            timeZone: "Asia/Ho_Chi_Minh",
+                          },
+                        )
+                      : undefined}
+                  </div>
+                </div>
+                <div className="text-[#aaa]">
+                  <span className="mr-1.5">Thời gian:</span>
                   {data.departureDate
-                    ? data.departureDate.toLocaleTimeString("en-GB", {
+                    ? new Date(data.departureDate).toLocaleDateString("en-CA", {
                         timeZone: "Asia/Ho_Chi_Minh",
                       })
                     : undefined}
                 </div>
               </div>
-              <div className="text-[#aaa]">
-                <span className="mr-1.5">Thời gian:</span>
-                {data.departureDate
-                  ? data.departureDate.toLocaleDateString("en-CA", {
-                      timeZone: "Asia/Ho_Chi_Minh",
-                    })
-                  : undefined}
+              <div className="flex flex-col justify-evenly">
+                <div className="flex items-center">
+                  <div className="mr-2 text-lg font-bold text-[#F7AC3D]">
+                    {data.emptyNumber}
+                  </div>
+                  <div className="font-bold">chỗ trống</div>
+                </div>
+                <div className="flex">
+                  <BusFront color="#6a314b" className="mr-2" />
+                  <div className="text-[#aaa]">{data.vendorType}</div>
+                </div>
               </div>
             </div>
-            <div className="flex flex-col justify-evenly">
-              <div className="flex items-center">
-                <div className="mr-2 text-lg font-bold text-[#F7AC3D]">
-                  {data.emptyNumber}
-                </div>
-                <div className="font-bold">chỗ trống</div>
-              </div>
-              <div className="flex">
-                <BusFront color="#6a314b" className="mr-2" />
-                <div className="text-[#aaa]">{data.vendorType}</div>
-              </div>
+          </div>
+          {/* Price */}
+          <div className="flex flex-col items-center justify-evenly border-l-2">
+            <div className="text-2xl font-bold text-red-500">
+              {data.price ? data.price.toLocaleString("vi-VN") : null} đ
+            </div>
+            <div
+              className="flex h-2/10 w-1/2 items-center justify-center rounded-2xl bg-[#F7AC3D] font-bold text-white transition-colors duration-500 hover:bg-[#6a314b]"
+              onClick={() => {
+                setBook(!book);
+              }}
+            >
+              Đặt Vé
             </div>
           </div>
         </div>
-        {/* Price */}
-        <div className="flex flex-col items-center justify-evenly border-l-2">
-          <div className="text-2xl font-bold text-red-500">
-            {data.price ? data.price.toLocaleString("vi-VN") : null} đ
-          </div>
-          <div className="flex h-2/10 w-1/2 items-center justify-center rounded-2xl bg-[#F7AC3D] font-bold text-white transition-colors duration-500 hover:bg-[#6a314b]">
-            Đặt Vé
+        {/* Seat */}
+        <div
+          className={clsx(
+            "relative overflow-hidden rounded-2xl bg-white shadow-sm transition-[height] duration-500 ease-in",
+            book ? "h-[450px]" : "h-0",
+          )}
+        >
+          <div className="absolute top-0 left-0 grid h-[450px] w-full grid-rows-[70%_10%_15%] content-center justify-items-center">
+            {/* Hai tầng */}
+            <div className="flex w-[80%] justify-between">
+              {/* Tầng 1 */}
+              <div className="flex w-[40%] flex-col items-center justify-evenly">
+                <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                  Tầng 1
+                </div>
+                <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                  {/* Bỏ */}
+                  <div className="col-start-2 row-start-7"></div>
+                  {/* Dải Ghế */}
+                  {new Array(20).fill(0).map((item) => (
+                    <div className="flex h-[30px] items-center justify-center rounded-full bg-green-500 text-sm hover:outline-2 hover:outline-[#6a314b7d]">
+                      B1
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Tầng 2 */}
+              <div className="flex w-[40%] flex-col items-center justify-evenly">
+                <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                  Tầng 2
+                </div>
+                <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                  {/* Bỏ */}
+                  <div className="col-start-2 row-start-7"></div>
+                  {/* Dải Ghế */}
+                  {new Array(20).fill(0).map((item) => (
+                    <div className="flex h-[30px] items-center justify-center rounded-full bg-[#BDD6FC] text-sm hover:outline-2 hover:outline-[#6a314b7d]">
+                      B1
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Status */}
+            <div className="flex w-[85%] gap-5">
+              <div className="flex items-center gap-1">
+                <div className="h-[15px] w-[25px] bg-green-500"></div>
+                <div className="text-xs text-[#555]">Trống</div>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="h-[15px] w-[25px] bg-yellow-400"></div>
+                <div className="text-xs text-[#555]">Đặt</div>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="h-[15px] w-[25px] bg-red-500"></div>
+                <div className="text-xs text-[#555]">Bán</div>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="h-[15px] w-[25px] bg-gray-300"></div>
+                <div className="text-xs text-[#555]">Giữ</div>
+              </div>
+            </div>
+            {/* Submit */}
+            <div className="flex w-[80%] items-center justify-between">
+              <div className="text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="text-[#555]">Ghế đã chọn: </div>
+                  <div className="">E1 E2</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-[#555]">Tổng tiền</div>
+                  <div className="">
+                    360.000<span>đ</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#F7AC3D] font-bold transition-colors duration-500 hover:bg-[#6a314b] hover:text-white">
+                Chọn
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Eye, LockKeyholeIcon, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
 import { useNavigate } from "react-router-dom";
+import { URL } from "@/config";
 
 interface SigninType {
   email: string | null;
@@ -26,7 +27,7 @@ function Signin() {
     post,
     put,
     delete: del,
-  } = useFetch<SigninType[]>("http://127.0.0.1:8000");
+  } = useFetch<SigninType[]>(URL);
 
   const handleAdd = () => {
     post("/api/auth/login", info, {

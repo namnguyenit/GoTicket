@@ -31,6 +31,8 @@ import {
 import { useFetch } from "@/hooks/useFetch";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { URL } from "@/config";
+
 const initSchedule = {
   region: null,
   date: undefined,
@@ -53,7 +55,7 @@ interface schedule {
 
 function AddressOption() {
   const navigate = useNavigate();
-  const { data, loading, error, get } = useFetch<any>("http://127.0.0.1:8000");
+  const { data, loading, error, get } = useFetch<any>(URL);
 
   const region = data?.data;
 
@@ -64,6 +66,7 @@ function AddressOption() {
   const [schedule, setSchedule] = useState<schedule>(initSchedule);
   const [toggleAddress, setToggleAddress] = useState(false);
   const [indexNav, setIndexNav] = useState(0);
+
 
   //
   const [open, setOpen] = useState(false);
