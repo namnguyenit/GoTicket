@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AddressOption from "../../components/AddressOption";
 import {
@@ -388,6 +388,8 @@ interface initTrip {
 }
 
 function Ticket({ data }: Ticket) {
+  const navigate = useNavigate();
+
   const [book, setBook] = useState<boolean>(false);
 
   const { data: seatDatas, loading: seatLoading, error, get } = useFetch(URL);
@@ -411,7 +413,7 @@ function Ticket({ data }: Ticket) {
     }));
   }, [seatDatas]);
 
-  console.log(initTrip);
+  // console.log(initTrip);
 
   return (
     <>
@@ -566,19 +568,62 @@ function Ticket({ data }: Ticket) {
                     </div>
                   </div>
                   {/* Tầng 2 */}
+                  {/* Tầng 1 */}
                   <div className="flex w-[40%] flex-col items-center justify-evenly">
                     <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                       Tầng 2
                     </div>
-                    <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                    <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
                       {/* Bỏ */}
                       <div className="col-start-2 row-start-7"></div>
                       {/* Dải Ghế */}
-                      {new Array(20).fill(0).map((item) => (
-                        <div className="flex h-[30px] items-center justify-center rounded-full bg-[#BDD6FC] text-sm hover:outline-2 hover:outline-[#6a314b7d]">
-                          B1
-                        </div>
-                      ))}
+                      {initTrip.seats
+                        .slice(initTrip.seats.length / 2)
+                        .map((item, index) => (
+                          <div
+                            className={clsx(
+                              "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
+                              item.status == "available" && "bg-green-500",
+                              item.status == "temp" && "bg-gray-300",
+                            )}
+                            key={index}
+                            onClick={() => {
+                              setInitTrip((prev) => {
+                                const findSeat = prev.seats.findIndex(
+                                  (seat) => seat.id == item.id,
+                                );
+
+                                const updateSeats = [...prev.seats].map(
+                                  (item) => ({
+                                    ...item,
+                                  }),
+                                );
+                                if (
+                                  updateSeats[findSeat].status == "available"
+                                ) {
+                                  updateSeats[findSeat].status = "temp";
+                                } else if (
+                                  updateSeats[findSeat].status == "temp"
+                                ) {
+                                  updateSeats[findSeat].status = "available";
+                                }
+
+                                return {
+                                  ...prev,
+                                  seats: updateSeats,
+                                  totalPrice: updateSeats.reduce((acc, cur) => {
+                                    if (cur.status == "temp") {
+                                      acc += parseInt(cur.price);
+                                    }
+                                    return acc;
+                                  }, 0),
+                                };
+                              });
+                            }}
+                          >
+                            {item.seat_number}
+                          </div>
+                        ))}
                     </div>
                   </div>
                 </>
@@ -632,7 +677,12 @@ function Ticket({ data }: Ticket) {
                   </div>
                 </div>
               </div>
-              <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#F7AC3D] font-bold transition-colors duration-500 hover:bg-[#6a314b] hover:text-white">
+              <div
+                className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#F7AC3D] font-bold transition-colors duration-500 hover:bg-[#6a314b] hover:text-white"
+                onClick={() => {
+                  navigate("/check-out", { state: initTrip });
+                }}
+              >
                 Chọn
               </div>
             </div>

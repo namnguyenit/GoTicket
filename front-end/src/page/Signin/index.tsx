@@ -1,126 +1,161 @@
-import clsx from "clsx";
-import styles from "./Signin.module.css";
-import { Eye, LockKeyholeIcon, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import { URL } from "@/config";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { EyeIcon, LockIcon, UserIcon } from "lucide-react";
 
 interface SigninType {
   email: string | null;
   password: string | null;
 }
-const initSign: SigninType = {
-  email: null,
-  password: null,
-};
-
+const initSign: SigninType = { email: null, password: null };
 function Signin() {
   const [info, setInfo] = useState(initSign);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { data, post } = useFetch<any>(URL);
 
-  const {
-    data,
-    loading,
-    error,
-    get,
-    post,
-    put,
-    delete: del,
-  } = useFetch<SigninType[]>(URL);
-
-  const handleAdd = () => {
-    post("/api/auth/login", info, {
-      Authorization: "Bearer your_token_here",
-    });
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    post("/api/auth/login", info, { Authorization: "Bearer your_token_here" });
   };
 
-  console.log(info);
-
-  // console.log(data, error);
-  // if (data?.success) {
-  //   navigate("/", { replace: true });
-  // }
   useEffect(() => {
     if (data?.success) {
-      navigate("/", { replace: true });
       localStorage.setItem("goticketToken", data.token);
+      navigate("/", { replace: true });
     }
-  }, [data]);
+  }, [data, navigate]);
 
   return (
-    <>
-      <div className="h-[200vh] w-full">
-        <div className="after-overlay relative h-[30%] w-full bg-[url(/book-page-bg.jpg)] bg-cover bg-center">
-          <div className="absolute bottom-1/2 left-1/2 z-10 grid h-1/3 w-1/2 -translate-x-1/2 translate-y-3/8 grid-rows-1 items-center text-center">
-            <div className="text-6xl font-bold text-white">
-              Đăng nhập - Đăng kí
-            </div>
-          </div>
+    <div className="relative flex min-h-[130vh] w-full flex-col overflow-hidden bg-gradient-to-br from-[#fffdf7] via-[#fff4d4] to-[#fbe1f0]">
+      {/* Decorative ambient background layers */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        {/* Soft radial glow */}
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#fdbf00]/30 blur-3xl md:h-96 md:w-96" />
+        <div className="absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-[#6d0236]/25 blur-3xl md:h-[500px] md:w-[500px]" />
+        {/* Subtle radial lighting overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,rgba(255,255,255,0.7),transparent_65%)]" />
+        {/* Angle light sweep */}
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_45%,rgba(255,255,255,0.12)_75%)] mix-blend-overlay" />
+        {/* Fine noise / pattern (fallback simple translucent layer) */}
+        <div className="absolute inset-0 opacity-[0.07] [background:repeating-linear-gradient(60deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_1px,transparent_1px,transparent_6px)]" />
+      </div>
+      {/* Hero (smaller & balanced) */}
+      <section className="relative flex h-72 w-full items-center justify-center overflow-hidden bg-[url(/book-page-bg.jpg)] bg-cover bg-center after:absolute after:inset-0 after:bg-black/40 md:h-80">
+        <div className="relative z-10 flex items-center justify-center px-4">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+            Đăng nhập
+          </h1>
         </div>
-        <div className="flex h-[70%] w-full items-center justify-center">
-          <div className={styles.frameParent}>
-            <div className={styles.choMngTrLiParent}>
-              <div className={styles.choMngTr}>Chào mừng trở lại</div>
-              <div className={styles.ngNhp}>Đăng nhập để tiếp tục</div>
-            </div>
-            <div className={styles.frameGroup}>
-              <div className={styles.inputParent}>
-                <div className={styles.lucideuserRoundParent}>
-                  <UserRound />
-                  <div className={styles.tiKhon}>Tài khoản / Email</div>
-                </div>
-                <input
-                  type="text"
-                  name="email"
-                  placeholder="Tài khoản ..."
-                  className={clsx(styles.input, "px-6")}
-                  onChange={(e) => {
-                    setInfo((prev) => ({ ...prev, email: e.target.value }));
-                  }}
-                />
-              </div>
-              <div className={styles.frameContainer}>
-                <div className={styles.lucidelockKeyholeParent}>
-                  <LockKeyholeIcon />
-                  <div className={styles.tiKhon}>Mật khẩu</div>
-                </div>
-                <div className={styles.inputGroup}>
-                  <Eye className="absolute top-1/2 right-0 h-8 w-8 -translate-1/2" />
-                  <input
-                    type="password"
-                    name=""
-                    placeholder="Mật khẩu ..."
-                    className={clsx(styles.input2, "px-6")}
-                    onChange={(e) => {
-                      setInfo((prev) => ({
-                        ...prev,
-                        password: e.target.value,
-                      }));
-                    }}
+      </section>
+
+      {/* Form Panel overlapping hero */}
+      <section className="relative z-10 -mt-20 flex w-full grow items-start justify-center px-4 pb-12 md:-mt-24">
+        <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/70 shadow-xl backdrop-blur-md">
+          <CardContent className="p-6 md:p-8">
+            <header className="mb-6 text-center md:mb-8">
+              <h2 className="text-xl font-bold text-[#5b2642] md:text-2xl">
+                Chào mừng trở lại
+              </h2>
+              <p className="mt-2 text-sm text-[#555] md:text-base">
+                Đăng nhập để tiếp tục hành trình của bạn
+              </p>
+            </header>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* Email */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="email"
+                  className="text-xs font-semibold tracking-wide text-[#5b2642]/70 uppercase md:text-sm"
+                >
+                  Tài khoản / Email
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[#5b2642]/50">
+                    <UserIcon className="h-4 w-4" />
+                  </span>
+                  <Input
+                    id="email"
+                    type="text"
+                    placeholder="you@example.com"
+                    className="h-11 w-full rounded-lg border border-[#d6d6d6] bg-white/80 pr-3 pl-10 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-[#fdbf00] md:h-12 md:text-base"
+                    value={info.email ?? ""}
+                    onChange={(e) =>
+                      setInfo((p) => ({ ...p, email: e.target.value }))
+                    }
+                    autoComplete="username"
+                    required
                   />
                 </div>
               </div>
-              <div className={styles.qunMtKhu}>
-                <div className={styles.qunMtKhu2}>Quên mật khẩu?</div>
+              {/* Password */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="password"
+                  className="text-xs font-semibold tracking-wide text-[#5b2642]/70 uppercase md:text-sm"
+                >
+                  Mật khẩu
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[#5b2642]/50">
+                    <LockIcon className="h-4 w-4" />
+                  </span>
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="h-11 w-full rounded-lg border border-[#d6d6d6] bg-white/80 pr-10 pl-10 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-[#fdbf00] md:h-12 md:text-base"
+                    value={info.password ?? ""}
+                    onChange={(e) =>
+                      setInfo((p) => ({ ...p, password: e.target.value }))
+                    }
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-[#5b2642]/50 transition hover:text-[#5b2642]"
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    <EyeIcon className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-[#6d0236] underline-offset-4 hover:underline md:text-sm"
+                  >
+                    Quên mật khẩu?
+                  </button>
+                </div>
               </div>
-            </div>
-            <div
-              className={clsx(styles.button, "hover:bg-black")}
-              onClick={() => {
-                handleAdd();
-              }}
-            >
-              <b className={styles.submit}>Đăng nhập</b>
-            </div>
-            <div className={styles.ngKNgayParent}>
-              <div className={styles.ngKNgay}> Đăng kí ngay</div>
-              <div className={styles.chaCTi}>Chưa có tài khoản?</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+              <Button
+                type="submit"
+                className="h-11 rounded-lg bg-[#fdbf00] text-sm font-semibold text-black shadow hover:bg-[#ffc933] focus-visible:ring-2 focus-visible:ring-[#fdbf00] md:h-12 md:text-base"
+                disabled={!info.email || !info.password}
+              >
+                Đăng nhập
+              </Button>
+              <div className="pt-1 text-center text-xs text-[#444] md:text-sm">
+                <span>Chưa có tài khoản? </span>
+                <button
+                  type="button"
+                  onClick={() => navigate("/signup")}
+                  className="font-semibold text-[#6d0236] underline-offset-4 hover:underline"
+                >
+                  Đăng kí ngay
+                </button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
   );
 }
 

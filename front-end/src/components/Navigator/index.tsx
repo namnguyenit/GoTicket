@@ -2,13 +2,12 @@ import { Link } from "react-router-dom";
 
 import style from "./Navigator.module.css";
 import clsx from "clsx";
-import logo from "/src/assets/logo.png";
 
 function Navigator() {
   return (
     <>
       <div className={style.box}>
-        <img className={style.logo} src={logo}></img>
+        <img className={style.logo} src="logo.png"></img>
         <div className={style.wrap}>
           <div className={style.navBar}>
             <Link to="/">
@@ -17,7 +16,9 @@ function Navigator() {
             <Link to="/book">
               <div className={style.link}>Book</div>
             </Link>
-            <div className={style.link}>About</div>
+            <Link to="/about">
+              <div className={style.link}>About</div>
+            </Link>
             <div className={style.link}>Blog</div>
             <div className={style.link}>Contact</div>
           </div>
