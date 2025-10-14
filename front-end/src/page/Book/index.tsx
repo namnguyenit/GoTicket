@@ -14,94 +14,246 @@ import clsx from "clsx";
 import { URL } from "@/config";
 import { useFetch } from "@/hooks/useFetch";
 
-const Tickets = [
+const seatsData = [
   {
-    id: 43,
-    trip: "Tuyến Hà Nội - TP. Hồ Chí Minh",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm a - b",
-    departureDate: new Date("2025-10-09T12:48:07.000Z"),
-    emptyNumber: 54,
-    vendorName: "Phương Trang",
-    vendorType: "bus",
-    price: 34455666734,
+    id: 241,
+    seat_number: "A1",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 44,
-    trip: "Tuyến Đà Nẵng - Nha Trang",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm c - d",
-    departureDate: new Date("2025-10-10T07:30:00.000Z"),
-    emptyNumber: 23,
-    vendorName: "Hoàng Long",
-    vendorType: "bus",
-    price: 500000,
+    id: 250,
+    seat_number: "A10",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 45,
-    trip: "Tuyến Cần Thơ - Hà Nội",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm e - f",
-    departureDate: new Date("2025-10-11T19:45:00.000Z"),
-    emptyNumber: 10,
-    vendorName: "Mai Linh",
-    vendorType: "bus",
-    price: 750000,
+    id: 251,
+    seat_number: "A11",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 46,
-    trip: "Tuyến Hải Phòng - Quảng Ninh",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm g - h",
-    departureDate: new Date("2025-10-12T06:15:00.000Z"),
-    emptyNumber: 32,
-    vendorName: "Kumho Việt Thanh",
-    vendorType: "bus",
-    price: 220000,
+    id: 252,
+    seat_number: "A12",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 47,
-    trip: "Tuyến Huế - Đà Lạt",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm i - j",
-    departureDate: new Date("2025-10-13T21:00:00.000Z"),
-    emptyNumber: 5,
-    vendorName: "Thành Bưởi",
-    vendorType: "bus",
-    price: 650000,
+    id: 253,
+    seat_number: "A13",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 48,
-    trip: "Tuyến TP. Hồ Chí Minh - Vũng Tàu",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm k - l",
-    departureDate: new Date("2025-10-14T09:00:00.000Z"),
-    emptyNumber: 40,
-    vendorName: "Phương Trang",
-    vendorType: "bus",
-    price: 180000,
+    id: 254,
+    seat_number: "A14",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 49,
-    trip: "Tuyến Hà Nội - Lào Cai",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm m - n",
-    departureDate: new Date("2025-10-15T22:15:00.000Z"),
-    emptyNumber: 16,
-    vendorName: "Sapa Express",
-    vendorType: "bus",
-    price: 400000,
+    id: 255,
+    seat_number: "A15",
+    status: "available",
+    price: "396000.00",
   },
   {
-    id: 50,
-    trip: "Tuyến Biên Hòa - Đà Nẵng",
-    imageLink: "trip-logo.png",
-    pickTake: "Điểm o - p",
-    departureDate: new Date("2025-10-16T08:00:00.000Z"),
-    emptyNumber: 27,
-    vendorName: "Hoàng Hà",
-    vendorType: "bus",
-    price: 720000,
+    id: 256,
+    seat_number: "A16",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 257,
+    seat_number: "A17",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 258,
+    seat_number: "A18",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 259,
+    seat_number: "A19",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 242,
+    seat_number: "A2",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 260,
+    seat_number: "A20",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 261,
+    seat_number: "A21",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 262,
+    seat_number: "A22",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 263,
+    seat_number: "A23",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 264,
+    seat_number: "A24",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 265,
+    seat_number: "A25",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 266,
+    seat_number: "A26",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 267,
+    seat_number: "A27",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 268,
+    seat_number: "A28",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 269,
+    seat_number: "A29",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 243,
+    seat_number: "A3",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 270,
+    seat_number: "A30",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 271,
+    seat_number: "A31",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 272,
+    seat_number: "A32",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 273,
+    seat_number: "A33",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 274,
+    seat_number: "A34",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 275,
+    seat_number: "A35",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 276,
+    seat_number: "A36",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 277,
+    seat_number: "A37",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 278,
+    seat_number: "A38",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 279,
+    seat_number: "A39",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 244,
+    seat_number: "A4",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 280,
+    seat_number: "A40",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 245,
+    seat_number: "A5",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 246,
+    seat_number: "A6",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 247,
+    seat_number: "A7",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 248,
+    seat_number: "A8",
+    status: "available",
+    price: "396000.00",
+  },
+  {
+    id: 249,
+    seat_number: "A9",
+    status: "available",
+    price: "396000.00",
   },
 ];
 
@@ -129,10 +281,8 @@ function Book() {
     if (json?.region) {
       get(`/api/trips/search?${params}`); // gọi API khi component mount
     }
-
-    console.log(params);
   }, [location]);
-  console.log(data);
+
   return (
     <>
       <div className="flex w-screen flex-col items-center">
@@ -203,7 +353,9 @@ function Book() {
           {/* Tickets */}
           <div>
             {data && data.data ? (
-              data.data.map((item: any) => <Ticket data={item} key={item.id} />)
+              data.data.map((item: any, index: any) => (
+                <Ticket data={item} key={index} />
+              ))
             ) : (
               <></>
             )}
@@ -229,9 +381,37 @@ interface Ticket {
     price: number; // 34455666734
   };
 }
+interface initTrip {
+  tripID: number | null;
+  seats: { id: number; seat_number: string; status: string; price: string }[];
+  totalPrice: number;
+}
 
 function Ticket({ data }: Ticket) {
   const [book, setBook] = useState<boolean>(false);
+
+  const { data: seatDatas, loading: seatLoading, error, get } = useFetch(URL);
+
+  useEffect(() => {
+    book && get(`/api/trips/${data.id}`);
+    // book && console.log(seatDatas);
+  }, [book]);
+
+  const [initTrip, setInitTrip] = useState<initTrip>({
+    tripID: data.id,
+    seats: [],
+    totalPrice: 0,
+  });
+
+  useEffect(() => {
+    setInitTrip((prev) => ({
+      ...prev,
+      seats: seatDatas?.data.coaches[0].seats || [],
+      totalPrice: 0,
+    }));
+  }, [seatDatas]);
+
+  console.log(initTrip);
 
   return (
     <>
@@ -325,39 +505,90 @@ function Ticket({ data }: Ticket) {
           <div className="absolute top-0 left-0 grid h-[450px] w-full grid-rows-[70%_10%_15%] content-center justify-items-center">
             {/* Hai tầng */}
             <div className="flex w-[80%] justify-between">
-              {/* Tầng 1 */}
-              <div className="flex w-[40%] flex-col items-center justify-evenly">
-                <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
-                  Tầng 1
-                </div>
-                <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                  {/* Bỏ */}
-                  <div className="col-start-2 row-start-7"></div>
-                  {/* Dải Ghế */}
-                  {new Array(20).fill(0).map((item) => (
-                    <div className="flex h-[30px] items-center justify-center rounded-full bg-green-500 text-sm hover:outline-2 hover:outline-[#6a314b7d]">
-                      B1
+              {!seatLoading && seatDatas ? (
+                <>
+                  {/* Tầng 1 */}
+                  <div className="flex w-[40%] flex-col items-center justify-evenly">
+                    <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                      Tầng 1
                     </div>
-                  ))}
-                </div>
-              </div>
-              {/* Tầng 2 */}
-              <div className="flex w-[40%] flex-col items-center justify-evenly">
-                <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
-                  Tầng 2
-                </div>
-                <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                  {/* Bỏ */}
-                  <div className="col-start-2 row-start-7"></div>
-                  {/* Dải Ghế */}
-                  {new Array(20).fill(0).map((item) => (
-                    <div className="flex h-[30px] items-center justify-center rounded-full bg-[#BDD6FC] text-sm hover:outline-2 hover:outline-[#6a314b7d]">
-                      B1
+                    <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                      {/* Bỏ */}
+                      <div className="col-start-2 row-start-7"></div>
+                      {/* Dải Ghế */}
+                      {initTrip.seats
+                        .slice(0, initTrip.seats.length / 2)
+                        .map((item, index) => (
+                          <div
+                            className={clsx(
+                              "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
+                              item.status == "available" && "bg-green-500",
+                              item.status == "temp" && "bg-gray-300",
+                            )}
+                            key={index}
+                            onClick={() => {
+                              setInitTrip((prev) => {
+                                const findSeat = prev.seats.findIndex(
+                                  (seat) => seat.id == item.id,
+                                );
+
+                                const updateSeats = [...prev.seats].map(
+                                  (item) => ({
+                                    ...item,
+                                  }),
+                                );
+                                if (
+                                  updateSeats[findSeat].status == "available"
+                                ) {
+                                  updateSeats[findSeat].status = "temp";
+                                } else if (
+                                  updateSeats[findSeat].status == "temp"
+                                ) {
+                                  updateSeats[findSeat].status = "available";
+                                }
+
+                                return {
+                                  ...prev,
+                                  seats: updateSeats,
+                                  totalPrice: updateSeats.reduce((acc, cur) => {
+                                    if (cur.status == "temp") {
+                                      acc += parseInt(cur.price);
+                                    }
+                                    return acc;
+                                  }, 0),
+                                };
+                              });
+                            }}
+                          >
+                            {item.seat_number}
+                          </div>
+                        ))}
                     </div>
-                  ))}
+                  </div>
+                  {/* Tầng 2 */}
+                  <div className="flex w-[40%] flex-col items-center justify-evenly">
+                    <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                      Tầng 2
+                    </div>
+                    <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                      {/* Bỏ */}
+                      <div className="col-start-2 row-start-7"></div>
+                      {/* Dải Ghế */}
+                      {new Array(20).fill(0).map((item) => (
+                        <div className="flex h-[30px] items-center justify-center rounded-full bg-[#BDD6FC] text-sm hover:outline-2 hover:outline-[#6a314b7d]">
+                          B1
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex size-full items-center justify-center text-gray-400">
+                  Loading . . .
                 </div>
-              </div>
+              )}
             </div>
+
             {/* Status */}
             <div className="flex w-[85%] gap-5">
               <div className="flex items-center gap-1">
@@ -382,12 +613,22 @@ function Ticket({ data }: Ticket) {
               <div className="text-xs">
                 <div className="flex items-center gap-2">
                   <div className="text-[#555]">Ghế đã chọn: </div>
-                  <div className="">E1 E2</div>
+                  <div className="">
+                    {initTrip.seats
+                      .reduce((acc, cur) => {
+                        if (cur.status == "temp") {
+                          acc += cur.seat_number + ",";
+                        }
+                        return acc;
+                      }, "")
+                      .slice(0, -1)}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-[#555]">Tổng tiền</div>
                   <div className="">
-                    360.000<span>đ</span>
+                    {initTrip.totalPrice.toLocaleString()}
+                    <span>đ</span>
                   </div>
                 </div>
               </div>
