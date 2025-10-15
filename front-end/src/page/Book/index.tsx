@@ -14,249 +14,6 @@ import clsx from "clsx";
 import { URL } from "@/config";
 import { useFetch } from "@/hooks/useFetch";
 
-const seatsData = [
-  {
-    id: 241,
-    seat_number: "A1",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 250,
-    seat_number: "A10",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 251,
-    seat_number: "A11",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 252,
-    seat_number: "A12",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 253,
-    seat_number: "A13",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 254,
-    seat_number: "A14",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 255,
-    seat_number: "A15",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 256,
-    seat_number: "A16",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 257,
-    seat_number: "A17",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 258,
-    seat_number: "A18",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 259,
-    seat_number: "A19",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 242,
-    seat_number: "A2",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 260,
-    seat_number: "A20",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 261,
-    seat_number: "A21",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 262,
-    seat_number: "A22",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 263,
-    seat_number: "A23",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 264,
-    seat_number: "A24",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 265,
-    seat_number: "A25",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 266,
-    seat_number: "A26",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 267,
-    seat_number: "A27",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 268,
-    seat_number: "A28",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 269,
-    seat_number: "A29",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 243,
-    seat_number: "A3",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 270,
-    seat_number: "A30",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 271,
-    seat_number: "A31",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 272,
-    seat_number: "A32",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 273,
-    seat_number: "A33",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 274,
-    seat_number: "A34",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 275,
-    seat_number: "A35",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 276,
-    seat_number: "A36",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 277,
-    seat_number: "A37",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 278,
-    seat_number: "A38",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 279,
-    seat_number: "A39",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 244,
-    seat_number: "A4",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 280,
-    seat_number: "A40",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 245,
-    seat_number: "A5",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 246,
-    seat_number: "A6",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 247,
-    seat_number: "A7",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 248,
-    seat_number: "A8",
-    status: "available",
-    price: "396000.00",
-  },
-  {
-    id: 249,
-    seat_number: "A9",
-    status: "available",
-    price: "396000.00",
-  },
-];
-
 function Book() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -384,6 +141,8 @@ interface Ticket {
 interface initTrip {
   tripID: number | null;
   seats: { id: number; seat_number: string; status: string; price: string }[];
+  from: string;
+  to: string;
   totalPrice: number;
 }
 
@@ -402,6 +161,8 @@ function Ticket({ data }: Ticket) {
   const [initTrip, setInitTrip] = useState<initTrip>({
     tripID: data.id,
     seats: [],
+    from: "",
+    to: "",
     totalPrice: 0,
   });
 
@@ -526,6 +287,7 @@ function Ticket({ data }: Ticket) {
                               "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
                               item.status == "available" && "bg-green-500",
                               item.status == "temp" && "bg-gray-300",
+                              item.status == "booked" && "bg-red-500",
                             )}
                             key={index}
                             onClick={() => {
@@ -585,6 +347,7 @@ function Ticket({ data }: Ticket) {
                               "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
                               item.status == "available" && "bg-green-500",
                               item.status == "temp" && "bg-gray-300",
+                              item.status == "booked" && "bg-red-500",
                             )}
                             key={index}
                             onClick={() => {
@@ -642,7 +405,7 @@ function Ticket({ data }: Ticket) {
               </div>
               <div className="flex items-center gap-1">
                 <div className="h-[15px] w-[25px] bg-yellow-400"></div>
-                <div className="text-xs text-[#555]">Đặt</div>
+                <div className="text-xs text-[#555]">Giữ</div>
               </div>
               <div className="flex items-center gap-1">
                 <div className="h-[15px] w-[25px] bg-red-500"></div>
@@ -650,7 +413,7 @@ function Ticket({ data }: Ticket) {
               </div>
               <div className="flex items-center gap-1">
                 <div className="h-[15px] w-[25px] bg-gray-300"></div>
-                <div className="text-xs text-[#555]">Giữ</div>
+                <div className="text-xs text-[#555]">Chọn</div>
               </div>
             </div>
             {/* Submit */}

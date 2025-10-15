@@ -20,15 +20,18 @@ function Signin() {
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    post("/api/auth/login", info, { Authorization: "Bearer your_token_here" });
+    post("/api/auth/login", info, { Authorisation: "Bearer your_token_here" });
   };
 
   useEffect(() => {
     if (data?.success) {
-      localStorage.setItem("goticketToken", data.token);
+      localStorage.setItem(
+        "Authorisation",
+        "Bearer " + data.data.authorisation.token,
+      );
       navigate("/", { replace: true });
     }
-  }, [data, navigate]);
+  }, [data]);
 
   return (
     <div className="relative flex min-h-[130vh] w-full flex-col overflow-hidden bg-gradient-to-br from-[#fffdf7] via-[#fff4d4] to-[#fbe1f0]">

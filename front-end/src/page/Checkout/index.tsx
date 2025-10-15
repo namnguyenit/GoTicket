@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFetch } from "@/hooks/useFetch";
 import {
   User,
   MapPin,
@@ -19,12 +20,9 @@ import {
   Clock,
   Bus,
 } from "lucide-react";
-
-const passengerFormFields: { id: string; label: string; type: string }[] = [
-  { id: "fullName", label: "Họ và tên", type: "text" },
-  { id: "phone", label: "Số điện thoại", type: "tel" },
-  { id: "email", label: "Email", type: "email" },
-];
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { URL } from "@/config";
 
 const paymentMethods: {
   id: string;
@@ -52,7 +50,136 @@ const paymentMethods: {
   },
 ];
 
+interface InfoCheckout {
+  name: string;
+  phone: string;
+  email: string;
+  method: string;
+  trip: {
+    id: number | null;
+    vendorName: string;
+    departureTime: string;
+    arrivalTime: string;
+  };
+  seats: { id: number; seat_number: string; status: string }[];
+  pickup: {
+    id: number;
+    name: string;
+    from: string;
+  } | null;
+  dropoff: {
+    id: number;
+    name: string;
+    to: string;
+  } | null;
+  totalPrice: number;
+}
+
+const initInfo = {
+  name: "",
+  phone: "",
+  email: "",
+  method: "",
+  trip: {
+    id: null,
+    vendorName: "",
+    departureTime: "",
+    arrivalTime: "",
+  },
+  seats: [],
+  pickup: null,
+  dropoff: null,
+  totalPrice: 0,
+};
+
 function CheckOut() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = location.state;
+  // console.log(params);
+
+  const { data, loading, error, post } = useFetch(URL);
+
+  const [info, setInfo] = useState<InfoCheckout>(initInfo);
+
+  useEffect(() => {
+    if (error && !localStorage.getItem("Authorisation")) {
+      navigate("/sign-in", { replace: false });
+    }
+  }, [error]);
+
+  useEffect(() => {
+    const initBooking = async () => {
+      await post(
+        "/api/bookings/initiate",
+        {
+          trip_id: params.tripID,
+          seat_ids: params.seats.reduce((acc: any, cur: any) => {
+            if (cur.status == "temp") {
+              acc.push(cur.id);
+            }
+            return acc;
+          }, []),
+        },
+        {
+          Authorization: localStorage.getItem("Authorisation") || "",
+        },
+      );
+    };
+    initBooking();
+  }, []);
+
+  useEffect(() => {
+    if (data?.success == true) {
+      setInfo((pre) => ({
+        ...pre,
+        name: data.data.user_info.name,
+        email: data.data.user_info.email,
+        phone: data.data.user_info.phone_number,
+        trip: {
+          ...pre.trip,
+          id: params.tripID,
+          vendorName: data.data.trip_info.vendor_name,
+          departureTime: data.data.trip_info.departure_datetime,
+          arrivalTime: data.data.trip_info.arrival_datetime,
+        },
+        totalPrice: data.data.booking_details.total_price,
+      }));
+    }
+  }, [data]);
+
+  const {
+    data: dataStops,
+    loading: loadingStops,
+    error: errorStops,
+    get: getStops,
+  } = useFetch(URL);
+
+  useEffect(() => {
+    getStops(`/api/trips/${params.tripID}/stops`, {
+      Authorization: localStorage.getItem("Authorisation") || "",
+    });
+  }, []);
+
+  useEffect(() => {
+    setInfo((pre) => ({ ...pre, seats: params.seats }));
+  }, [location]);
+
+  // console.log(info);
+
+  const {
+    data: dataConfirm,
+    loading: loadingConfirm,
+    error: errorConfirm,
+    post: postConfirm,
+  } = useFetch(URL);
+
+  useEffect(() => {
+    if (dataConfirm?.success && !error) {
+      navigate("/success");
+    }
+  }, [dataConfirm]);
+
   return (
     <>
       <div className="min-h-screen w-full bg-gradient-to-b from-[#faf6f6] via-[#f7f1f1] to-[#f3eded]">
@@ -83,21 +210,36 @@ function CheckOut() {
                 <CardContent className="p-5 md:p-6">
                   <div className="flex flex-col gap-5">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {passengerFormFields.map((field) => (
-                        <div key={field.id} className="flex flex-col gap-2.5">
-                          <Label
-                            htmlFor={field.id}
-                            className="[font-family:'Inter-SemiBold',Helvetica] text-xs leading-[normal] font-semibold tracking-[0] text-[#5b2642] md:text-sm"
-                          >
-                            {field.label}
-                          </Label>
-                          <Input
-                            id={field.id}
-                            type={field.type}
-                            className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
-                          />
-                        </div>
-                      ))}
+                      <div className="flex flex-col gap-2.5">
+                        <Label className="[font-family:'Inter-SemiBold',Helvetica] text-xs leading-[normal] font-semibold tracking-[0] text-[#5b2642] md:text-sm">
+                          Họ và tên
+                        </Label>
+                        <Input
+                          className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
+                          type="text"
+                          value={info.name}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2.5">
+                        <Label className="[font-family:'Inter-SemiBold',Helvetica] text-xs leading-[normal] font-semibold tracking-[0] text-[#5b2642] md:text-sm">
+                          Số điện thoại
+                        </Label>
+                        <Input
+                          className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
+                          type="tel"
+                          value={info.phone}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2.5">
+                        <Label className="[font-family:'Inter-SemiBold',Helvetica] text-xs leading-[normal] font-semibold tracking-[0] text-[#5b2642] md:text-sm">
+                          Email
+                        </Label>
+                        <Input
+                          className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
+                          type="email"
+                          value={info.email}
+                        />
+                      </div>
                     </div>
                     <div className="flex flex-col gap-3">
                       <Label
@@ -107,7 +249,14 @@ function CheckOut() {
                         Chọn điểm đón *
                       </Label>
                       <div className="relative">
-                        <Select>
+                        <Select
+                          onValueChange={(e) => {
+                            setInfo((pre) => ({
+                              ...pre,
+                              pickup: JSON.parse(e),
+                            }));
+                          }}
+                        >
                           <SelectTrigger
                             id="pickup-point"
                             className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 pl-[48px] focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
@@ -118,8 +267,20 @@ function CheckOut() {
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="point1">Điểm đón 1</SelectItem>
-                            <SelectItem value="point2">Điểm đón 2</SelectItem>
+                            {dataStops?.success &&
+                              dataStops.data?.pickup_points &&
+                              dataStops.data.pickup_points.map((item: any) => (
+                                <SelectItem
+                                  value={JSON.stringify({
+                                    id: item.id,
+                                    name: item.name,
+                                    from: item.address,
+                                  })}
+                                  key={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                         <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5b2642] md:h-5 md:w-5" />
@@ -133,7 +294,14 @@ function CheckOut() {
                         Chọn điểm trả *
                       </Label>
                       <div className="relative">
-                        <Select>
+                        <Select
+                          onValueChange={(e) => {
+                            setInfo((pre) => ({
+                              ...pre,
+                              dropoff: JSON.parse(e),
+                            }));
+                          }}
+                        >
                           <SelectTrigger
                             id="dropoff-point"
                             className="h-10 rounded-[10px] border border-[#dcdcdc] bg-white/70 pl-[48px] focus-visible:ring-2 focus-visible:ring-[#F7AC3D] md:h-11"
@@ -144,8 +312,20 @@ function CheckOut() {
                             />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="point1">Điểm trả 1</SelectItem>
-                            <SelectItem value="point2">Điểm trả 2</SelectItem>
+                            {dataStops?.success &&
+                              dataStops.data?.dropoff_points &&
+                              dataStops.data.dropoff_points.map((item: any) => (
+                                <SelectItem
+                                  value={JSON.stringify({
+                                    id: item.id,
+                                    name: item.name,
+                                    to: item.address,
+                                  })}
+                                  key={item.id}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                         <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5b2642] md:h-5 md:w-5" />
@@ -232,15 +412,24 @@ function CheckOut() {
               </div>
               <CardContent className="p-5 md:p-6">
                 <div className="flex flex-col gap-5 md:gap-6">
-                  <div className="flex items-center gap-6 md:gap-7">
-                    <MapPin className="h-6 w-5 text-[#5b2642] md:h-7 md:w-6" />
-                    <div className="flex items-center gap-6 md:gap-7">
-                      <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#5b2642] md:text-base">
-                        Hà Tĩnh
+                  <div className="flex flex-col gap-2">
+                    <div className="[font-family:'Inter-SemiBold',Helvetica] text-xs text-[#6b6b6b] md:text-sm">
+                      Điểm đi
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-5 w-5 text-[#5b2642] md:h-6 md:w-6" />
+                      <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] text-[#5b2642] md:text-base">
+                        {info.pickup ? info.pickup.from : "Hãy chọn điểm đón"}
                       </span>
+                    </div>
+
+                    <div className="mt-1 [font-family:'Inter-SemiBold',Helvetica] text-xs text-[#6b6b6b] md:text-sm">
+                      Điểm đến
+                    </div>
+                    <div className="flex items-center gap-3">
                       <ArrowRight className="h-5 w-5 text-[#5b2642] md:h-6 md:w-6" />
-                      <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#5b2642] md:text-base">
-                        Hà Nội
+                      <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] text-[#5b2642] md:text-base">
+                        {info.dropoff ? info.dropoff.to : "Hãy chọn điểm đến"}
                       </span>
                     </div>
                   </div>
@@ -248,20 +437,20 @@ function CheckOut() {
                     <Clock className="h-5 w-5 text-[#5b2642] md:h-6 md:w-6" />
                     <div className="flex items-center gap-3 md:gap-4">
                       <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#5b2642] md:text-base">
-                        20:30 - 6:45
+                        {new Date(info.trip.departureTime).toLocaleTimeString()}
                       </span>
                       <div className="flex h-5 w-5 items-center justify-center md:h-6 md:w-6">
                         <div className="h-[2px] w-[2px] rounded-full bg-[#5b2642]" />
                       </div>
                       <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#5b2642] md:text-base">
-                        20/12/2025
+                        {new Date(info.trip.departureTime).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 md:gap-3">
                     <Bus className="h-5 w-5 text-[#5b2642] md:h-6 md:w-6" />
                     <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#5b2642] md:text-base">
-                      Xe 01 - Nhà xe Văn Minh - Xe Thường
+                      {info.trip.vendorName}
                     </span>
                   </div>
                   <div className="my-4 h-px bg-[#cccccc]" />
@@ -271,7 +460,16 @@ function CheckOut() {
                     </h3>
                     <div className="flex h-[46px] items-center rounded-[10px] border border-[#0000002a] bg-[#f5f5f7] px-4 md:h-[52px] md:px-5">
                       <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] text-[#5b2642] md:text-base">
-                        Ghế 2A
+                        Ghế:{" "}
+                        {info?.seats.length &&
+                          info.seats
+                            .reduce((acc, cur) => {
+                              if (cur.status == "temp") {
+                                acc += cur.seat_number + ", ";
+                              }
+                              return acc;
+                            }, "")
+                            .slice(0, -2)}
                       </span>
                     </div>
                   </div>
@@ -282,7 +480,7 @@ function CheckOut() {
                         Giá vé:
                       </span>
                       <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#0000009e] md:text-base">
-                        300.000đ
+                        {info.totalPrice.toLocaleString()}đ
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -290,7 +488,7 @@ function CheckOut() {
                         Phụ phí:
                       </span>
                       <span className="[font-family:'Inter-Medium',Helvetica] text-sm leading-[normal] font-medium tracking-[0] whitespace-nowrap text-[#0000009e] md:text-base">
-                        10.000đ
+                        0đ
                       </span>
                     </div>
                   </div>
@@ -300,10 +498,35 @@ function CheckOut() {
                       Tổng cộng
                     </span>
                     <span className="[font-family:'Inter-Bold',Helvetica] text-xl leading-[normal] font-bold tracking-[0] text-[#5b2642] md:text-2xl">
-                      310.000đ
+                      {info.totalPrice.toLocaleString()}đ
                     </span>
                   </div>
-                  <Button className="mt-5 h-12 w-full rounded-[10px] bg-gradient-to-r from-[#f59e0b] to-[#f59e0b] hover:from-[#d97706] hover:to-[#d97706] md:mt-6 md:h-14">
+                  <Button
+                    className="mt-5 h-12 w-full rounded-[10px] bg-gradient-to-r from-[#f59e0b] to-[#f59e0b] hover:from-[#d97706] hover:to-[#d97706] md:mt-6 md:h-14"
+                    onClick={() => {
+                      postConfirm(
+                        "/api/bookings/confirm",
+                        {
+                          trip_id: params.tripID,
+                          seat_ids: params.seats.reduce(
+                            (acc: any, cur: any) => {
+                              if (cur.status == "temp") {
+                                acc.push(cur.id);
+                              }
+                              return acc;
+                            },
+                            [],
+                          ),
+                          pickup_stop_id: info.pickup?.id,
+                          dropoff_stop_id: info.dropoff?.id,
+                        },
+                        {
+                          Authorization:
+                            localStorage.getItem("Authorisation") || "",
+                        },
+                      );
+                    }}
+                  >
                     <span className="[font-family:'Inter-Bold',Helvetica] text-base leading-[normal] font-bold tracking-[0] whitespace-nowrap text-white md:text-lg">
                       Xác nhận và Thanh toán
                     </span>

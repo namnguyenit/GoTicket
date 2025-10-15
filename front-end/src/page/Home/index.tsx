@@ -4,6 +4,7 @@ import Assets from "../../assets";
 import type { JSX } from "react";
 
 function Home() {
+  console.log(localStorage.getItem("Authorisation"));
   return (
     <>
       <div className="h-screen w-screen select-none">

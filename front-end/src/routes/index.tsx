@@ -9,6 +9,7 @@ import Signin from "@/page/Signin";
 import Signup from "@/page/Signup";
 import CheckOut from "@/page/Checkout";
 import About from "@/page/About";
+import Success from "@/page/Success";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
               { path: "/sign-up", element: <Signup /> },
               { path: "/check-out", element: <CheckOut /> },
               { path: "/about", element: <About /> },
+              { path: "/success", element: <Success /> },
             ],
           },
         ],
