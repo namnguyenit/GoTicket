@@ -20,6 +20,7 @@ function Book() {
   const json = JSON.parse(decodeURIComponent(params.get("data") || "null"));
 
   const { data, loading, error, get } = useFetch(URL);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
   useEffect(() => {
     const date = json?.date
@@ -32,11 +33,12 @@ function Book() {
     //   `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`,
     // );
 
-    const params = json?.region
+    const query = json?.region
       ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
       : null;
-    if (json?.region) {
-      get(`/api/trips/search?${params}`); // gọi API khi component mount
+    if (query) {
+      setSearchQuery(query);
+      get(`/api/trips/search?${query}`); // gọi API khi component mount
     }
   }, [location]);
 
@@ -109,13 +111,79 @@ function Book() {
           </div>
           {/* Tickets */}
           <div>
-            {data && data.data ? (
-              data.data.map((item: any, index: any) => (
-                <Ticket data={item} key={index} />
-              ))
-            ) : (
-              <></>
+            {error && (
+              <div
+                className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                role="alert"
+                aria-live="polite"
+              >
+                Không tải được danh sách chuyến. Vui lòng thử lại.
+                <button
+                  className="ml-3 rounded-md bg-[#F7AC3D] px-3 py-1 text-white hover:bg-[#6a314b]"
+                  onClick={() =>
+                    searchQuery && get(`/api/trips/search?${searchQuery}`)
+                  }
+                >
+                  Thử lại
+                </button>
+              </div>
             )}
+
+            {loading && (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="grid h-[180px] animate-pulse grid-cols-[20%_50%_30%] rounded-2xl bg-white shadow-sm"
+                  >
+                    <div className="flex flex-col items-center justify-evenly p-4">
+                      <div className="h-24 w-2/3 rounded bg-gray-200" />
+                      <div className="mt-2 h-4 w-3/4 rounded bg-gray-200" />
+                    </div>
+                    <div className="grid grid-rows-[40%_40%] content-evenly p-4">
+                      <div className="space-y-2">
+                        <div className="h-5 w-2/3 rounded bg-gray-200" />
+                        <div className="h-4 w-1/2 rounded bg-gray-200" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="h-5 w-1/2 rounded bg-gray-200" />
+                          <div className="h-4 w-2/3 rounded bg-gray-200" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-5 w-1/3 rounded bg-gray-200" />
+                          <div className="h-4 w-1/2 rounded bg-gray-200" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-center justify-evenly border-l-2 p-4">
+                      <div className="h-6 w-24 rounded bg-gray-200" />
+                      <div className="h-8 w-24 rounded bg-gray-200" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading &&
+              !error &&
+              data &&
+              data.data &&
+              data.data.length > 0 && (
+                <>
+                  {data.data.map((item: any, index: any) => (
+                    <Ticket data={item} key={index} />
+                  ))}
+                </>
+              )}
+
+            {!loading &&
+              !error &&
+              (!data || !data.data || data.data.length === 0) && (
+                <div className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                  Không có chuyến phù hợp với tiêu chí tìm kiếm.
+                </div>
+              )}
           </div>
         </div>
       </div>
@@ -268,7 +336,7 @@ function Ticket({ data }: Ticket) {
           <div className="absolute top-0 left-0 grid h-[450px] w-full grid-rows-[70%_10%_15%] content-center justify-items-center">
             {/* Hai tầng */}
             <div className="flex w-[80%] justify-between">
-              {!seatLoading && seatDatas ? (
+              {!seatLoading && seatDatas && !error ? (
                 <>
                   {/* Tầng 1 */}
                   <div className="flex w-[40%] flex-col items-center justify-evenly">
@@ -330,7 +398,6 @@ function Ticket({ data }: Ticket) {
                     </div>
                   </div>
                   {/* Tầng 2 */}
-                  {/* Tầng 1 */}
                   <div className="flex w-[40%] flex-col items-center justify-evenly">
                     <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                       Tầng 2
@@ -390,11 +457,30 @@ function Ticket({ data }: Ticket) {
                     </div>
                   </div>
                 </>
-              ) : (
-                <div className="flex size-full items-center justify-center text-gray-400">
-                  Loading . . .
+              ) : seatLoading ? (
+                <div className="flex size-full flex-col items-center justify-center text-gray-400">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-[#6a314b]" />
+                  <div className="mt-2 text-sm text-[#6a314b]">
+                    Đang tải sơ đồ ghế...
+                  </div>
                 </div>
-              )}
+              ) : error ? (
+                <div className="flex size-full flex-col items-center justify-center">
+                  <div
+                    className="rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700"
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    Không tải được dữ liệu ghế. Vui lòng thử lại.
+                  </div>
+                  <button
+                    className="mt-3 rounded-md bg-[#F7AC3D] px-3 py-1 text-white hover:bg-[#6a314b]"
+                    onClick={() => get(`/api/trips/${data.id}`)}
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             {/* Status */}

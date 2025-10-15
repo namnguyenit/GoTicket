@@ -1,7 +1,7 @@
 import { useReducer, useCallback } from "react";
 
 interface FetchState<T> {
-  data: any;
+  data: any | T;
   loading: boolean;
   error: string | null;
 }

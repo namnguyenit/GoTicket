@@ -67,10 +67,11 @@ function AddressOption() {
   const [toggleAddress, setToggleAddress] = useState(false);
   const [indexNav, setIndexNav] = useState(0);
 
-
   //
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const isSearchDisabled =
+    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
 
   // const param = new URLSearchParams({
   //   data: encodeURIComponent(JSON.stringify(schedule)),
@@ -96,6 +97,28 @@ function AddressOption() {
       <div className="grid size-full grid-rows-[25%]">
         {/* Vehicle Option Navigator */}
         <div className="relative overflow-hidden rounded-t-2xl bg-[#5B2642]">
+          {/* top loading/error banner */}
+          {loading && (
+            <div className="absolute top-3 right-3 z-10 flex items-center gap-2 rounded-md bg-white/90 px-3 py-1.5 text-sm text-[#5B2642] shadow">
+              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#5B2642]/40 border-t-[#5B2642]" />
+              Đang tải địa điểm...
+            </div>
+          )}
+          {error && (
+            <div
+              className="absolute top-3 right-3 z-10 flex items-center gap-3 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm text-red-700 shadow"
+              role="alert"
+              aria-live="polite"
+            >
+              Không tải được địa điểm.
+              <button
+                className="rounded bg-[#F7AC3D] px-2 py-1 text-white hover:bg-[#6a314b]"
+                onClick={() => get("/api/routes/location")}
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
           <div className="absolute top-0 left-0 z-1 grid size-full auto-cols-[20%] grid-flow-col">
             <div
               className="flex size-full items-center justify-center gap-[5%]"
@@ -187,7 +210,15 @@ function AddressOption() {
                 >
                   {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
                   <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
-                    <SelectValue placeholder="Chọn điểm đi" />
+                    <SelectValue
+                      placeholder={
+                        loading
+                          ? "Đang tải..."
+                          : error
+                            ? "Lỗi tải dữ liệu"
+                            : "Chọn điểm đi"
+                      }
+                    />
                   </SelectTrigger>
                   {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
                   <SelectContent align="start" className="min-w-full">
@@ -252,7 +283,15 @@ function AddressOption() {
                 >
                   {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
                   <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
-                    <SelectValue placeholder="Chọn điểm đi" />
+                    <SelectValue
+                      placeholder={
+                        loading
+                          ? "Đang tải..."
+                          : error
+                            ? "Lỗi tải dữ liệu"
+                            : "Chọn điểm đến"
+                      }
+                    />
                   </SelectTrigger>
                   {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
                   <SelectContent align="start" className="min-w-full">
@@ -336,14 +375,28 @@ function AddressOption() {
             </div>
           </div>
           <div
-            className="mr-[5%] flex h-1/2 w-1/8 items-center justify-center self-center justify-self-end rounded-full bg-[#F7AC3D] text-sm font-bold text-white transition-colors duration-500 hover:bg-[#5b2642]"
+            className={clsx(
+              "mr-[5%] flex h-1/2 w-1/8 items-center justify-center self-center justify-self-end rounded-full bg-[#F7AC3D] text-sm font-bold text-white transition-colors duration-500",
+              isSearchDisabled
+                ? "cursor-not-allowed opacity-60"
+                : "hover:bg-[#5b2642]",
+            )}
             onClick={() => {
+              if (isSearchDisabled) return;
               navigate(
                 `/book?data=${encodeURIComponent(JSON.stringify(schedule))}`,
               );
             }}
+            aria-disabled={isSearchDisabled}
           >
-            Tìm kiếm
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />
+                Đang tải...
+              </div>
+            ) : (
+              "Tìm kiếm"
+            )}
           </div>
         </div>
       </div>

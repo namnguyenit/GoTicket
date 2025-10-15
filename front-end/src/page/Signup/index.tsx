@@ -7,6 +7,9 @@ import { useState } from "react";
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Placeholder states for possible async actions
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   const formFields = [
     {
       id: "fullname",
@@ -126,11 +129,39 @@ function Signup() {
                 </div>
               );
             })}
+            {error && (
+              <div className="-mt-1 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 md:text-sm">
+                {error}
+              </div>
+            )}
             <Button
               type="submit"
-              className="mt-2 h-11 rounded-lg bg-[#fdbf00] text-sm font-semibold text-black shadow hover:bg-[#ffc933] focus-visible:ring-2 focus-visible:ring-[#fdbf00] md:h-12 md:text-base"
+              className="mt-2 h-11 rounded-lg bg-[#fdbf00] text-sm font-semibold text-black shadow hover:bg-[#ffc933] focus-visible:ring-2 focus-visible:ring-[#fdbf00] disabled:opacity-60 md:h-12 md:text-base"
+              disabled={loading}
             >
-              Đăng ký
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                  Đang đăng ký...
+                </span>
+              ) : (
+                "Đăng ký"
+              )}
             </Button>
           </form>
           <div className="mt-6 text-center text-sm md:mt-7 md:text-base">

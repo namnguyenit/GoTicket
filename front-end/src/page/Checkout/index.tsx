@@ -96,7 +96,6 @@ function CheckOut() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = location.state;
-  // console.log(params);
 
   const { data, loading, error, post } = useFetch(URL);
 
@@ -176,7 +175,7 @@ function CheckOut() {
 
   useEffect(() => {
     if (dataConfirm?.success && !error) {
-      navigate("/success");
+      navigate("/success", { replace: true });
     }
   }, [dataConfirm]);
 
@@ -209,6 +208,16 @@ function CheckOut() {
                 </div>
                 <CardContent className="p-5 md:p-6">
                   <div className="flex flex-col gap-5">
+                    {error && (
+                      <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                        {error}
+                      </div>
+                    )}
+                    {loading && (
+                      <div className="text-sm text-[#5b2642]">
+                        Đang tải thông tin hành khách...
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="flex flex-col gap-2.5">
                         <Label className="[font-family:'Inter-SemiBold',Helvetica] text-xs leading-[normal] font-semibold tracking-[0] text-[#5b2642] md:text-sm">
@@ -284,6 +293,16 @@ function CheckOut() {
                           </SelectContent>
                         </Select>
                         <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5b2642] md:h-5 md:w-5" />
+                        {loadingStops && (
+                          <div className="mt-2 text-xs text-[#5b2642]">
+                            Đang tải điểm đón...
+                          </div>
+                        )}
+                        {errorStops && (
+                          <div className="mt-2 text-xs text-red-600">
+                            Không tải được điểm đón
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col gap-3">
@@ -329,6 +348,16 @@ function CheckOut() {
                           </SelectContent>
                         </Select>
                         <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-[#5b2642] md:h-5 md:w-5" />
+                        {loadingStops && (
+                          <div className="mt-2 text-xs text-[#5b2642]">
+                            Đang tải điểm trả...
+                          </div>
+                        )}
+                        {errorStops && (
+                          <div className="mt-2 text-xs text-red-600">
+                            Không tải được điểm trả
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -343,6 +372,16 @@ function CheckOut() {
                   </h2>
                 </div>
                 <CardContent className="p-5 md:p-6">
+                  {loading && (
+                    <div className="mb-3 text-sm text-[#5b2642]">
+                      Đang tải phương thức thanh toán...
+                    </div>
+                  )}
+                  {error && (
+                    <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      {error}
+                    </div>
+                  )}
                   <RadioGroup
                     defaultValue="credit-card"
                     className="flex flex-col gap-3 md:gap-4"
@@ -503,6 +542,7 @@ function CheckOut() {
                   </div>
                   <Button
                     className="mt-5 h-12 w-full rounded-[10px] bg-gradient-to-r from-[#f59e0b] to-[#f59e0b] hover:from-[#d97706] hover:to-[#d97706] md:mt-6 md:h-14"
+                    disabled={loadingConfirm}
                     onClick={() => {
                       postConfirm(
                         "/api/bookings/confirm",
@@ -527,10 +567,24 @@ function CheckOut() {
                       );
                     }}
                   >
-                    <span className="[font-family:'Inter-Bold',Helvetica] text-base leading-[normal] font-bold tracking-[0] whitespace-nowrap text-white md:text-lg">
-                      Xác nhận và Thanh toán
-                    </span>
+                    {loadingConfirm ? (
+                      <div className="flex items-center justify-center gap-2 text-white">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />
+                        <span className="[font-family:'Inter-Bold',Helvetica] text-base leading-[normal] font-bold tracking-[0] whitespace-nowrap md:text-lg">
+                          Đang xác nhận...
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="[font-family:'Inter-Bold',Helvetica] text-base leading-[normal] font-bold tracking-[0] whitespace-nowrap text-white md:text-lg">
+                        Xác nhận và Thanh toán
+                      </span>
+                    )}
                   </Button>
+                  {errorConfirm && (
+                    <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      {errorConfirm}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
