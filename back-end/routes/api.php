@@ -29,7 +29,7 @@ Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
 ], function ($router) {
-    
+
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     // Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
@@ -46,19 +46,19 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
     Route::group(['prefix' => 'auth'], function() {
         Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
 
-        
+
     });
     Route::group(['prefix' => 'bookings'], function() {
         Route::post('initiate', [BookingController::class, 'initiate']);
-        Route::post('confirm', [BookingController::class, 'confirm']); 
+        Route::post('confirm', [BookingController::class, 'confirm']);
     });
     Route::get('trips/{id}/stops', [TripController::class, 'getTripStops']);
 
-  
+
 
     // Nhóm các route chỉ dành cho ADMIN
     Route::group(['middleware' => 'role:admin', 'prefix' => 'admin'], function() {
-        
+
         Route::get('/test', function () {
             return response()->json(['message' => 'Chào mừng Admin!']);
         });
@@ -88,14 +88,15 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
              Route::get('/getallverhicel', [ManagerVehicleController::class, 'showAllVerhicel']);
         });
         Route::group(['prefix' => 'Quanlychuyendi'],function(){
-            
+
         });
     });
 
     // Nhóm các route dành cho cả ADMIN và VENDOR
     Route::group(['middleware' => 'role:admin,vendor'], function() {
         //
-       
+
     });
 
 });
+/*kjk

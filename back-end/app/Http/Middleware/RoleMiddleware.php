@@ -23,7 +23,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         // Lấy thông tin người dùng đã được xác thực trước đó
-        $user = auth('api')->user();
+        $user = $request->user('api') ?? $request->user();
 
         // Kiểm tra xem người dùng có tồn tại và role của họ có nằm trong danh sách
         // các role được phép truy cập hay không
