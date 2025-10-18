@@ -9,10 +9,34 @@ use Illuminate\Support\Collection;
 
 
 class ManagerVehicelRepository implements ManagerVehicelRepositoryInterface{
-    public function allForVendor(int $vendorId)
+    public function showAllVehicles(int $vendorId)
     {
         return Vehicles::where('vendor_id', $vendorId)
                         ->with('coaches.seats') // Lấy luôn thông tin toa và ghế
-                        ->get();        
+                        ->get();
+    }
+
+    public function create(array $data)
+    {
+        return Vehicles::create($data);
+    }
+
+    public function getByVendor(int $vendorId)
+    {
+        return Vehicles::where('vendor_id', $vendorId)
+            ->latest()
+            ->paginate(10);
+    }
+
+    public function update(Vehicles $vehicle, array $data)
+    {
+        $vehicle->update($data);
+        return $vehicle;
+    }
+
+    public function delete(Vehicles $vehicle){
+        return $vehicle->delete();
     }
 }
+
+

@@ -2,6 +2,7 @@
 
 namespace App\Services\Vendor;
 
+use App\Models\Vehicles;
 use App\Repositories\Vendor\ManagerVehicelRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +18,29 @@ class ManagerVehicelService{
     }
 
 
-    public function getAllvehicel()
-    {
-        // Lấy thông tin nhà xe đang đăng nhập
-        $vendor = Auth::user()->vendor;
-        
-        // Gọi hàm đã sửa ở Repository
-        return $this->managervehicleRepository->allForVendor($vendor->id);
+    public function  createVehicle(array $data){
+        $user = auth()->user();
+        $data['vendor_id'] = $user->vendor->id;
+
+        return $this->managervehicleRepository->create($data);
     }
+
+    public function getVehicleByVendor()
+    {
+        $vendorID = auth()->user()->vendor->id;
+        return $this->managervehicleRepository->getByVendor($vendorID);
+    }
+
+
+    public function updateVehicle(Vehicles $vehicle, array $data)
+    {
+        return $this->managervehicleRepository->update($vehicle, $data);
+    }
+
+
+    public function deleteVehicle(Vehicles $vehicle){
+        return $this->managervehicleRepository->delete($vehicle);
+    }
+
+
 }

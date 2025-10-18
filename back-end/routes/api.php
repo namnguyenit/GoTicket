@@ -79,14 +79,29 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
             Route::get('/stats', [DashboardController::class, 'getStats']);
         });
 
+
+
+
         Route::group(['prefix' => 'Quanlyve'],function(){
-
-
         });
 
-        Route::group(['prefix' => 'Quanlyxe'],function(){
-             Route::get('/getallverhicel', [ManagerVehicleController::class, 'showAllVerhicel']);
+
+
+
+
+
+        Route::group(['prefix' => 'vehicles'],function(){
+             Route::post('/', [ManagerVehicleController::class, 'create']);
+             Route::get('/', [ManagerVehicleController::class, 'index']);
+            Route::put('/{vehicle}', [ManagerVehicleController::class, 'update']);
+            Route::delete('/{vehicle}', [ManagerVehicleController::class, 'delete']);
         });
+
+
+
+
+
+
         Route::group(['prefix' => 'Quanlychuyendi'],function(){
 
         });
@@ -99,4 +114,3 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
     });
 
 });
-/*kjk

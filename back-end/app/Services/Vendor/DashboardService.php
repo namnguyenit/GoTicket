@@ -33,10 +33,10 @@ class DashboardService
     $weeklyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfWeek, $endOfWeek, 'day');
     
     // Cập nhật doanh thu vào mảng
-    foreach ($weeklyData as $data) {
-        $dayName = Carbon::parse($data->date)->format('D'); // Lấy tên viết tắt của ngày (Mon, Tue...)
-        $weeklyRevenue[$dayName] = (float) $data->total_revenue;
-    }
+    // foreach ($weeklyData as $data) {
+    //     $dayName = Carbon::parse($data->date)->format('D'); // Lấy tên viết tắt của ngày (Mon, Tue...)
+    //     $weeklyRevenue[$dayName] = (float) $data->total_revenue;
+    // }
 
     // --- Thống kê doanh thu theo tháng trong năm hiện tại ---
     $startOfYear = $now->copy()->startOfYear();
@@ -52,10 +52,10 @@ class DashboardService
     $yearlyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfYear, $endOfYear, 'month');
 
     // Cập nhật doanh thu vào mảng
-    foreach ($yearlyData as $data) {
-        $monthName = Carbon::create()->month($data->month)->format('M'); // Lấy tên viết tắt của tháng (Jan, Feb...)
-        $monthlyRevenue[$monthName] = (float) $data->total_revenue;
-    }
+    // foreach ($yearlyData as $data) {
+    //     $monthName = Carbon::create()->month($data->month)->format('M'); // Lấy tên viết tắt của tháng (Jan, Feb...)
+    //     $monthlyRevenue[$monthName] = (float) $data->total_revenue;
+    // }
 
     return [
         'weekly_revenue_by_day' => $weeklyRevenue,
