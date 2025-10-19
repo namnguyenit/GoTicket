@@ -23,8 +23,6 @@ class ManagerVehicleController extends Controller
     {
         $this->managerVehicelService = $managerVehicelService;
     }
-
-
     public function store(CreateVehicleRequest $request){
         try{
             $validated = $request->validated();
@@ -39,7 +37,7 @@ class ManagerVehicleController extends Controller
     {
         try{
             $vehicles = $this->managerVehicelService->getVehicleByVendor();
-            return $this->success(VehicleResource::collection($vehicles), ApiSuccess::GET_DATA_SUCCESS );
+            return $this->success(VehicleResource::collection($vehicles), ApiSuccess::GET_DATA_SUCCESS);
         }catch (\Exception $e){
             return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
         }

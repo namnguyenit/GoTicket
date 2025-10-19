@@ -96,15 +96,11 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
             Route::put('/{vehicle}', [ManagerVehicleController::class, 'update']);
             Route::delete('/{vehicle}', [ManagerVehicleController::class, 'delete']);
         });
+        Route::group(['prefix' => 'stops'], function () {
 
-
-
-
-
-
-        Route::group(['prefix' => 'Quanlychuyendi'],function(){
-
+            Route::post('/', [StopController::class, 'create']);
         });
+
     });
 
     // Nhóm các route dành cho cả ADMIN và VENDOR

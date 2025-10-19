@@ -12,12 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_coaches', function (Blueprint $table) {
-            $table->unsignedInteger('trip_id');
-            $table->unsignedInteger('coach_id');
+            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
+            $table->foreignId('coach_id')->constrained('coaches')->cascadeOnDelete();
             $table->integer('coach_order')->default(1);
             $table->primary(['trip_id','coach_id']);
-            $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
-            $table->foreign('coach_id')->references('id')->on('coaches')->cascadeOnDelete();
         });
     }
 

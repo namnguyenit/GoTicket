@@ -12,14 +12,13 @@ return new class extends Migration
     public function up(): void
 {
     Schema::create('trips', function (Blueprint $table) {
-        $table->increments('id');
-        $table->unsignedInteger('vendor_route_id'); 
+        $table->id();
+        $table->foreignId('vendor_route_id')->constrained('vendor_routes')->onDelete('cascade');
         $table->dateTime('departure_datetime');
         $table->dateTime('arrival_datetime');
         $table->decimal('base_price', 10, 2);
         $table->enum('status', ['scheduled','ongoing','completed','cancelled'])->default('scheduled');
         $table->timestamps();
-        $table->foreign('vendor_route_id')->references('id')->on('vendor_routes')->cascadeOnDelete();
     });
 }
 

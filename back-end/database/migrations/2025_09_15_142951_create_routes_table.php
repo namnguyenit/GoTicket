@@ -12,15 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('routes', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('origin_location_id');
-            $table->unsignedInteger('destination_location_id');
-
-            
-            $table->foreign('origin_location_id')->references('id')->on('locations')->cascadeOnDelete();
-            $table->foreign('destination_location_id')->references('id')->on('locations')->cascadeOnDelete();
-
-            // Đảm bảo không có tuyến đường trùng lặp
+            $table->id();
+            $table->foreignId('origin_location_id')->constrained('locations')->onDelete('cascade');
+            $table->foreignId('destination_location_id')->constrained('locations')->onDelete('cascade');
             $table->unique(['origin_location_id', 'destination_location_id']);
         });
     }
