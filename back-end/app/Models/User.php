@@ -48,7 +48,6 @@ class User extends Authenticatable implements JWTSubject
     public $timestamps = true;
 
     protected $hidden = ['password'];
-    rà
 
     public function bookings(){
         return $this->hasMany(Bookings::class, 'user_id');
