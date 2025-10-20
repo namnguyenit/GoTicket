@@ -94,7 +94,7 @@ function AddressOption() {
 
   return (
     <>
-      <div className="grid size-full grid-rows-[25%]">
+      <div className="grid size-full grid-rows-[50px]">
         {/* Vehicle Option Navigator */}
         <div className="relative overflow-hidden rounded-t-2xl bg-[#5B2642]">
           {/* top loading/error banner */}
