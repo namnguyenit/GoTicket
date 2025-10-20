@@ -18,6 +18,10 @@ enum ApiError: string
     case WRONG_PASSWORD = "WRONG_PASSWORD";
     case DATA_NULL = "DATA_NULL"; 
 
+
+    case ACCOUNT_INACTIVE = "ACCOUNT_INACTIVE";
+
+
     public function getHttpCode(): int
     {
         return match ($this) {
@@ -27,6 +31,7 @@ enum ApiError: string
             self::VALIDATION_FAILED, self::EMAIL_ALREADY_EXISTS => 422,
             self::EMAIL_NOT_EXISTS ,self::WRONG_PASSWORD => 423,
             self::DATA_NULL => 201,
+            self::FORBIDDEN, self::ACCOUNT_INACTIVE => 403,
             default => 500, // Mặc định là lỗi server
         };
     }
@@ -44,6 +49,7 @@ enum ApiError: string
             self::WRONG_PASSWORD => 'Sai mật khẩu',
             self::EMAIL_NOT_EXISTS => 'email không tồn tại',
             self::DATA_NULL => 'data trống',
+            self::ACCOUNT_INACTIVE => 'Tài khoản chưa được kích hoạt hoặc đã bị khóa.',
             default => 'Lỗi không xác định.',
         };
     }

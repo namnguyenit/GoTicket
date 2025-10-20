@@ -30,6 +30,12 @@ class UserRepository implements UserRepositoryInterface
         // Nếu có tham số 'role' được truyền vào, thêm điều kiện lọc
         if ($role) {
             $query->where('role', $role);
+
+            // ĐIỀU KIỆN ĐẶC BIỆT: Nếu là 'vendor', lấy kèm thông tin vendor
+            if ($role === 'vendor') {
+                // Eager load the 'vendor' relationship
+                $query->with('vendor');
+            }
         }
 
         return $query->get();

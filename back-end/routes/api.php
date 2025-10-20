@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
 use App\Http\Controllers\Api\Admin\DashboardAdminController; 
+use App\Http\Controllers\Api\Admin\VendorController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -71,8 +73,9 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::delete('/users/{email}', [UserController::class, 'delete']);
 
         Route::get('/dashboard/top-vendors', [DashboardAdminController::class, 'getTopVendors']);
-        
+
         Route::get('/dashboard/stats', [DashboardAdminController::class, 'getOverallStats']);
+        Route::put('vendors/{vendor}/status', [VendorController::class, 'updateStatus']);
     });
 
     // Nhóm các route chỉ dành cho NHÀ XE (VENDOR)

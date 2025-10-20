@@ -30,17 +30,29 @@ class AuthService
         $user = $this->userRepository->findByEmail($credentials['email']);
 
         if (!$user) {
-            // Nếu không tìm thấy, trả về lỗi USER_NOT_FOUND
             return ['error' => ApiError::EMAIL_NOT_EXISTS];
         }
 
-        // Bước 2: Nếu user tồn tại, thử xác thực mật khẩu
+        // Bước 2: KIỂM TRA ĐẶC BIỆT DÀNH CHO NHÀ XE (VENDOR)
+        // Nếu user có vai trò là 'vendor', kiểm tra trạng thái của nhà xe đó
+        if ($user->role === 'vendor') {
+            // Dùng Eager Loading để lấy thông tin vendor liên quan
+            $user->load('vendor'); 
+            
+            // Nếu không có thông tin vendor hoặc trạng thái không phải là 'active'
+            if (! $user->vendor || $user->vendor->status !== 'active') {
+                // Trả về lỗi, không cho đăng nhập
+                return ['error' => ApiError::ACCOUNT_INACTIVE];
+            }
+        }
+        
+        // Bước 3: Nếu mọi thứ ổn, thử xác thực mật khẩu và tạo token
         if (! $token = auth('api')->attempt($credentials)) {
             // Nếu `attempt` thất bại, có nghĩa là mật khẩu sai
             return ['error' => ApiError::WRONG_PASSWORD];
         }
 
-        // Bước 3: Nếu thành công, trả về token
+        // Bước 4: Nếu thành công, trả về token
         return ['token' => $token];
     }
 
