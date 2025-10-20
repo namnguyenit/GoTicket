@@ -25,7 +25,8 @@
   width: 55%;
   height: 90%;
   display: flex;
-  justify-content: start;
+  justify-content: end;
+  margin-right: 100px;
 }
 
 .navBar {
@@ -47,7 +48,6 @@
 }
 
 .auth {
-  width: 40%;
   height: 100%;
   display: flex;
   justify-content: center;

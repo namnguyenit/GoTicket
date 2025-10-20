@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import { URL } from "@/config";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, LockIcon, UserIcon } from "lucide-react";
+import { LogOutContext } from "@/context/LogoutProvider";
 
 interface SigninType {
   email: string | null;
@@ -13,6 +14,8 @@ interface SigninType {
 }
 const initSign: SigninType = { email: null, password: null };
 function Signin() {
+  const { setLogout } = useContext(LogOutContext);
+
   const [info, setInfo] = useState(initSign);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ function Signin() {
         "Authorisation",
         "Bearer " + data.data.authorisation.token,
       );
+      setLogout(false);
       navigate("/", { replace: true });
     }
   }, [data]);
@@ -175,7 +179,9 @@ function Signin() {
                 <span>Chưa có tài khoản? </span>
                 <button
                   type="button"
-                  onClick={() => navigate("/signup")}
+                  onClick={() => {
+                    navigate("/sign-up");
+                  }}
                   className="font-semibold text-[#6d0236] underline-offset-4 hover:underline"
                 >
                   Đăng kí ngay

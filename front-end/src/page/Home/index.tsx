@@ -4,7 +4,8 @@ import Assets from "../../assets";
 import type { JSX } from "react";
 
 function Home() {
-  console.log(localStorage.getItem("Authorisation"));
+  // console.log(localStorage.getItem("Authorisation"));
+
   return (
     <>
       <div className="h-screen w-screen select-none">
@@ -17,7 +18,7 @@ function Home() {
               Get rewarded for your travels – unlock instant savings of 10% or
               more with a free Geairinfo.com account
             </div>
-            <div className={style.button}>Sign In/ Register</div>
+            <div className="text-white">Let's go. Booking trip right now !</div>
           </div>
         </div>
       </div>
