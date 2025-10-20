@@ -2,14 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RouteController;
 use App\Http\Controllers\Api\TripController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
-
+use App\Http\Controllers\Api\Admin\DashboardAdminController; 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -70,7 +70,9 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::put('/users/{email}', [UserController::class, 'updateUser']);
         Route::delete('/users/{email}', [UserController::class, 'delete']);
 
-
+        Route::get('/dashboard/top-vendors', [DashboardAdminController::class, 'getTopVendors']);
+        
+        Route::get('/dashboard/stats', [DashboardAdminController::class, 'getOverallStats']);
     });
 
     // Nhóm các route chỉ dành cho NHÀ XE (VENDOR)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin; 
 
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
@@ -10,7 +10,7 @@ use App\Services\UserService;
 use App\Http\Helpers\ResponseHelper;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -24,9 +24,17 @@ class UserController extends Controller
     }
 
 
-    public function getAll(){
-         $users = $this->userService->getAll();
-         return $this->success(UserResource::collection($users), ApiSuccess::GET_DATA_SUCCESS);
+    public function getAll(Request $request){
+        // Validate tham số 'role' (nếu có)
+        // Chỉ cho phép các giá trị 'customer', 'vendor', hoặc 'admin'
+        $validated = $request->validate([
+            'role' => ['nullable', 'string', Rule::in(['customer', 'vendor', 'admin'])]
+        ]);
+        
+        $role = $validated['role'] ?? null;
+         
+        $users = $this->userService->getAll($role);
+        return $this->success(UserResource::collection($users), ApiSuccess::GET_DATA_SUCCESS);
     }
 
     public function findByEmail(string $email){

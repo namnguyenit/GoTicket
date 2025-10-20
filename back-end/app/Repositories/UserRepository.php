@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -22,9 +23,16 @@ class UserRepository implements UserRepositoryInterface
         return User::where('email', $email)->first();
     }
 
-    public function all()
+    public function all(?string $role = null): Collection
     {
-        return User::all();
+        $query = User::query();
+
+        // Nếu có tham số 'role' được truyền vào, thêm điều kiện lọc
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        return $query->get();
     }
 
 

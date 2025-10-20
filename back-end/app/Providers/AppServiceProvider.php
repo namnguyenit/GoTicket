@@ -28,7 +28,9 @@ use App\Services\Vendor\DashboardService;
 use App\Repositories\Vendor\ManagerVehicelRepository;
 use App\Repositories\Vendor\ManagerVehicelRepositoryInterface;
 use App\Services\Vendor\ManagerVehicelService;
-
+use App\Repositories\Admin\DashboardAdminRepository;
+use App\Repositories\Admin\DashboardAdminRepositoryInterface;
+use App\Services\Admin\DashboardAdminService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DashboardService::class);
         $this->app->bind(ManagerVehicelRepositoryInterface::class , ManagerVehicelRepository::class);
         $this->app->bind(ManagerVehicelService::class);
+        $this->app->bind(DashboardAdminRepositoryInterface::class , DashboardAdminRepository::class);
+        $this->app->bind(DashboardAdminService::class);
     }
 
     /**

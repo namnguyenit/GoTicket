@@ -19,8 +19,8 @@ class UserService{
 
     
     
-    public function getAll(){
-        $alluser  = $this->userRepository->all();
+    public function getAll(?string $role = null){
+        $alluser  = $this->userRepository->all($role);
         return $alluser; 
     }
 
