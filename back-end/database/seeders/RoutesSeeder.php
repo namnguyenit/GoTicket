@@ -3,34 +3,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Location; 
-use App\Models\Routes;   
-use Illuminate\Support\Facades\DB;
+use App\Models\Routes;
 
 class RoutesSeeder extends Seeder
 {
-
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Routes::truncate(); 
-
-
-        $locations = Location::all();
-
-
-        foreach ($locations as $origin) {
-            foreach ($locations as $destination) {
-
-                if ($origin->id !== $destination->id) {
-                    Routes::create([
-                        'origin_location_id' => $origin->id,
-                        'destination_location_id' => $destination->id,
-                    ]);
-                }
-            }
-        }
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // Tuyến Sài Gòn - Đà Lạt
+        Routes::create(['origin_location_id' => 1, 'destination_location_id' => 4]);
+        // Tuyến Sài Gòn - Nha Trang
+        Routes::create(['origin_location_id' => 1, 'destination_location_id' => 5]);
+        // Tuyến Hà Nội - Đà Nẵng
+        Routes::create(['origin_location_id' => 2, 'destination_location_id' => 3]);
     }
 }

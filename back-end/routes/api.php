@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TripController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
+use App\Http\Controllers\Api\Vendor\StopController;
 
 
 Route::get('/user', function (Request $request) {
@@ -91,14 +92,14 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
 
         Route::group(['prefix' => 'vehicles'],function(){
-             Route::post('/', [ManagerVehicleController::class, 'create']);
+             Route::post('/', [ManagerVehicleController::class, 'store']);
              Route::get('/', [ManagerVehicleController::class, 'index']);
             Route::put('/{vehicle}', [ManagerVehicleController::class, 'update']);
-            Route::delete('/{vehicle}', [ManagerVehicleController::class, 'delete']);
+            Route::delete('/{vehicle}', [ManagerVehicleController::class, 'destroy']);
         });
         Route::group(['prefix' => 'stops'], function () {
 
-            Route::post('/', [StopController::class, 'create']);
+            Route::post('/', [StopController::class, 'store']);
         });
 
     });
