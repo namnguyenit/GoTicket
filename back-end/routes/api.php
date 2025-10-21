@@ -69,13 +69,18 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::get('/users', [UserController::class, 'getAll']);
         Route::get('/users/search', [UserController::class, 'findByName']); // Đặt trước route có tham số
         Route::get('/users/{email}', [UserController::class, 'findByEmail']);
-        Route::put('/users/{email}', [UserController::class, 'updateUser']);
+        Route::put('/users/{email}', [UserController::class, 'update']);
         Route::delete('/users/{email}', [UserController::class, 'delete']);
 
         Route::get('/dashboard/top-vendors', [DashboardAdminController::class, 'getTopVendors']);
 
         Route::get('/dashboard/stats', [DashboardAdminController::class, 'getOverallStats']);
-        Route::put('vendors/{vendor}/status', [VendorController::class, 'updateStatus']);
+
+        Route::get('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'show']);
+        Route::put('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'update']);
+        Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']); 
+
+        Route::post('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'store']);
     });
 
     // Nhóm các route chỉ dành cho NHÀ XE (VENDOR)

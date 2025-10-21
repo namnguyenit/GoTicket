@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\DB;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -78,12 +80,37 @@ class UserRepository implements UserRepositoryInterface
     }
 
 
-    public function update(string $email, array $data): bool
+    public function update(User $user, array $data): bool
     {
-        $user = $this->findByEmail($email);
-        if ($user) {
-            return $user->update($data); 
+        // $data ở đây chỉ chứa name, phone_number, role (đã được lọc từ Service)
+        if (empty($data)) {
+            return true;
         }
-        return false;
+        
+        return $user->update($data);
+    }
+
+    public function createVendor(array $userData, array $vendorData): User
+    {
+        return DB::transaction(function () use ($userData, $vendorData) {
+            // 1. Tạo User (vai trò vendor)
+            $user = User::create([
+                'name' => $userData['name'],
+                'phone_number' => $userData['phone_number'],
+                'email' => $userData['email'],
+                'password' => Hash::make($userData['password']),
+                'role' => 'vendor', // Gán vai trò là vendor
+            ]);
+
+            // 2. Tạo bản ghi Vendor
+            Vendor::create([
+                'user_id' => $user->id,
+                'company_name' => $vendorData['company_name'],
+                'address' => $vendorData['address'],
+                'status' => 'pending', // Mặc định là 'pending'
+            ]);
+
+            return $user;
+        });
     }
 }

@@ -104,7 +104,15 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
             })->count();
         };
 
-        return [
+
+        // Tính toán trạng thái Vendor
+        $vendorStatuses = Vendor::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+
+return [
             'revenue' => [
                 'today' => (float) $getTotalRevenue($startOfToday, $endOfToday),
                 'this_week' => (float) $getTotalRevenue($startOfWeek, $endOfWeek),
@@ -115,11 +123,15 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
                 'this_week' => (int) $getTotalTickets($startOfWeek, $endOfWeek),
                 'this_month' => (int) $getTotalTickets($startOfMonth, $endOfMonth),
             ],
-            // Thay thế 'new_users' bằng 'totals'
             'totals' => [
-                 'users' => User::count(), // Đếm tổng số người dùng
-                 'vendors' => Vendor::count(), // Đếm tổng số nhà xe
-            ]
+                 'users' => User::count(),
+                 'vendors' => Vendor::count(),
+            ],
+            'vendor_status_distribution' => [ // ✅ THÊM KHỐI MỚI NÀY
+                'active' => $vendorStatuses['active'] ?? 0,
+                'pending' => $vendorStatuses['pending'] ?? 0,
+                'suspended' => $vendorStatuses['suspended'] ?? 0,
+            ],
         ];
     }
     
