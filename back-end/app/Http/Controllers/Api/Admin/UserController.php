@@ -47,13 +47,18 @@ class UserController extends Controller
     }
     
     public function findByName(Request $request){
-        $name = $request->query('name'); 
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            // Role là không bắt buộc, nhưng nếu có phải là một trong các giá trị này
+            'role' => ['nullable', 'string', Rule::in(['customer', 'vendor'])]
+        ]);
 
-        if (!$name) {
-            return $this->error(ApiError::VALIDATION_FAILED, ['name' => 'The name field is required.']);
-        }
+        $name = $validated['name'];
+        $role = $validated['role'] ?? null; // Lấy role nếu có
 
-        $users = $this->userService->findByName($name);
+        $users = $this->userService->findByName($name, $role);
+        
+        // Dùng UserResource vì nó đã đủ thông minh để hiển thị status của vendor
         return $this->success(UserResource::collection($users), ApiSuccess::GET_DATA_SUCCESS);
     }
 

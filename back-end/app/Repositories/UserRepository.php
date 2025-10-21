@@ -42,9 +42,29 @@ class UserRepository implements UserRepositoryInterface
     }
 
 
-    public function findByName(string $name)
+    public function findByName(string $name, ?string $role = null): Collection
     {
-        return User::where('name', 'LIKE', "%$name%")->get();
+        $query = User::query();
+
+        // Nếu không có role hoặc role là 'customer', chỉ tìm theo tên user
+        if (!$role || $role === 'customer') {
+            $query->where('role', 'customer')
+                  ->where('name', 'LIKE', $name . '%');
+        } 
+        // Nếu role là 'vendor', tìm kiếm phức tạp hơn
+        elseif ($role === 'vendor') {
+            $query->where('role', 'vendor')
+                  ->with('vendor') // Lấy kèm thông tin vendor
+                  // Điều kiện: Hoặc tên user khớp, HOẶC tên công ty của vendor khớp
+                  ->where(function ($q) use ($name) {
+                      $q->where('name', 'LIKE', $name . '%')
+                        ->orWhereHas('vendor', function ($subQ) use ($name) {
+                            $subQ->where('company_name', 'LIKE', $name . '%');
+                        });
+                  });
+        }
+
+        return $query->take(10)->get();
     }
 
 

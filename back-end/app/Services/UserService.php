@@ -30,9 +30,9 @@ class UserService{
     }
 
     // Bổ sung tham số $name
-    public function findByName(string $name){
-        $alluser = $this->userRepository->findByName($name);
-        return $alluser;
+    public function findByName(string $name, ?string $role = null)
+    {
+        return $this->userRepository->findByName($name, $role);
     }
 
     public function findByEmail(string $email){
