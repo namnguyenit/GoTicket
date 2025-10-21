@@ -306,7 +306,7 @@ Sample success response (201):
 
 ## Vendor (auth:api + role:vendor)
 
-### GET /api/vendor/Tongquan/stats
+### GET /api/vendor/dashboard/stats
 Sample success response (200):
 ```json
 {
@@ -338,6 +338,256 @@ Sample success response (200):
       "Dec": 0
     }
   }
+}
+```
+
+### Vendor Stops (điểm dừng)
+
+Tất cả endpoint đều yêu cầu Header: `Authorization: Bearer <JWT>` và role `vendor`.
+
+#### POST /api/vendor/stops
+Body (JSON):
+```json
+{
+  "name": "Bến xe Miền Đông",
+  "address": "292 Đinh Bộ Lĩnh, Bình Thạnh, TP.HCM",
+  "location_id": 1
+}
+```
+
+Sample success (201):
+```json
+{
+  "success": true,
+  "status": 201,
+  "message": "Tạo mới thành công",
+  "data": {
+    "id": 10,
+    "name": "Bến xe Miền Đông",
+    "address": "292 Đinh Bộ Lĩnh, Bình Thạnh, TP.HCM",
+    "location_id": 1,
+    "vendor_id": 3
+  }
+}
+```
+
+Validation error (422):
+```json
+{
+  "success": false,
+  "status": 422,
+  "error_code": "VALIDATION_FAILED",
+  "message": "Yêu cầu không hợp lệ",
+  "errors": {
+    "name": ["Tên điểm dừng là bắt buộc."],
+    "address": ["Địa chỉ là bắt buộc."],
+    "location_id": ["Vui lòng chọn tỉnh/thành phố."]
+  }
+}
+```
+
+#### GET /api/vendor/stops
+Query (tùy chọn): `page`, `per_page`, `keyword`
+
+Sample success (200) — có thể trả về danh sách dạng mảng hoặc phân trang tùy implementation:
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": [
+    { "id": 10, "name": "Bến xe Miền Đông", "address": "...", "location_id": 1, "vendor_id": 3 }
+  ]
+}
+```
+
+#### GET /api/vendor/stops/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": {
+    "id": 10,
+    "name": "Bến xe Miền Đông",
+    "address": "292 Đinh Bộ Lĩnh, Bình Thạnh, TP.HCM",
+    "location_id": 1,
+    "vendor_id": 3
+  }
+}
+```
+
+#### PUT /api/vendor/stops/{id}
+Body (JSON) — cập nhật một phần hoặc toàn bộ:
+```json
+{
+  "name": "Bến xe Miền Đông (mới)",
+  "address": "...",
+  "location_id": 2
+}
+```
+
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Cập nhật thành công",
+  "data": {
+    "id": 10,
+    "name": "Bến xe Miền Đông (mới)",
+    "address": "...",
+    "location_id": 2,
+    "vendor_id": 3
+  }
+}
+```
+
+#### DELETE /api/vendor/stops/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Xóa điểm dừng thành công"
+}
+```
+
+### Vendor Vehicles (phương tiện, coach/seat tự sinh theo loại)
+
+Tất cả endpoint đều yêu cầu Header: `Authorization: Bearer <JWT>` và role `vendor`.
+
+#### POST /api/vendor/vehicles
+Body (JSON) — tùy theo `vehicle_type`:
+
+Xe bus:
+```json
+{
+  "name": "Xe ABC",
+  "vehicle_type": "bus",
+  "license_plate": "51A-123.45",
+  "coach": {
+    "coach_type": "sleeper_vip",
+    "total_seats": 34
+  }
+}
+```
+
+Tàu hỏa:
+```json
+{
+  "name": "Tàu SE01",
+  "vehicle_type": "train",
+  "license_plate": null,
+  "coaches": [
+    { "coach_type": "seat_soft", "total_seats": 56, "quantity": 2 },
+    { "coach_type": "seat_VIP",  "total_seats": 40, "quantity": 1 }
+  ]
+}
+```
+
+Sample success (201):
+```json
+{
+  "success": true,
+  "status": 201,
+  "message": "Tạo mới thành công",
+  "data": {
+    "id": 7,
+    "license_plate": "51A-123.45",
+    "type": null,
+    "capacity": null,
+    "created_at": "2025-10-22T07:15:00.000000Z"
+  }
+}
+```
+
+Validation error (422) ví dụ:
+```json
+{
+  "success": false,
+  "status": 422,
+  "error_code": "VALIDATION_FAILED",
+  "message": "Yêu cầu không hợp lệ",
+  "errors": {
+    "name": ["Tên phương tiện là bắt buộc."],
+    "vehicle_type": ["Loại phương tiện là bắt buộc."],
+    "coach.total_seats": ["Trường này là bắt buộc khi vehicle_type=bus."],
+    "coaches": ["Trường này là bắt buộc khi vehicle_type=train."]
+  }
+}
+```
+
+#### GET /api/vendor/vehicles
+Query (tùy chọn): `page` (mặc định 1)
+
+Sample success (200) — phân trang:
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": {
+    "data": [
+      { "id": 7, "license_plate": "51A-123.45", "type": null, "capacity": null, "created_at": "2025-10-22T07:15:00.000000Z" }
+    ],
+    "links": { "first": "...", "last": "...", "prev": null, "next": null },
+    "meta": { "current_page": 1, "last_page": 1, "per_page": 10, "total": 1 }
+  }
+}
+```
+
+#### GET /api/vendor/vehicles/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": {
+    "id": 7,
+    "license_plate": "51A-123.45",
+    "type": null,
+    "capacity": null,
+    "created_at": "2025-10-22T07:15:00.000000Z"
+  }
+}
+```
+
+#### PUT /api/vendor/vehicles/{id}
+Body (JSON):
+```json
+{
+  "license_plate": "51A-999.99",
+  "type": "bus",
+  "capacity": 40
+}
+```
+
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Cập nhật thành công",
+  "data": {
+    "id": 7,
+    "license_plate": "51A-999.99",
+    "type": "bus",
+    "capacity": 40,
+    "created_at": "2025-10-22T07:15:00.000000Z"
+  }
+}
+```
+
+#### DELETE /api/vendor/vehicles/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Xóa phương tiện thành công"
 }
 ```
 
