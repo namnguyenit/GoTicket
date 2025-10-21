@@ -11,10 +11,26 @@ return new class extends Migration
         Schema::create('coaches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+
+            // Tên định danh cho toa, ví dụ: "Toa 1", "Toa 2", "VIP-A"
             $table->string('identifier', 50);
-            $table->enum('coach_type', ['sleeper_vip', 'sleeper_regular', 'seat_soft', 'seat_hard', 'limousine']);
+
+            // Loại toa/xe
+            $table->enum('coach_type', [
+                'sleeper_vip',      
+                'sleeper_regular',  
+                'limousine',        
+                'seat_soft',        
+                'seat_VIP'
+            ]);
+
+            // Tổng số ghế trong toa/xe này
             $table->integer('total_seats');
+
+            // Đảm bảo mỗi toa trong một đoàn tàu/xe có tên định danh duy nhất
             $table->unique(['vehicle_id', 'identifier']);
+
+            $table->timestamps();
         });
     }
 

@@ -8,10 +8,13 @@ use App\Http\Resources\Vendor\StopResource;
 use App\Services\Vendor\StopService;
 use App\Enums\ApiSuccess;
 use App\Enums\ApiError;
+use App\Http\Helpers\ResponseHelper;
 
 class StopController extends Controller
 {
     protected $stopService;
+    use ResponseHelper;
+
 
     public function __construct(StopService $stopService)
     {

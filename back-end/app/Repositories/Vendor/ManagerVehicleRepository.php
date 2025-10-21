@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 
 
-class ManagerVehicelRepository implements ManagerVehicelRepositoryInterface{
+class ManagerVehicleRepository implements ManagerVehicleRepositoryInterface{
     public function showAllVehicles(int $vendorId)
     {
         return Vehicles::where('vendor_id', $vendorId)

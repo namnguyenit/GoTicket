@@ -10,7 +10,7 @@ use App\Http\Resources\Vendor\VehicleResource;
 use App\Models\Vehicles;
 use Illuminate\Http\Request;
 use App\Http\Helpers\ResponseHelper;
-use App\Services\Vendor\ManagerVehicelService;
+use App\Services\Vendor\ManagerVehicleService;
 use App\Enums\ApiSuccess;
 
 class ManagerVehicleController extends Controller
@@ -19,7 +19,7 @@ class ManagerVehicleController extends Controller
 
     protected $managerVehicelService;
 
-    public function __construct(ManagerVehicelService $managerVehicelService)
+    public function __construct(ManagerVehicleService $managerVehicelService)
     {
         $this->managerVehicelService = $managerVehicelService;
     }

@@ -3,7 +3,7 @@
 namespace App\Repositories\Vendor;
 use App\Models\Vehicles;
 use Illuminate\Support\Collection;
-interface ManagerVehicelRepositoryInterface
+interface ManagerVehicleRepositoryInterface
 {
     public function showAllVehicles(int $vendorId);
     public function create(array $data);
