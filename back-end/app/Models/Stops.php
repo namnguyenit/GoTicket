@@ -11,9 +11,9 @@ class Stops extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'vendori_id',
         'name',
         'address',
         'location_id',
+        'vendor_id',
     ];
 }

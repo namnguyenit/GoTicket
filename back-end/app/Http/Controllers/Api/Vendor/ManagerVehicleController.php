@@ -13,6 +13,8 @@ use App\Http\Helpers\ResponseHelper;
 use App\Services\Vendor\ManagerVehicleService;
 use App\Enums\ApiSuccess;
 
+
+
 class ManagerVehicleController extends Controller
 {
     use ResponseHelper;
@@ -33,7 +35,7 @@ class ManagerVehicleController extends Controller
         }
     }
 
-    public function index()
+    public function index(): \Illuminate\Http\JsonResponse
     {
         try{
             $vehicles = $this->managerVehicelService->getVehicleByVendor();
@@ -57,7 +59,7 @@ class ManagerVehicleController extends Controller
     public function delete(Vehicles $vehicle)
     {
         try{
-            if($vehicle->vendor()->id != auth()->user()->vendor->id){
+            if ($vehicle->vendor_id != auth()->user()->vendor->id){
                 return $this->error(ApiError::FORBIDDEN);
             }
             $this->managerVehicelService->deleteVehicle($vehicle);
@@ -69,7 +71,7 @@ class ManagerVehicleController extends Controller
 
 
     public function showAllVerhicel(){
-        $data = $this->managerVehicelService->getAllvehicel();
+        $data = $this->managerVehicelService->getVehicleByVendor();
 
         // ✅ Sửa lỗi gõ nhầm: erro -> error
         if ($data->isEmpty()) {

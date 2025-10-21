@@ -7,11 +7,12 @@ use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiSuccess;
 use App\Services\Vendor\DashboardService;
 
+
 class DashboardController extends Controller
 {
     use ResponseHelper;
 
-    protected $dashboardService;
+    protected DashboardService $dashboardService;
 
     public function __construct(DashboardService $dashboardService)
     {

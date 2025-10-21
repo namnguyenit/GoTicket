@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Vendor;
 
 use App\Http\Requests\Api\ApiRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateVehicleRequest extends ApiRequest
 {

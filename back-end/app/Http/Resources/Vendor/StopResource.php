@@ -15,11 +15,11 @@ class StopResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'address' => $this->address,
+            'id'          => $this->id,
+            'name'        => $this->name,
+            'address'     => $this->address,
             'location_id' => $this->location_id,
-            'created_at' => $this->created_at->toDateTimeString(),
+            'vendor_id'   => $this->vendor_id,
         ];
     }
 }

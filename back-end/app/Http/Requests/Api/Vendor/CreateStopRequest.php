@@ -6,28 +6,31 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CreateStopRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true;
+        // Yêu cầu đăng nhập và có vendor
+        return auth()->check() && auth()->user()?->vendor()->exists();
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    protected function prepareForValidation(): void
+    {
+        $vendorId = auth()->user()?->vendor?->id;
+        if ($vendorId) {
+            $this->merge(['vendor_id' => $vendorId]);
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'location_id' => 'required|integer|exists:locations,id',
+            'name' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:500'],
+            'location_id' => ['required', 'integer', 'exists:locations,id'],
+            // Không cho client gửi, nhưng validate giá trị đã merge từ server
+            'vendor_id' => ['required', 'integer', 'exists:vendors,id'],
         ];
     }
-    public function messages(): array{
+        public function messages(): array{
         return [
             'name.required' => 'Tên điểm dừng là bắt buộc.',
             'address.required' => 'Địa chỉ là bắt buộc.',

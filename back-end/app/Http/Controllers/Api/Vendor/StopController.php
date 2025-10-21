@@ -13,7 +13,7 @@ use App\Http\Helpers\ResponseHelper;
 class StopController extends Controller
 {
     protected $stopService;
-    use ResponseHelper;
+    use ResponseHelper ;
 
 
     public function __construct(StopService $stopService)
@@ -25,13 +25,14 @@ class StopController extends Controller
     public function store(CreateStopRequest $request)
     {
         try {
-            $validatedData = $request->validated();
-            $stop = $this->stopService->createStop($validatedData);
+            $data = $request->validated(); // đã có vendor_id từ prepareForValidation
+            $stop = $this->stopService->createStop($data);
 
             return $this->success(new StopResource($stop), ApiSuccess::CREATED_SUCCESS);
 
-        } catch (\Exception $e) {
-            return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+            return $this->error(ApiError::SERVER_ERROR, config('app.debug') ? $e->getMessage() : null);
         }
     }
 }
