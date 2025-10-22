@@ -20,15 +20,6 @@ class UpdateProfileRequest extends ApiRequest
             // Cập nhật thông tin cơ bản
             'name' => 'sometimes|string|max:255',
             'phone_number' => 'sometimes|string|digits:10',
-            
-            // ✅ CẬP NHẬT EMAIL: Phải là duy nhất, nhưng bỏ qua email của chính user này
-            'email' => [
-                'sometimes',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users')->ignore($userId),
-            ],
 
             // ✅ LOGIC MẬT KHẨU MỚI
             // Mật khẩu hiện tại, bắt buộc phải có nếu người dùng muốn đổi mật khẩu mới

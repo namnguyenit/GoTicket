@@ -55,11 +55,11 @@ class AuthService
         return auth('api')->user();
     }
 
-    
+
     public function updateProfile(User $user, array $data): bool
     {
         // 1. Lọc ra các trường thông tin cơ bản để cập nhật (name, phone, email)
-        $updateData = collect($data)->only(['name', 'phone_number', 'email'])->all();
+        $updateData = collect($data)->only(['name', 'phone_number'])->all();
 
         // 2. Xử lý logic thay đổi mật khẩu
         if (!empty($data['password'])) {
