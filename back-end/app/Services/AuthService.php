@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Enums\ApiError;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthService
 {
@@ -64,7 +66,10 @@ class AuthService
         // 2. Xác thực token.
         // 3. Lấy user ID từ token.
         // 4. Truy vấn database và trả về đối tượng User tương ứng.
-        return auth('api')->user();
+        Log::info('Attempting to get user via auth(\'api\')->user()');
+        $user = auth('api')->user();
+        Log::info('Result from auth(\'api\')->user():', ['user_id' => $user?->id]); // Log ID nếu user tồn tại
+        return $user;
     }
 
 

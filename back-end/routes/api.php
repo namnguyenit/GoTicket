@@ -13,6 +13,15 @@ use App\Http\Controllers\Api\Admin\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\VendorController;
 
 
+
+
+Route::get('/login', function () {
+    // Trả về lỗi 401 nếu có ai đó vô tình truy cập route này qua web
+    // Hoặc bạn có thể để trống hoặc trả về view nếu muốn
+    return response()->json(['message' => 'Not authenticated via web.'], 401);
+})->name('login');
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');

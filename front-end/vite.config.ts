@@ -16,4 +16,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // Đặt port mong muốn cho project này
+    port: 5173, // Ví dụ: 5173 cho User, 5174 cho Admin
+    // Optional: Tự động mở trình duyệt khi chạy dev
+    // open: true,
+  },
 });
