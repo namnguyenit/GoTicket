@@ -67,7 +67,22 @@ Sample success response (200):
     }
   }
 }
+
+
 ```
+
+### PUT /api/auth/myinfo
+
+```json
+{
+    "name": "Tên Mới",
+    "email": "email.moi@example.com",
+    "current_password": "123456",
+    "password": "1234567",
+    "password_confirmation": "1234567"
+}
+```
+
 
 ### GET /api/auth/myinfo (auth:api)
 Headers: Authorization: Bearer <JWT>
@@ -379,3 +394,4 @@ Unauthorized:
   "message": "Chưa xác thực"
 }
 ```
+
