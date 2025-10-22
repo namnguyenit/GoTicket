@@ -18,8 +18,18 @@ class TripService
             ->whereHas('vendorRoute', function ($q) use ($vendorId) {
                 $q->where('vendor_id', $vendorId);
             })
+            ->with([
+                'vendorRoute.route.origin:id,name',
+                'vendorRoute.route.destination:id,name',
+                'coaches:id,vehicle_id,total_seats',
+                'coaches.vehicle:id,name,vehicle_type,license_plate'
+            ])
+            ->withCount(['seats as empty_number' => function($q){
+                $q->where('trip_seats.status', 'available');
+            }])
             ->orderByDesc('departure_datetime')
             ->paginate($perPage);
+
     }
 
     public function createTrip(array $data): Trips

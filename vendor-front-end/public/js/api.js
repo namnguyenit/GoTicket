@@ -95,14 +95,17 @@ const API = (() => {
           const arr = t.arrival_datetime ? new Date(t.arrival_datetime) : null;
           const time = (dep && arr) ? `${dep.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}-${arr.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}` : '—';
           const date = dep ? dep.toLocaleDateString('vi-VN') : '—';
+          const vehicle = t.vehicle || {};
+          const route = (t.route && (t.route.label || ((t.route.origin && t.route.destination) ? `${t.route.origin} - ${t.route.destination}` : ''))) || '—';
+          const seats = Number.isFinite(t.capacity) ? t.capacity : (Array.isArray(t.coaches) ? t.coaches.reduce((sum,c)=>sum+(Number(c.total_seats)||0),0) : null);
           return {
-            vehicle: '—', // Chưa có liên kết phương tiện trong TripResource
-            type: '—',
-            plate: '—',
-            seats: '—',
+            vehicle: vehicle.name || '—',
+            type: vehicle.vehicle_type || '—',
+            plate: vehicle.license_plate || '—',
+            seats: (seats ?? '—'),
             time,
             date,
-            route: '—', // Có thể hiển thị từ stops khi TripResource load("stops")
+            route,
             price: t.base_price || 0
           };
         });
@@ -113,8 +116,20 @@ const API = (() => {
     },
 
     async createTicket(payload){
-      // Hiện tại UI chưa chọn vendor_route và danh sách điểm dừng; tạm thời không hỗ trợ
-      return { ok: false, error: 'Chức năng tạo vé sẽ khả dụng khi bổ sung chọn tuyến (vendor_route) và điểm dừng.' };
+      try {
+        const body = {
+          vehicle_id: Number(payload.vehicleId),
+          start_time: String(payload.startTime||'').trim(),
+          start_date: String(payload.startDate||'').trim(),
+          from_city: String(payload.fromCity||'').trim(),
+          to_city: String(payload.toCity||'').trim(),
+          price: Number(payload.price||0)
+        };
+        const data = await request('/vendor/tickets', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(body) });
+        return { ok:true, id: data.id, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
     },
 
     async getTransfers(){

@@ -9,6 +9,11 @@ class TripResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $origin = optional(optional($this->vendorRoute)->route)->origin;
+        $destination = optional(optional($this->vendorRoute)->route)->destination;
+
+        $vehicle = optional($this->coaches->first())->vehicle; // assume all coaches share same vehicle on vendor trip
+
         return [
             'id' => $this->id,
             'vendor_route_id' => $this->vendor_route_id,
@@ -16,6 +21,20 @@ class TripResource extends JsonResource
             'arrival_datetime' => $this->arrival_datetime?->toISOString(),
             'base_price' => $this->base_price,
             'status' => $this->status,
+            'route' => [
+                'origin' => $origin->name ?? null,
+                'destination' => $destination->name ?? null,
+                'label' => (($origin->name ?? null) && ($destination->name ?? null)) ? (($origin->name).' - '.($destination->name)) : null,
+            ],
+            'vehicle' => $this->when($vehicle, function() use ($vehicle){
+                return [
+                    'name' => $vehicle->name,
+                    'vehicle_type' => $vehicle->vehicle_type,
+                    'license_plate' => $vehicle->license_plate,
+                ];
+            }),
+            'capacity' => $this->coaches?->sum('total_seats') ?? null,
+            'empty_number' => $this->when(isset($this->empty_number), (int) $this->empty_number),
             'stops' => $this->whenLoaded('stops', function () {
                 return $this->stops->map(function ($stop) {
                     return [
