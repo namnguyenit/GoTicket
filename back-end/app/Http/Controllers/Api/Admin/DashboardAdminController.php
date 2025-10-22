@@ -19,12 +19,10 @@ class DashboardAdminController extends Controller{
         $this->dashboardService = $dashboardService;
     }
 
-    /**
-     * Lấy danh sách nhà xe có doanh thu cao nhất.
-     */
+    
     public function getTopVendors(Request $request)
     {
-        // Validate 'limit', mặc định là 5 nếu không có
+        
         $request->validate([
             'limit' => 'nullable|integer|min:1|max:100'
         ]);
