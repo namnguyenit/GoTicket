@@ -87,7 +87,7 @@ const API = (() => {
     },
 
     async getTickets(){
-      // returns array of { id, vehicle, type, plate, seats, time, date, route, price }
+      // returns array of { id, vehicle, type, plate, seats, time, date, route, price, status }
     
       try {
         const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });
@@ -112,7 +112,8 @@ const API = (() => {
             time,
             date,
             route,
-            price: isTrain ? { regular, vip } : (t.base_price || 0)
+            price: isTrain ? { regular, vip } : (t.base_price || 0),
+            status: t.status || '—'
           };
         });
       } catch (e){

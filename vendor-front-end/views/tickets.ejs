@@ -20,6 +20,7 @@
             <th>Ngày khởi hành</th>
             <th>Tuyến đường</th>
             <th>Giá</th>
+            <th>Trạng thái</th>
             <th>Hành động</th>
           </tr>
         </thead>
@@ -44,13 +45,13 @@
             <!-- Fill from API.getVehicles() -->
           </select>
         </div>
-        <div class="form-group dropdown">
-          <label>Chọn giờ khởi hành</label>
-          <select name="startTime">
-            <option>08:00-10:30</option>
-            <option>12:30-16:30</option>
-            <option>18:00-21:00</option>
-          </select>
+        <div class="form-group">
+          <label>Giờ khởi hành - Giờ đến</label>
+          <div class="row">
+            <input type="time" name="depTime" step="60" style="margin-right:8px;" />
+            <input type="time" name="arrTime" step="60" />
+          </div>
+          <small class="muted">Nhập theo ý bạn (VD: 08:15 và 10:45)</small>
         </div>
         <div class="form-group dropdown">
           <label>Chọn ngày khởi hành</label>

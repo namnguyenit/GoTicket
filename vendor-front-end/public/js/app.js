@@ -46,23 +46,27 @@
   const ticketTable = document.getElementById('ticketTable');
   if(ticketTable){
     Promise.all([API.getTickets(), API.getVehicles(), API.getCities()]).then(([tickets, vehicles, cities]) => {
-      // fill table
+      // render table helper
       const tbody = ticketTable.querySelector('tbody');
-      tbody.innerHTML = tickets.map(t => `
-        <tr data-trip-id="${t.id}">
-          <td>${t.vehicle}</td>
-          <td>${t.type}</td>
-          <td>${t.plate}</td>
-          <td>${t.seats}</td>
-          <td>${t.time}</td>
-          <td>${t.date}</td>
-          <td>${t.route}</td>
-          <td>${renderPriceCell(t)}</td>
-          <td>
-            <button class="icon-btn edit-trip" title="Sửa"><i class="ri-pencil-line"></i></button>
-            <button class="icon-btn delete-trip" title="Xoá"><i class="ri-delete-bin-6-line"></i></button>
-          </td>
-        </tr>`).join('');
+      function renderTickets(list){
+        tbody.innerHTML = (list||[]).map(t => `
+          <tr data-trip-id="${t.id}">
+            <td>${t.vehicle}</td>
+            <td>${t.type}</td>
+            <td>${t.plate}</td>
+            <td>${t.seats}</td>
+            <td>${t.time}</td>
+            <td>${t.date}</td>
+            <td>${t.route}</td>
+            <td>${renderPriceCell(t)}</td>
+            <td>${renderStatus(t.status)}</td>
+            <td>
+              <button class="icon-btn edit-trip" title="Sửa"><i class="ri-pencil-line"></i></button>
+              <button class="icon-btn delete-trip" title="Xoá"><i class="ri-delete-bin-6-line"></i></button>
+            </td>
+          </tr>`).join('');
+      }
+      renderTickets(tickets);
 
       // fill modal selects
       const form = document.getElementById('ticketForm');
@@ -117,6 +121,11 @@
         e.preventDefault();
         const fd = new FormData(form);
         const payload = Object.fromEntries(fd.entries());
+        // compose start_time from free time inputs
+        const dep = payload.depTime || '';
+        const arr = payload.arrTime || '';
+        if(dep && arr){ payload.startTime = `${dep}-${arr}`; }
+        delete payload.depTime; delete payload.arrTime;
         // sanitize numeric fields
         if(payload.price !== undefined && payload.price !== ''){ payload.price = Number(payload.price); } else { delete payload.price; }
         if(payload.regular_price !== undefined && payload.regular_price !== ''){ payload.regular_price = Number(payload.regular_price); }
@@ -125,6 +134,9 @@
         if(res && res.ok){
           alert('Tạo vé thành công');
           document.getElementById('ticketModal').setAttribute('aria-hidden','true');
+          // reload list without full page refresh
+          const fresh = await API.getTickets();
+          renderTickets(fresh);
         } else {
           alert(res && res.error ? res.error : 'Tạo vé chưa được hỗ trợ trong phiên bản này.');
         }
@@ -466,6 +478,13 @@ function renderPriceCell(t){
     return `<div class="price-col"><div>Thường: ${reg}</div><div>VIP: ${vip}</div></div>`;
   }
   return formatCurrency(t && t.price);
+}
+
+function renderStatus(status){
+  const s = String(status || '').toLowerCase();
+  const label = s === 'cancelled' ? 'Đã huỷ' : (s === 'scheduled' ? 'Đang chạy' : status || '—');
+  const cls = s === 'cancelled' ? 'badge danger' : (s === 'scheduled' ? 'badge success' : 'badge');
+  return `<span class="${cls}">${label}</span>`;
 }
 
 
