@@ -13,5 +13,7 @@ class Stops extends Model
     protected $fillable = [
         'name',
         'address',
+        'location_id',
+        'vendor_id',
     ];
 }

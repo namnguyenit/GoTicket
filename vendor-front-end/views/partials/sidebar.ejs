@@ -1,0 +1,17 @@
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">🚐</div>
+    <div class="brand-name">Tổng quát</div>
+  </div>
+  <nav>
+    <a href="/" class="nav-item <%= currentPath==='/' ? 'active' : '' %>"><i class="ri-home-4-line"></i><span>Tổng quát</span></a>
+    <a href="/tickets" class="nav-item <%= currentPath==='/tickets' ? 'active' : '' %>"><i class="ri-add-box-line"></i><span>Tạo vé</span></a>
+    <a href="/transfers" class="nav-item <%= currentPath==='/transfers' ? 'active' : '' %>"><i class="ri-sound-module-line"></i><span>Quản lý trung chuyển</span></a>
+    <a href="/vehicles" class="nav-item <%= currentPath==='/vehicles' ? 'active' : '' %>"><i class="ri-bus-2-line"></i><span>Quản lý xe</span></a>
+    <a href="/settings" class="nav-item <%= currentPath==='/settings' ? 'active' : '' %>"><i class="ri-settings-3-line"></i><span>Setting</span></a>
+  </nav>
+  <div class="logout">
+    <i class="ri-logout-box-r-line"></i>
+    <span>Thoát</span>
+  </div>
+</aside>

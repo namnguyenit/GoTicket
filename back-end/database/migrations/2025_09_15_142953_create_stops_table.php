@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('stops', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
+            $table->foreignId('vendor_id')->constrained('vendors')->onDelete('cascade');
             $table->string('name');
             $table->string('address');
+            $table->foreignId('location_id')->constrained('locations')->onDelete('cascade');
         });
     }
 

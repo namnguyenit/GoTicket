@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bookings', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('user_id'); 
-            $table->string('booking_code', 50)->unique();  
-            $table->decimal('total_price', 10, 2); 
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('trip_id')->constrained('trips')->onDelete('cascade');
+            $table->string('booking_code', 50)->unique();
+            $table->decimal('total_price', 10, 2);
             $table->enum('status', ['pending','confirmed','cancelled'])->default('pending');
-            $table->timestamps(); 
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

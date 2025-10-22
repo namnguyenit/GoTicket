@@ -8,10 +8,10 @@ class Trips extends Model
 {
     protected $table = 'trips';
     protected $primaryKey = 'id';
-    public $timestamps = true; 
+    public $timestamps = true;
 
     protected $fillable = [
-        'vendor_route_id', 
+        'vendor_route_id',
         'departure_datetime',
         'arrival_datetime',
         'base_price',
@@ -21,6 +21,8 @@ class Trips extends Model
     protected $casts = [
         'departure_datetime' => 'datetime',
         'arrival_datetime' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // ĐỊNH NGHĨA LẠI MỐI QUAN HỆ NÀY

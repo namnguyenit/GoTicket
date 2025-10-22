@@ -7,11 +7,12 @@ use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiSuccess;
 use App\Services\Vendor\DashboardService;
 
+
 class DashboardController extends Controller
 {
     use ResponseHelper;
 
-    protected $dashboardService;
+    protected DashboardService $dashboardService;
 
     public function __construct(DashboardService $dashboardService)
     {
@@ -22,5 +23,14 @@ class DashboardController extends Controller
     {
         $stats = $this->dashboardService->getDashboardStats();
         return $this->success($stats, ApiSuccess::GET_DATA_SUCCESS);
+    }
+
+    public function getInfo()
+    {
+        $vendor = $this->dashboardService->getVendorInfo();
+        if(!$vendor){
+            return $this->error(\App\Enums\ApiError::VENDOR_NOT_ASSOCIATED);
+        }
+        return $this->success(new \App\Http\Resources\Vendor\VendorResource($vendor), ApiSuccess::GET_DATA_SUCCESS);
     }
 }

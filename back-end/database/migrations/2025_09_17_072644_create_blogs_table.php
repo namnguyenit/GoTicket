@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('blogs', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('title');
             $table->text('content')->nullable();
-            $table->unsignedInteger('author_id')->nullable();
+            $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('published_at')->nullable();
-            $table->timestamps(); 
-            $table->foreign('author_id')->references('id')->on('users')->nullOnDelete();
+            $table->timestamps();
         });
     }
 

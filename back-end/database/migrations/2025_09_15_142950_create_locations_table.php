@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('locations', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name')->unique(); 
+            $table->id();
+            $table->string('name')->unique();
         });
     }
 

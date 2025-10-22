@@ -1,0 +1,345 @@
+// public/js/api.js
+// Centralized API layer that talks to Laravel backend vendor APIs.
+// Reads base URL and token from window (set in head.ejs) or localStorage.
+
+const API = (() => {
+  let baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : 'http://127.0.0.1:8000/api';
+  const getToken = () => (typeof window !== 'undefined' && window.API_TOKEN) ? window.API_TOKEN : (localStorage.getItem('API_TOKEN') || '');
+
+  // Cache of locations to resolve city name -> location_id
+  let locationCache = [];
+
+  function authHeaders(json = true){
+    const headers = {};
+    if(json) headers['Content-Type'] = 'application/json';
+    const token = getToken();
+    if(token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  }
+
+  async function request(path, options = {}){
+    // Normalize baseURL from window in case settings changed at runtime
+    baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : baseURL;
+    const url = baseURL.replace(/\/$/, '') + '/' + path.replace(/^\//,'');
+    const res = await fetch(url, options);
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
+    if(!res.ok){
+      if(res.status === 401 || res.status === 403){
+        // auto-logout and redirect to login
+        try { localStorage.removeItem('API_TOKEN'); } catch {}
+        if(typeof window !== 'undefined'){ window.API_TOKEN = ''; if(location.pathname !== '/login'){ location.href = '/login'; } }
+      }
+      const message = (data && (data.message || data.error || data.errors)) || `HTTP ${res.status}`;
+      throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+    }
+    // Unwrap common envelope { success, status, message, data }
+    return (data && Object.prototype.hasOwnProperty.call(data, 'data')) ? data.data : data;
+  }
+
+  function toISO(date){
+    try { return new Date(date).toISOString(); } catch { return null; }
+  }
+
+  function mapDashboard(payload){
+    // Try to map backend payload to charts format; fallback to demo if fields missing
+    const demo = {
+      yearHistory: [120, 300, 250, 400, 750, 280, 560, 320, 480, 130, 500, 460],
+      weekActivity: { labels: ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'], booked: [240,80,320,470,150,400,380], canceled: [120,50,200,350,90,260,300] },
+      seatToday: { labels: ['Đặt','Trống','Bán','Giữ','Tạm'], values: [35,20,15,10,20] }
+    };
+    if(!payload || typeof payload !== 'object') return demo;
+    // Flexible mapping
+    return {
+      yearHistory: payload.yearHistory || payload.year_history || demo.yearHistory,
+      weekActivity: {
+        labels: (payload.weekLabels || payload.week_labels || demo.weekActivity.labels),
+        booked: (payload.weekBooked || payload.week_booked || demo.weekActivity.booked),
+        canceled: (payload.weekCanceled || payload.week_canceled || demo.weekActivity.canceled)
+      },
+      seatToday: payload.seatToday || demo.seatToday
+    };
+  }
+
+  return {
+    setBaseUrl(url){ baseURL = url; if(typeof window !== 'undefined'){ window.API_BASE_URL = url; localStorage.setItem('API_BASE_URL', url);} },
+    setToken(token){ if(typeof window !== 'undefined'){ window.API_TOKEN = token; localStorage.setItem('API_TOKEN', token);} },
+
+    async getDashboard(){
+      try {
+        const payload = await request('/vendor/dashboard/stats', { headers: authHeaders(false) });
+        return mapDashboard(payload);
+      } catch (e){
+        console.warn('Dashboard API fallback:', e.message);
+        return mapDashboard(null);
+      }
+    },
+
+    async getVendorInfo(){
+      try {
+        const data = await request('/vendor/dashboard/info', { headers: authHeaders(false) });
+        return data; // { id, company_name, ... }
+      } catch(e){
+        console.warn('Vendor info fallback:', e.message);
+        return null;
+      }
+    },
+
+    async getTickets(){
+      // returns array of { id, vehicle, type, plate, seats, time, date, route, price, status }
+    
+      try {
+        const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });
+        const items = Array.isArray(resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+        return items.map(t => {
+          const dep = t.departure_datetime ? new Date(t.departure_datetime) : null;
+          const arr = t.arrival_datetime ? new Date(t.arrival_datetime) : null;
+          const time = (dep && arr) ? `${dep.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}-${arr.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}` : '—';
+          const date = dep ? dep.toLocaleDateString('vi-VN') : '—';
+          const vehicle = t.vehicle || {};
+          const route = (t.route && (t.route.label || ((t.route.origin && t.route.destination) ? `${t.route.origin} - ${t.route.destination}` : ''))) || '—';
+          const seats = Number.isFinite(t.capacity) ? t.capacity : (Array.isArray(t.coaches) ? t.coaches.reduce((sum,c)=>sum+(Number(c.total_seats)||0),0) : null);
+          const isTrain = (vehicle.vehicle_type || '').toLowerCase() === 'train';
+          const regular = t.train_prices?.regular ?? null;
+          const vip = t.train_prices?.vip ?? null;
+          return {
+            id: t.id,
+            vehicle: vehicle.name || '—',
+            type: vehicle.vehicle_type || '—',
+            plate: vehicle.license_plate || '—',
+            seats: (seats ?? '—'),
+            time,
+            date,
+            route,
+            price: isTrain ? { regular, vip } : (t.base_price || 0),
+            status: t.status || '—'
+          };
+        });
+      } catch (e){
+        console.warn('Trips API fallback:', e.message);
+        return [];
+      }
+    },
+
+    async createTicket(payload){
+      try {
+        const body = {
+          vehicle_id: Number(payload.vehicleId),
+          start_time: String(payload.startTime||'').trim(),
+          start_date: String(payload.startDate||'').trim(),
+          from_city: String(payload.fromCity||'').trim(),
+          to_city: String(payload.toCity||'').trim()
+        };
+        // include bus or train prices appropriately
+        if(payload.price !== undefined && payload.price !== ''){
+          body.price = Number(payload.price);
+        }
+        // include train-specific prices if provided
+        if(payload.regular_price !== undefined && payload.regular_price !== ''){
+          body.regular_price = Number(payload.regular_price);
+        }
+        if(payload.vip_price !== undefined && payload.vip_price !== ''){
+          body.vip_price = Number(payload.vip_price);
+        }
+        const data = await request('/vendor/tickets', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(body) });
+        return { ok:true, id: data.id, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getTransfers(){
+      try {
+        const grouped = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
+        // Hỗ trợ cả 2 dạng trả về: mảng [{location_id, location_name, stops:[...]}, ...] hoặc object { city: [stops] }
+        if(Array.isArray(grouped)){
+          return grouped.map(g => ({ location_id: g.location_id || g.id, city: g.location_name || g.city || 'Không rõ', stops: Array.isArray(g.stops) ? g.stops : [] }));
+        }
+        if(grouped && typeof grouped === 'object'){
+          return Object.entries(grouped).map(([city, stops]) => ({ location_id: undefined, city, stops: Array.isArray(stops) ? stops : [] }));
+        }
+        return [];
+      } catch(e){
+        console.warn('Stops by-location fallback:', e.message);
+        return [];
+      }
+    },
+
+    async createTransfer(payload){
+      // payload: { city: cityName, point: stopName }
+      const { city, point } = payload || {};
+      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
+      // Đảm bảo đã có danh sách location để map name -> id
+      if(!locationCache.length){ await this.getCities(); }
+      const match = locationCache.find(l => (l.name || '').toLowerCase() === String(city).toLowerCase());
+      if(!match){ return { ok:false, error: 'Không tìm thấy thành phố trong danh sách' }; }
+      try {
+        const body = { name: point, address: point, location_id: match.id };
+        const data = await request('/vendor/stops', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(body) });
+        return { ok: true, id: data.id, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async updateTransfer(id, payload){
+      // payload: { name, address, location_id | city }
+      try {
+        let body = { ...payload };
+        if(!body.location_id && body.city){
+          if(!locationCache.length){ await this.getCities(); }
+          const match = locationCache.find(l => (l.name || '').toLowerCase() === String(body.city).toLowerCase());
+          if(match) body.location_id = match.id;
+          delete body.city;
+        }
+        const data = await request(`/vendor/stops/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(body) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteTransfer(id){
+      try {
+        await request(`/vendor/stops/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async createTransfer(payload){
+      // payload: { city: cityName, point: stopName }
+      const { city, point } = payload || {};
+      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
+      // Đảm bảo đã có danh sách location để map name -> id
+      if(!locationCache.length){ await this.getCities(); }
+      const match = locationCache.find(l => (l.name || '').toLowerCase() === String(city).toLowerCase());
+      if(!match){ return { ok:false, error: 'Không tìm thấy thành phố trong danh sách' }; }
+      try {
+        const body = { name: point, address: point, location_id: match.id };
+        const data = await request('/vendor/stops', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(body) });
+        return { ok: true, id: data.id, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getVehicles(){
+      try {
+        const list = await request('/vendor/vehicles', { headers: authHeaders(false) });
+        const items = Array.isArray(list.data) ? list.data : (Array.isArray(list) ? list : []);
+        return items.map(v => ({ id: v.id, name: v.name || v.vehicle_name || 'Xe', type: v.type || v.vehicle_type || '—', seats: v.seats || v.capacity || 0 }));
+      } catch(e){
+        console.warn('Vehicles API fallback:', e.message);
+        return [];
+      }
+    },
+
+    async createVehicle(payload){
+      try {
+        const data = await request('/vendor/vehicles', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, id: data.id, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getVehicle(id){
+      try {
+        const data = await request(`/vendor/vehicles/${id}`, { headers: authHeaders(false) });
+        return data;
+      } catch(e){
+        return null;
+      }
+    },
+
+    async updateVehicle(id, payload){
+      try {
+        const data = await request(`/vendor/vehicles/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async addVehicleCoaches(id, coaches){
+      try {
+        const data = await request(`/vendor/vehicles/${id}/coaches`, { method: 'POST', headers: authHeaders(true), body: JSON.stringify({ coaches }) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async removeVehicleCoach(vehicleId, coachId){
+      try {
+        await request(`/vendor/vehicles/${vehicleId}/coaches/${coachId}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteTrip(id){
+      try {
+        await request(`/vendor/trips/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async hardDeleteTrip(id){
+      try {
+        await request(`/vendor/trips/${id}?hard=1`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteTicket(id){
+      try {
+        await request(`/vendor/tickets/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async updateTrip(id, payload){
+      try {
+        const data = await request(`/vendor/trips/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteVehicle(id){
+      try {
+        await request(`/vendor/vehicles/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getCities(){
+      try {
+        const out = await request('/routes/location', { headers: authHeaders(false) });
+        // out có thể là {data:[{id,name}]} hoặc mảng
+        locationCache = Array.isArray(out.data) ? out.data : (Array.isArray(out) ? out : []);
+        return locationCache.map(l => l.name);
+      } catch(e){
+        console.warn('Location API fallback:', e.message);
+        locationCache = [];
+        return [];
+      }
+    }
+  };
+})();
+
+window.API = API;
