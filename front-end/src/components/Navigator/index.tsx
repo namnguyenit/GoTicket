@@ -71,7 +71,7 @@ function Navigator() {
           </div>
 
           <div className={style.auth}>
-            {!logout ? (
+            {!logout && auth?.data && auth?.success == true ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-0">
                   <Avatar>
