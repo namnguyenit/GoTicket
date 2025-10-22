@@ -290,6 +290,15 @@ const API = (() => {
       }
     },
 
+    async updateTrip(id, payload){
+      try {
+        const data = await request(`/vendor/trips/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
     async deleteVehicle(id){
       try {
         await request(`/vendor/vehicles/${id}`, { method: 'DELETE', headers: authHeaders(false) });

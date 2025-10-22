@@ -83,6 +83,42 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal: Edit Ticket -->
+  <div class="modal" id="editTicketModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Sửa vé</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="editTicketForm" class="modal-body">
+        <input type="hidden" name="id" />
+        <div class="form-group">
+          <label>Thời gian khởi hành</label>
+          <input type="datetime-local" name="departure_datetime" />
+        </div>
+        <div class="form-group">
+          <label>Thời gian đến</label>
+          <input type="datetime-local" name="arrival_datetime" />
+        </div>
+        <div class="form-group" id="editTrainPrices" style="display:none">
+          <label>Giá tàu</label>
+          <div class="row">
+            <input type="number" name="regular_price" placeholder="Giá toa thường" style="margin-right:8px;" />
+            <input type="number" name="vip_price" placeholder="Giá toa VIP" />
+          </div>
+        </div>
+        <div class="form-group" id="editBasePrice">
+          <label>Giá cơ bản (bus)</label>
+          <input type="number" name="base_price" placeholder="Giá bus" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </main>
 
 <%- include('partials/footer-scripts') %>

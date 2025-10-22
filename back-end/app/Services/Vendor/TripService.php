@@ -109,6 +109,31 @@ class TripService
             }
             $trip->save();
 
+            // Update train seat prices if provided
+            if (isset($data['regular_price']) || isset($data['vip_price'])) {
+                $regular = isset($data['regular_price']) ? round((float)$data['regular_price'], 2) : null;
+                $vip     = isset($data['vip_price']) ? round((float)$data['vip_price'], 2) : null;
+                if ($regular !== null) {
+                    \DB::table('trip_seats as ts')
+                        ->join('seats as s', 's.id', '=', 'ts.seat_id')
+                        ->join('coaches as c', 'c.id', '=', 's.coach_id')
+                        ->where('ts.trip_id', $trip->id)
+                        ->where('c.coach_type', '!=', 'seat_VIP')
+                        ->update(['ts.price' => $regular]);
+                    // keep base_price aligned with regular price
+                    $trip->base_price = $regular;
+                    $trip->save();
+                }
+                if ($vip !== null) {
+                    \DB::table('trip_seats as ts')
+                        ->join('seats as s', 's.id', '=', 'ts.seat_id')
+                        ->join('coaches as c', 'c.id', '=', 's.coach_id')
+                        ->where('ts.trip_id', $trip->id)
+                        ->where('c.coach_type', '=', 'seat_VIP')
+                        ->update(['ts.price' => $vip]);
+                }
+            }
+
             // Replace stops if provided
             if (array_key_exists('stops', $data)) {
                 $sync = [];
@@ -124,7 +149,7 @@ class TripService
                 $trip->stops()->sync($sync);
             }
 
-            return $trip->load(['stops']);
+            return $trip->load(['stops','seats','seats.coach']);
         });
     }
 

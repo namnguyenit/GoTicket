@@ -95,10 +95,24 @@
             if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
           }
         } else if(editBtn && id){
-          alert('Chức năng sửa vé sẽ được bổ sung trong bản sau.');
+          // open edit modal and prefill
+          const row = {
+            time: tr.children[4]?.textContent || '',
+            date: tr.children[5]?.textContent || '',
+            type: tr.children[1]?.textContent || ''
+          };
+          const editModal = document.getElementById('editTicketModal');
+          const editForm = document.getElementById('editTicketForm');
+          editForm.id.value = id;
+          // simple prefill: leave date-times empty; user can set explicitly
+          const isTrain = String(row.type).toLowerCase()==='train';
+          document.getElementById('editTrainPrices').style.display = isTrain ? '' : 'none';
+          document.getElementById('editBasePrice').style.display = isTrain ? 'none' : '';
+          editModal.setAttribute('aria-hidden','false');
         }
       });
 
+      // submit create form
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(form);

@@ -17,8 +17,12 @@ class UpdateTripRequest extends FormRequest
             'vendor_route_id' => ['sometimes','integer','exists:vendor_routes,id'],
             'departure_datetime' => ['sometimes','date'],
             'arrival_datetime' => ['sometimes','date','after:departure_datetime'],
-            'base_price' => ['sometimes','numeric','min:0'],
+            'base_price' => ['sometimes','numeric','between:0,99999999.99'],
             'status' => ['sometimes','in:scheduled,cancelled'],
+
+            // train-specific price updates (if trip is a train)
+            'regular_price' => ['sometimes','numeric','between:0,99999999.99'],
+            'vip_price' => ['sometimes','numeric','between:0,99999999.99'],
 
             'stops' => ['sometimes','array'],
             'stops.*.stop_id' => ['required','integer','exists:stops,id'],
