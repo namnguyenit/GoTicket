@@ -69,6 +69,8 @@ Route::middleware('auth:api')->group(function()  {
         Route::controller(StopController::class)->prefix('stops')->group(function () {
             Route::post('/', 'store');
             Route::get('/', 'index');
+            Route::get('/by-location', 'listByLocation');
+            Route::get('/location/{location}', 'listByLocationId')->whereNumber('location');
             Route::get('/{stop}', 'show')->whereNumber('stop');
             Route::put('/{stop}', 'update')->whereNumber('stop');
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');

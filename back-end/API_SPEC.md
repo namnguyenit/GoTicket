@@ -418,6 +418,22 @@ Sample success (200):
 }
 ```
 
+#### GET /api/vendor/stops/location/{location}
+Trả về toàn bộ điểm dừng của nhà xe theo một location cụ thể (không phân trang).
+
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": [
+    { "id": 10, "name": "Bến A", "address": "...", "location_id": 1, "vendor_id": 3 },
+    { "id": 12, "name": "Bến B", "address": "...", "location_id": 1, "vendor_id": 3 }
+  ]
+}
+```
+
 #### PUT /api/vendor/stops/{id}
 Body (JSON) — cập nhật một phần hoặc toàn bộ:
 ```json
