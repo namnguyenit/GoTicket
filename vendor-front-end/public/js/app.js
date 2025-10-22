@@ -99,7 +99,10 @@
         if(delBtn && id){
           if(confirm('Huỷ chuyến này (không xoá khỏi DB)?')){
             const rs = await API.deleteTrip(id);
-            if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Huỷ chuyến thất bại'); }
+            if(rs && rs.ok){
+              const statusCell = tr.children[8];
+              if(statusCell){ statusCell.innerHTML = renderStatus('cancelled'); }
+            } else { alert(rs && rs.error || 'Huỷ chuyến thất bại'); }
           }
         } else if(hardBtn && id){
           if(confirm('Xoá vé này khỏi DB?')){
