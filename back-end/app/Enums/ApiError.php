@@ -58,9 +58,7 @@ enum ApiError: string
             self::VALIDATION_FAILED, self::EMAIL_ALREADY_EXISTS => 422,
             self::EMAIL_NOT_EXISTS ,self::WRONG_PASSWORD => 423,
             self::DATA_NULL => 201,
-<<<<<<< HEAD
-            self::FORBIDDEN, self::ACCOUNT_INACTIVE => 403,
-=======
+
 
             self::VENDOR_NOT_ASSOCIATED => 403,
             self::VENDOR_INACTIVE => 403,
@@ -81,7 +79,7 @@ enum ApiError: string
             self::PAYMENT_NOT_FOUND => 404,
             self::PAYMENT_STATUS_CONFLICT => 422,
 
->>>>>>> origin/main
+
             default => 500, // Mặc định là lỗi server
         };
     }
@@ -99,9 +97,7 @@ enum ApiError: string
             self::WRONG_PASSWORD => 'Sai mật khẩu',
             self::EMAIL_NOT_EXISTS => 'email không tồn tại',
             self::DATA_NULL => 'data trống',
-<<<<<<< HEAD
-            self::ACCOUNT_INACTIVE => 'Tài khoản chưa được kích hoạt hoặc đã bị khóa.',
-=======
+
 
 
             self::VENDOR_NOT_ASSOCIATED => "Tài khoản nhà xe chưa được cấp phép",
@@ -123,7 +119,7 @@ enum ApiError: string
             self::PAYMENT_NOT_FOUND => "Không tìm thấy thanh toán",
             self::PAYMENT_STATUS_CONFLICT => "Trạng thái thanh toán xung đột",
 
->>>>>>> origin/main
+
             default => 'Lỗi không xác định.',
         };
     }

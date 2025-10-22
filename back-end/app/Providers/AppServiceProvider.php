@@ -26,14 +26,14 @@ use App\Services\BookingService;
 use App\Repositories\Vendor\DashboardRepository;
 use App\Repositories\Vendor\DashboardRepositoryInterface;
 use App\Services\Vendor\DashboardService;
-<<<<<<< HEAD
+
 use App\Repositories\Vendor\ManagerVehicelRepository;
 use App\Repositories\Vendor\ManagerVehicelRepositoryInterface;
 use App\Services\Vendor\ManagerVehicelService;
 use App\Repositories\Admin\DashboardAdminRepository;
 use App\Repositories\Admin\DashboardAdminRepositoryInterface;
 use App\Services\Admin\DashboardAdminService;
-=======
+
 use App\Repositories\Vendor\ManagerVehicleRepository;
 use App\Repositories\Vendor\ManagerVehicleRepositoryInterface;
 use App\Services\Vendor\ManagerVehicleService;
@@ -51,7 +51,7 @@ use App\Repositories\Vendor\CoachRepositoryInterface;
 use App\Repositories\Vendor\SeatRepository;
 use App\Repositories\Vendor\SeatRepositoryInterface;
 
->>>>>>> origin/main
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -73,12 +73,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BookingService::class);
         $this->app->bind(DashboardRepositoryInterface::class, DashboardRepository::class);
         $this->app->bind(DashboardService::class);
-<<<<<<< HEAD
+
         $this->app->bind(ManagerVehicelRepositoryInterface::class , ManagerVehicelRepository::class);
         $this->app->bind(ManagerVehicelService::class);
         $this->app->bind(DashboardAdminRepositoryInterface::class , DashboardAdminRepository::class);
         $this->app->bind(DashboardAdminService::class);
-=======
+
         $this->app->bind(ManagerVehicleRepositoryInterface::class , ManagerVehicleRepository::class);
         $this->app->bind(ManagerVehicleService::class);
 
@@ -89,7 +89,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CoachRepositoryInterface::class, CoachRepository::class);
 
         $this->app->bind(SeatRepositoryInterface::class, SeatRepository::class);
->>>>>>> origin/main
+
     }
 
     

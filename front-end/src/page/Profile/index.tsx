@@ -1,4 +1,3 @@
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,7 +204,7 @@ export default function Profile() {
                   onChange={(e) => {
                     setProfile((pre: any) => ({
                       ...pre,
-                      data: { ...pre.data, name: e.target.value },
+                      data: { ...(pre?.data || {}), name: e.target.value },
                     }));
                   }}
                 />
@@ -228,7 +227,10 @@ export default function Profile() {
                   onChange={(e) => {
                     setProfile((pre: any) => ({
                       ...pre,
-                      data: { ...pre.data, phone_number: e.target.value },
+                      data: {
+                        ...(pre?.data || {}),
+                        phone_number: e.target.value,
+                      },
                     }));
                   }}
                 />
@@ -248,7 +250,10 @@ export default function Profile() {
                   onChange={(e) => {
                     setProfile((pre: any) => ({
                       ...pre,
-                      data: { ...pre.data, current_password: e.target.value },
+                      data: {
+                        ...(pre?.data || {}),
+                        current_password: e.target.value,
+                      },
                     }));
                   }}
                 />
@@ -264,7 +269,7 @@ export default function Profile() {
                   onChange={(e) => {
                     setProfile((pre: any) => ({
                       ...pre,
-                      data: { ...pre.data, password: e.target.value },
+                      data: { ...(pre?.data || {}), password: e.target.value },
                     }));
                   }}
                 />
@@ -281,7 +286,7 @@ export default function Profile() {
                     setProfile((pre: any) => ({
                       ...pre,
                       data: {
-                        ...pre.data,
+                        ...(pre?.data || {}),
                         password_confirmation: e.target.value,
                       },
                     }));

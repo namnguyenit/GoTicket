@@ -46,7 +46,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 
 
-Route::middleware('auth:api')->group(function()  {
+
 
 
 
