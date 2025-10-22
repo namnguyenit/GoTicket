@@ -11,7 +11,8 @@ use App\Enums\ApiError;
 use App\Enums\ApiSuccess;
 use App\Http\Requests\Api\LoginRequest;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Validation\ValidationException;
+use App\Http\Requests\Api\UpdateProfileRequest;
 
 class AuthController extends Controller
 {
@@ -79,4 +80,22 @@ class AuthController extends Controller
         );
     }
 
+    public function updateProfile(UpdateProfileRequest $request)
+    {
+        $user = auth('api')->user();
+        $validatedData = $request->validated();
+
+        try {
+            // Gọi service để thực hiện việc cập nhật
+            $this->authService->updateProfile($user, $validatedData);
+
+            // Trả về thông tin người dùng đã được cập nhật
+            return $this->success(new UserResource($user), ApiSuccess::ACTION_SUCCESS);
+
+        } catch (ValidationException $e) {
+            // Bắt lỗi Validation từ Service (ví dụ: sai mật khẩu cũ)
+            // và trả về lỗi 422 với thông báo cụ thể
+            return $this->error(ApiError::VALIDATION_FAILED, $e->errors());
+        }
+    }
 }

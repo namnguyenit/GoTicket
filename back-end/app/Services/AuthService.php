@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Repositories\UserRepositoryInterface;
 use App\Models\User;
 use App\Enums\ApiError;
-
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
@@ -64,5 +65,29 @@ class AuthService
         // 3. Lấy user ID từ token.
         // 4. Truy vấn database và trả về đối tượng User tương ứng.
         return auth('api')->user();
+    }
+
+
+    public function updateProfile(User $user, array $data): bool
+    {
+        // 1. Lọc ra các trường thông tin cơ bản để cập nhật (name, phone, email)
+        $updateData = collect($data)->only(['name', 'phone_number'])->all();
+
+        // 2. Xử lý logic thay đổi mật khẩu
+        if (!empty($data['password'])) {
+            // Kiểm tra xem mật khẩu hiện tại người dùng gửi lên có khớp không
+            if (!Hash::check($data['current_password'], $user->password)) {
+                // Nếu không khớp, ném ra lỗi Validation
+                throw ValidationException::withMessages([
+                    'current_password' => 'Mật khẩu hiện tại không chính xác.',
+                ]);
+            }
+            
+            // Nếu mật khẩu cũ đúng, mã hóa và thêm mật khẩu mới vào dữ liệu cập nhật
+            $updateData['password'] = Hash::make($data['password']);
+        }
+
+        // 3. Thực hiện cập nhật vào database
+        return $user->update($updateData);
     }
 }

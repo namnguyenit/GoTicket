@@ -2,14 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFetch } from "@/hooks/useFetch";
+import { URL } from "@/config";
+import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 function Signup() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // Placeholder states for possible async actions
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
+  // const navigate = useNavigate();
+  // useFetch for submit to avoid unused setter warnings and to provide real loading/error
+  const { data, loading, error, post } = useFetch(URL);
+
+  useEffect(() => {
+    if (data && data?.success == true) {
+      navigate("/sign-in");
+    }
+  }, [data]);
+
   const formFields = [
     {
       id: "fullname",
@@ -81,7 +93,37 @@ function Signup() {
               Điền thông tin để bắt đầu hành trình của bạn
             </p>
           </header>
-          <form className="flex flex-col gap-5">
+          <form
+            className="flex flex-col gap-5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.currentTarget as HTMLFormElement;
+              const fd = new FormData(form);
+              const payload = {
+                name: String(fd.get("fullname") || ""),
+                password: String(fd.get("password") || ""),
+                confirmPassword: String(fd.get("confirmPassword") || ""),
+                phone: String(fd.get("phone") || ""),
+                email: String(fd.get("email") || ""),
+              };
+
+              // Minimal client-side check to prevent obvious mismatch
+              if (payload.password !== payload.confirmPassword) {
+                // No setError here; show inline message by alert for now
+                alert("Mật khẩu xác nhận không khớp");
+                return;
+              }
+
+              // Call API (adjust endpoint if your backend differs)
+              post("/api/auth/register", {
+                name: payload.name,
+                phone: payload.phone,
+                email: payload.email,
+                password: payload.password,
+                password_confirmation: payload.confirmPassword,
+              });
+            }}
+          >
             {formFields.map((field) => {
               const IconComponent = field.icon;
               const isPassword = field.showToggle;
@@ -104,6 +146,7 @@ function Signup() {
                     </span>
                     <Input
                       id={field.id}
+                      name={field.id}
                       type={type}
                       required
                       className="h-11 w-full rounded-lg border border-[#d5d5d5] bg-white/70 pr-10 pl-10 text-sm focus-visible:ring-2 focus-visible:ring-[#fdbf00] md:h-12 md:text-base"
@@ -131,7 +174,7 @@ function Signup() {
             })}
             {error && (
               <div className="-mt-1 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 md:text-sm">
-                {error}
+                {!data?.success && "Lỗi nhập liệu"}
               </div>
             )}
             <Button
@@ -167,7 +210,7 @@ function Signup() {
           <div className="mt-6 text-center text-sm md:mt-7 md:text-base">
             <span className="text-[#444]">Đã có tài khoản? </span>
             <a
-              href="#"
+              href="/sign-in"
               className="font-semibold text-[#5b2642] underline-offset-4 hover:underline"
             >
               Đăng nhập ngay

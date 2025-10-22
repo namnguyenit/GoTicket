@@ -10,6 +10,7 @@ import Signup from "@/page/Signup";
 import CheckOut from "@/page/Checkout";
 import About from "@/page/About";
 import Success from "@/page/Success";
+import Profile from "@/page/Profile";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       {
         element: <Main />,
         children: [
+          { path: "/profile", element: <Profile /> },
           {
             element: <Body />,
             children: [
