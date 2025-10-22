@@ -58,22 +58,29 @@ Route::middleware('auth:api')->group(function()  {
         Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
 
         Route::controller(ManagerVehicleController::class)->prefix('vehicles')->group(function() {
-            Route::post('/', 'store');
+            Route::post('/', 'store');//erro
 
-            Route::get('/', 'index');
-            Route::get('/{vehicle}', 'show')->whereNumber('vehicle');
-            Route::put('/{vehicle}', 'update')->whereNumber('vehicle');
-            Route::delete('/{vehicle}', 'destroy')->whereNumber('vehicle');
+            Route::get('/', 'index');//erro
+            Route::get('/{vehicle}', 'show')->whereNumber('vehicle');//erro
+            Route::put('/{vehicle}', 'update')->whereNumber('vehicle');//erro
+            Route::delete('/{vehicle}', 'destroy')->whereNumber('vehicle');//erro
         });
 
         Route::controller(StopController::class)->prefix('stops')->group(function () {
             Route::post('/', 'store');
+<<<<<<< HEAD
             Route::get('/', 'index');
             Route::get('/by-location', 'listByLocation');
             Route::get('/location/{location}', 'listByLocationId')->whereNumber('location');
             Route::get('/{stop}', 'show')->whereNumber('stop');
             Route::put('/{stop}', 'update')->whereNumber('stop');
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');
+=======
+            Route::get('/', 'index');//errro
+            Route::get('/{stop}', 'show')->whereNumber('stop');//erro
+            Route::put('/{stop}', 'update')->whereNumber('stop');//erro
+            Route::delete('/{stop}', 'destroy')->whereNumber('stop');//erro
+>>>>>>> 13cfc2ff64543effbcbc0954bc9ab03d7b0f198f
         });
     });
 });
