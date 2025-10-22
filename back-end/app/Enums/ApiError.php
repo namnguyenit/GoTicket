@@ -6,20 +6,19 @@ use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 
 enum ApiError: string
 {
-    // Lỗi chung
+
     case NOT_FOUND = 'NOT_FOUND';
     case SERVER_ERROR = 'SERVER_ERROR';
     case UNAUTHORIZED = 'UNAUTHORIZED';
     case FORBIDDEN = 'FORBIDDEN';
 
-    // Lỗi liên quan đến xác thực & người dùng
     case VALIDATION_FAILED = 'VALIDATION_FAILED';
     case AUTHENTICATION_FAILED = 'AUTHENTICATION_FAILED';
     case EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS';
     case EMAIL_NOT_EXISTS = 'EMAIL_NOT_EXISTS';
     case WRONG_PASSWORD = "WRONG_PASSWORD";
     case DATA_NULL = "DATA_NULL";
-    // Mã lỗi cho nhà xe
+
 
 
 
@@ -56,7 +55,6 @@ enum ApiError: string
             self::EMAIL_NOT_EXISTS ,self::WRONG_PASSWORD => 423,
             self::DATA_NULL => 201,
 
-            // Mã lỗi cho vendor (Nhà xe)
             self::VENDOR_NOT_ASSOCIATED => 403,
             self::VENDOR_INACTIVE => 403,
             self::VEHICLE_NOT_FOUND => 404,
@@ -94,7 +92,6 @@ enum ApiError: string
             self::EMAIL_NOT_EXISTS => 'email không tồn tại',
             self::DATA_NULL => 'data trống',
 
-            // Mã lỗi cho vendor (Nhà xe)
 
             self::VENDOR_NOT_ASSOCIATED => "Tài khoản nhà xe chưa được cấp phép",
             self::VENDOR_INACTIVE => "Tài khoản nhà xe chưa được kích hoạt",

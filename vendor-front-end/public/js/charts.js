@@ -1,5 +1,4 @@
-// public/js/charts.js
-// Chart rendering helpers. Data is provided by API layer.
+
 
 const Charts = {
   yearHistory(ctx, data){
@@ -56,8 +55,7 @@ const Charts = {
 function getCssVar(name){
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
-function withAlpha(hexOrRgb, alpha){
-  // If css var returns rgb/hex; try simple conversion
+function withAlpha(hexOrRgb, alpha){
   if(/^#/.test(hexOrRgb)){
     const bigint = parseInt(hexOrRgb.slice(1), 16);
     const r = (bigint >> 16) & 255;

@@ -14,13 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Bật CORS middleware toàn cục
+
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
         $middleware->alias([
             'role' => RoleMiddleware::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+
     })
     ->create();

@@ -14,7 +14,7 @@ class DashboardRepository implements DashboardRepositoryInterface
 
     public function getRevenueGroupedByPeriod(int $vendorId, Carbon $startDate, Carbon $endDate, string $period): Collection
     {
-        // Xác định cách nhóm (theo NGÀY hoặc theo THÁNG)
+
         $dateColumn = $period === 'day' ? DB::raw('DATE(created_at) as date') : DB::raw('MONTH(created_at) as month');
         $groupByColumn = $period === 'day' ? 'date' : 'month';
 
@@ -30,7 +30,6 @@ class DashboardRepository implements DashboardRepositoryInterface
             )
             ->groupBy($groupByColumn); // Nhóm kết quả lại
 
-        // Nếu nhóm theo tháng, cần nhóm thêm theo năm để tránh T1 năm nay cộng dồn T1 năm ngoái
         if ($period === 'month') {
             $query->addSelect(DB::raw('YEAR(created_at) as year'))->groupBy('year');
         }

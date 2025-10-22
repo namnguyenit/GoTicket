@@ -46,9 +46,7 @@ use App\Repositories\Vendor\SeatRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+    
     public function register(): void
     {
 
@@ -78,11 +76,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SeatRepositoryInterface::class, SeatRepository::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
+    
     public function boot(): void
     {
-        //
+
     }
 }

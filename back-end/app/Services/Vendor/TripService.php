@@ -51,11 +51,10 @@ class TripService
                 'status' => $data['status'] ?? 'scheduled',
             ]);
 
-            // Stops (optional)
             if (!empty($data['stops']) && is_array($data['stops'])) {
                 $attach = [];
                 foreach ($data['stops'] as $item) {
-                    // đảm bảo stop thuộc vendor hiện tại
+
                     $stop = Stops::where('id', $item['stop_id'])
                         ->where('vendor_id', $vendorId)
                         ->firstOrFail();
@@ -82,12 +81,11 @@ class TripService
     {
         return DB::transaction(function () use ($trip, $data) {
             $vendorId = Auth::user()->vendor->id;
-            // verify ownership
+
             if (!$trip->vendorRoute()->where('vendor_id', $vendorId)->exists()) {
                 abort(403);
             }
 
-            // If vendor_route_id provided, ensure ownership and update
             if (!empty($data['vendor_route_id'])) {
                 $vendorRoute = VendorRoute::where('id', $data['vendor_route_id'])
                     ->where('vendor_id', $vendorId)
@@ -109,7 +107,6 @@ class TripService
             }
             $trip->save();
 
-            // Update train seat prices if provided
             if (isset($data['regular_price']) || isset($data['vip_price'])) {
                 $regular = isset($data['regular_price']) ? round((float)$data['regular_price'], 2) : null;
                 $vip     = isset($data['vip_price']) ? round((float)$data['vip_price'], 2) : null;
@@ -120,7 +117,7 @@ class TripService
                         ->where('ts.trip_id', $trip->id)
                         ->where('c.coach_type', '!=', 'seat_VIP')
                         ->update(['ts.price' => $regular]);
-                    // keep base_price aligned with regular price
+
                     $trip->base_price = $regular;
                     $trip->save();
                 }
@@ -134,7 +131,6 @@ class TripService
                 }
             }
 
-            // Replace stops if provided
             if (array_key_exists('stops', $data)) {
                 $sync = [];
                 foreach ((array) $data['stops'] as $item) {

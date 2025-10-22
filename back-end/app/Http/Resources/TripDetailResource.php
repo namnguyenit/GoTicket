@@ -7,7 +7,7 @@ class TripDetailResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        // Tạo một map để tra cứu trạng thái ghế nhanh hơn
+
         $tripSeatStatusMap = $this->whenLoaded('seats')->keyBy('id');
 
         return [
@@ -20,7 +20,7 @@ class TripDetailResource extends JsonResource
                 : null,
             'vendor_name' => $this->vendorRoute->vendor->user->name,
             'coaches' => $this->whenLoaded('coaches', function () use ($tripSeatStatusMap) {
-                // Với mỗi coach, ta sẽ thêm thông tin ghế và trạng thái của chúng
+
                 return $this->coaches->map(function ($coach) use ($tripSeatStatusMap) {
                     return [
                         'id' => $coach->id,

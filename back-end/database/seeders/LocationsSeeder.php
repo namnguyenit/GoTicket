@@ -18,7 +18,6 @@ class LocationsSeeder extends Seeder
             'Trà Vinh','Tuyên Quang','Vĩnh Long','Vĩnh Phúc','Yên Bái'
         ];
 
-        // Upsert to avoid duplicates on re-seed
         foreach ($names as $n) {
             Location::firstOrCreate(['name' => $n]);
         }

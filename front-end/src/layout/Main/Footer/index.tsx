@@ -25,10 +25,10 @@ const Footer = () => {
   const year = new Date().getFullYear();
   return (
     <footer className="bg-[#1f1f1f] pt-14 pb-8 text-white md:pt-20">
-      {/* outer */}
+      {}
       <div className="mx-auto w-full max-w-7xl px-5 md:px-10">
         <div className="flex flex-col gap-12 md:flex-row md:items-start md:justify-between">
-          {/* Brand + tagline + social */}
+          {}
           <div className="max-w-md flex-1 space-y-6">
             <div className="flex items-center gap-3">
               <img
@@ -56,7 +56,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Explore links */}
+          {}
           <nav aria-label="Khám phá" className="max-w-xs flex-1">
             <h2 className="mb-5 text-xl font-bold tracking-wide md:text-2xl">
               Khám phá
@@ -75,7 +75,7 @@ const Footer = () => {
             </ul>
           </nav>
 
-          {/* Contact + newsletter */}
+          {}
           <div className="max-w-md flex-1 space-y-6">
             <div>
               <h2 className="mb-4 text-xl font-bold tracking-wide md:text-2xl">
@@ -131,10 +131,10 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Divider */}
+        {}
         <div className="mt-14 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
-        {/* Bottom bar */}
+        {}
         <div className="mt-6 flex flex-col gap-4 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
           <p className="font-medium">© {year} VEXE. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-6 font-medium">

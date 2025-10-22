@@ -15,13 +15,11 @@ class Routes extends Model
         'destination_location_id',
     ];
 
-    // Mối quan hệ: Một tuyến đường có một điểm đi
     public function origin()
     {
         return $this->belongsTo(Location::class, 'origin_location_id');
     }
 
-    // Mối quan hệ: Một tuyến đường có một điểm đến
     public function destination()
     {
         return $this->belongsTo(Location::class, 'destination_location_id');

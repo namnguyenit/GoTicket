@@ -11,7 +11,6 @@ class UserService{
     
     protected $userRepository;
 
-    // "Tiêm" UserRepository vào đây
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
@@ -29,7 +28,6 @@ class UserService{
         return $result;
     }
 
-    // Bổ sung tham số $name
     public function findByName(string $name){
         $alluser = $this->userRepository->findByName($name);
         return $alluser;
@@ -41,7 +39,7 @@ class UserService{
     }
 
     public function updateUser(string $email ,array $data){
-        // Lọc ra các giá trị null để không cập nhật các trường không được gửi lên
+
         $updateData = array_filter($data, function ($value) {
             return !is_null($value);
         });

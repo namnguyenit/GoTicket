@@ -57,8 +57,7 @@
       const base = baseUrlInput.value.trim();
       const tok = tokenInput.value.trim();
       if(base) localStorage.setItem('API_BASE_URL', base);
-      localStorage.setItem('API_TOKEN', tok);
-      // Update globals for current page session
+      localStorage.setItem('API_TOKEN', tok);
       window.API_BASE_URL = base || window.API_BASE_URL;
       window.API_TOKEN = tok;
       alert('Đã lưu cấu hình API.');

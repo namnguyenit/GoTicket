@@ -25,7 +25,7 @@ class TestDataSeeder extends Seeder
     public function run(): void
     {
         $vendorUsers = User::where('role', 'vendor')->get();
-        // Nếu thiếu vendor mẫu, tự tạo thêm vài vendor user
+
         if($vendorUsers->isEmpty()){
             for($i=1;$i<=5;$i++){
                 $vendorUsers->push(User::create([
@@ -54,7 +54,7 @@ class TestDataSeeder extends Seeder
 
         $tripCount = 0;
         foreach ($vendorUsers as $idx => $vendorUser) {
-            // Vendor
+
             $vendor = Vendor::firstOrCreate([
                 'user_id' => $vendorUser->id
             ], [
@@ -63,7 +63,6 @@ class TestDataSeeder extends Seeder
                 'status' => 'active',
             ]);
 
-            // Vehicles: mỗi vendor có 2-3 xe (bus/ train)
             $numVehicles = rand(2,3);
             $vehicleIds = [];
             for($v=1;$v<=$numVehicles;$v++){
@@ -76,7 +75,6 @@ class TestDataSeeder extends Seeder
                 ]);
                 $vehicleIds[] = $vehicle->id;
 
-                // Coaches
                 if($type==='bus'){
                     $coach = Coaches::create([
                         'vehicle_id' => $vehicle->id,
@@ -95,13 +93,11 @@ class TestDataSeeder extends Seeder
                 }
             }
 
-            // Stops (tối thiểu 2 thành phố chính)
             if($hcm){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Sài Gòn'],['location_id'=>$hcm,'address'=>'Q1, TPHCM']); }
             if($dn){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Đà Nẵng'],['location_id'=>$dn,'address'=>'Hải Châu, ĐN']); }
             if($ld){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Đà Lạt'],['location_id'=>$ld,'address'=>'TP Đà Lạt']); }
             if($hn){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Hà Nội'],['location_id'=>$hn,'address'=>'Hoàn Kiếm, HN']); }
 
-            // VendorRoutes: gán vài route cho mỗi vendor
             $vendorRoutes = [];
             foreach ($routes->random(min(3, max(1,$routes->count()))) as $r){
                 $vendorRoutes[] = VendorRoute::firstOrCreate([
@@ -113,7 +109,6 @@ class TestDataSeeder extends Seeder
                 ]);
             }
 
-            // Trips: mỗi vendor tạo 6-10 trips (ngày hôm qua → +7 ngày)
             foreach($vendorRoutes as $vr){
                 $perVR = rand(2,3);
                 for($t=0;$t<$perVR;$t++){
@@ -128,12 +123,10 @@ class TestDataSeeder extends Seeder
                         'status'=> (rand(0,5)===0)?'cancelled':'scheduled',
                     ]);
 
-                    // attach 1-2 coaches from a random vehicle of this vendor
                     $vehicleId = $vehicleIds[array_rand($vehicleIds)];
                     $coachIds = Coaches::where('vehicle_id',$vehicleId)->pluck('id');
                     $order=1; foreach($coachIds as $cid){ $trip->coaches()->attach($cid,['coach_order'=>$order++]); }
 
-                    // seed trip seats with price by coach type
                     $seats = Seats::whereIn('coach_id',$coachIds)->get();
                     foreach($seats as $seat){
                         $coach = $seat->coach()->first();
@@ -147,7 +140,6 @@ class TestDataSeeder extends Seeder
             }
         }
 
-        // Bookings: tạo ~20 order mẫu rải trên các trip còn ghế
         $trips = Trips::with('seats')->inRandomOrder()->limit(20)->get();
         foreach($trips as $trip){
             $toBook = rand(1,3);
@@ -175,7 +167,6 @@ class TestDataSeeder extends Seeder
             }
             DB::table('trip_seats')->where('trip_id',$trip->id)->whereIn('seat_id',$seatIds)->update(['status'=>'booked']);
 
-            // payment
             Payments::create([
                 'booking_id'=>$booking->id,
                 'transaction_id'=>'TX'.strtoupper(Str::random(10)),
@@ -186,7 +177,6 @@ class TestDataSeeder extends Seeder
             ]);
         }
 
-        // đảm bảo tổng lượng data ~100+ bản ghi: trips, vehicles, seats, bookings, stops, vendor_routes
-        // Ghi chú: Seeding idempotent gần đúng, chạy nhiều lần có thể nhân đôi một số thực thể không có điều kiện unique tự nhiên.
+
     }
 }

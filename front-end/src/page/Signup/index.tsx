@@ -5,15 +5,12 @@ import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFetch } from "@/hooks/useFetch";
 import { URL } from "@/config";
-import { useNavigate } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // const navigate = useNavigate();
-  // useFetch for submit to avoid unused setter warnings and to provide real loading/error
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { data, loading, error, post } = useFetch(URL);
 
   useEffect(() => {
@@ -65,7 +62,7 @@ function Signup() {
   ];
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-br from-[#fffdf7] via-[#fff4d4] to-[#fbe1f0]">
-      {/* Ambient background layers (match Signin style) */}
+      {}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#fdbf00]/30 blur-3xl md:h-96 md:w-96" />
         <div className="absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-[#6d0236]/25 blur-3xl md:h-[500px] md:w-[500px]" />
@@ -73,7 +70,7 @@ function Signup() {
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_45%,rgba(255,255,255,0.12)_75%)] mix-blend-overlay" />
         <div className="absolute inset-0 opacity-[0.06] [background:repeating-linear-gradient(60deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_1px,transparent_1px,transparent_6px)]" />
       </div>
-      {/* Hero */}
+      {}
       <section className="relative flex h-[260px] w-full items-center justify-center overflow-hidden bg-[url(/book-page-bg.jpg)] bg-cover bg-center after:absolute after:inset-0 after:bg-black/40">
         <div className="relative z-10 items-center justify-center px-6 text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-5xl">
@@ -82,7 +79,7 @@ function Signup() {
         </div>
       </section>
 
-      {/* Form Panel */}
+      {}
       <section className="mx-auto w-full max-w-xl px-6 py-10 md:py-14">
         <div className="rounded-2xl border border-white/30 bg-white/70 p-6 shadow-lg backdrop-blur-md md:p-8">
           <header className="mb-6 text-center md:mb-8">
@@ -105,16 +102,11 @@ function Signup() {
                 confirmPassword: String(fd.get("confirmPassword") || ""),
                 phone: String(fd.get("phone") || ""),
                 email: String(fd.get("email") || ""),
-              };
-
-              // Minimal client-side check to prevent obvious mismatch
-              if (payload.password !== payload.confirmPassword) {
-                // No setError here; show inline message by alert for now
+              };
+              if (payload.password !== payload.confirmPassword) {
                 alert("Mật khẩu xác nhận không khớp");
                 return;
-              }
-
-              // Call API (adjust endpoint if your backend differs)
+              }
               post("/api/auth/register", {
                 name: payload.name,
                 phone: payload.phone,

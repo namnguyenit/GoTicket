@@ -1,5 +1,4 @@
-// public/js/app.js
-// Bind UI interactions, load data via API, and render charts/tables.
+
 
 (function(){
   document.addEventListener('click', (e) => {
@@ -13,9 +12,7 @@
       const modal = e.target.closest('.modal');
       if(modal){ modal.setAttribute('aria-hidden','true'); }
     }
-  });
-
-  // DASHBOARD
+  });
   if(document.getElementById('yearHistoryChart')){
     API.getDashboard().then(d => {
       Charts.yearHistory(document.getElementById('yearHistoryChart'), d.yearHistory);
@@ -30,8 +27,7 @@
         d.seatToday.labels,
         d.seatToday.values
       );
-    });
-    // Hiển thị tên nhà xe ở topbar
+    });
     const vendorNameEl = document.getElementById('vendorName');
     if(vendorNameEl){
       API.getVendorInfo().then(info => {
@@ -40,13 +36,10 @@
         }
       });
     }
-  }
-
-  // TICKETS PAGE
+  }
   const ticketTable = document.getElementById('ticketTable');
   if(ticketTable){
-    Promise.all([API.getTickets(), API.getVehicles(), API.getCities()]).then(([tickets, vehicles, cities]) => {
-      // render table helper
+    Promise.all([API.getTickets(), API.getVehicles(), API.getCities()]).then(([tickets, vehicles, cities]) => {
       const tbody = ticketTable.querySelector('tbody');
       function renderTickets(list){
         tbody.innerHTML = (list||[]).map(t => `
@@ -67,17 +60,13 @@
             </td>
           </tr>`).join('');
       }
-      renderTickets(tickets);
-
-      // fill modal selects
+      renderTickets(tickets);
       const form = document.getElementById('ticketForm');
       const vehicleSel = form.querySelector('select[name="vehicleId"]');
       vehicleSel.innerHTML = vehicles.map(v => `<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
       const fromSel = form.querySelector('select[name="fromCity"]');
       const toSel = form.querySelector('select[name="toCity"]');
-      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
-
-      // toggle price fields depending on selected vehicle type
+      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
       function syncTicketPriceFields(){
         const opt = vehicleSel.options[vehicleSel.selectedIndex];
         const type = (opt && opt.getAttribute('data-type')) || '';
@@ -86,9 +75,7 @@
         document.getElementById('basePriceField').style.display = showTrain ? 'none' : '';
       }
       vehicleSel.addEventListener('change', syncTicketPriceFields);
-      syncTicketPriceFields();
-
-      // actions: edit/delete trip rows
+      syncTicketPriceFields();
       ticketTable.addEventListener('click', async (e) => {
         const delBtn = e.target.closest('.delete-trip');
         const hardBtn = e.target.closest('.hard-delete-trip');
@@ -109,8 +96,7 @@
             const rs = await API.deleteTicket(id);
             if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
           }
-        } else if(editBtn && id){
-          // open edit modal and prefill
+        } else if(editBtn && id){
           const row = {
             time: tr.children[4]?.textContent || '',
             date: tr.children[5]?.textContent || '',
@@ -118,34 +104,28 @@
           };
           const editModal = document.getElementById('editTicketModal');
           const editForm = document.getElementById('editTicketForm');
-          editForm.id.value = id;
-          // simple prefill: leave date-times empty; user can set explicitly
+          editForm.id.value = id;
           const isTrain = String(row.type).toLowerCase()==='train';
           document.getElementById('editTrainPrices').style.display = isTrain ? '' : 'none';
           document.getElementById('editBasePrice').style.display = isTrain ? 'none' : '';
           editModal.setAttribute('aria-hidden','false');
         }
-      });
-
-      // submit create form
+      });
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(form);
-        const payload = Object.fromEntries(fd.entries());
-        // compose start_time from free time inputs
+        const payload = Object.fromEntries(fd.entries());
         const dep = payload.depTime || '';
         const arr = payload.arrTime || '';
         if(dep && arr){ payload.startTime = `${dep}-${arr}`; }
-        delete payload.depTime; delete payload.arrTime;
-        // sanitize numeric fields
+        delete payload.depTime; delete payload.arrTime;
         if(payload.price !== undefined && payload.price !== ''){ payload.price = Number(payload.price); } else { delete payload.price; }
         if(payload.regular_price !== undefined && payload.regular_price !== ''){ payload.regular_price = Number(payload.regular_price); }
         if(payload.vip_price !== undefined && payload.vip_price !== ''){ payload.vip_price = Number(payload.vip_price); }
         const res = await API.createTicket(payload);
         if(res && res.ok){
           alert('Tạo vé thành công');
-          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
-          // reload list without full page refresh
+          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
           const fresh = await API.getTickets();
           renderTickets(fresh);
         } else {
@@ -153,9 +133,7 @@
         }
       });
     });
-  }
-
-  // TRANSFERS PAGE
+  }
   const transferGroups = document.getElementById('transferGroups');
   if(transferGroups){
     function renderGroups(groups){
@@ -186,16 +164,13 @@
       renderGroups(groups);
     }
 
-    Promise.all([API.getTransfers(), API.getCities()]).then(([groups, cities]) => {
-      // Hợp nhất: tạo group cho tất cả city, kể cả khi chưa có stop
+    Promise.all([API.getTransfers(), API.getCities()]).then(([groups, cities]) => {
       const mapByCity = new Map((groups||[]).map(g => [String(g.city).toLowerCase(), g]));
       const merged = (cities||[]).map(c => {
         const key = String(c).toLowerCase();
         return mapByCity.get(key) || { city: c, stops: [] };
       });
-      renderGroups(merged);
-
-      // create form
+      renderGroups(merged);
       const form = document.getElementById('transferForm');
       const citySel = form.querySelector('select[name="city"]');
       citySel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
@@ -209,9 +184,7 @@
         } else {
           alert(res && res.error || 'Tạo thất bại');
         }
-      });
-
-      // edit / delete / quick-add handlers
+      });
       const editForm = document.getElementById('editStopForm');
       document.addEventListener('click', async (e) => {
         const del = e.target.closest('.delete-stop');
@@ -225,8 +198,7 @@
           }
         } else if(edit){
           const id = edit.getAttribute('data-id');
-          editForm.id.value = id;
-          // Prefill via DOM text for simplicity
+          editForm.id.value = id;
           const chip = edit.closest('.chip');
           const nameText = chip?.querySelector('span')?.textContent || '';
           editForm.name.value = nameText;
@@ -256,9 +228,7 @@
       });
     });
 
-  }
-
-  // VEHICLES PAGE
+  }
   const vehicleTable = document.getElementById('vehicleTable');
   if(vehicleTable){
     function renderVehicles(list){
@@ -276,9 +246,7 @@
         </tr>`).join('');
     }
 
-    API.getVehicles().then(renderVehicles);
-
-    // Edit handler (open modal, prefill)
+    API.getVehicles().then(renderVehicles);
     const editModal = document.getElementById('editVehicleModal');
     const editForm = document.getElementById('editVehicleForm');
     vehicleTable.addEventListener('click', async (e) => {
@@ -286,13 +254,11 @@
       if(!btn) return;
       const tr = btn.closest('tr');
       const id = tr.getAttribute('data-id');
-      editForm.id.value = id;
-      // Lấy chi tiết từ API để điền đầy đủ (đặc biệt license_plate)
+      editForm.id.value = id;
       const detail = await API.getVehicle(id);
       editForm.name.value = detail?.name || tr.getAttribute('data-name') || '';
       editForm.vehicle_type.value = detail?.vehicle_type || tr.getAttribute('data-type') || 'bus';
-      editForm.license_plate.value = detail?.license_plate || '';
-      // Hiển thị danh sách toa hiện có nếu là tàu
+      editForm.license_plate.value = detail?.license_plate || '';
       const editTrainSec = document.getElementById('editTrainSection');
       const coachTbody = document.querySelector('#existingCoachTable tbody');
       if((detail?.vehicle_type || '').toLowerCase() === 'train' && Array.isArray(detail?.coaches)){
@@ -309,9 +275,7 @@
         coachTbody.innerHTML = '';
       }
       editModal.setAttribute('aria-hidden','false');
-    });
-
-    // xử lý thêm toa mới trong modal Sửa
+    });
     const editCoachTableBody = document.querySelector('#editCoachTable tbody');
     const editAddCoachBtn = document.getElementById('editAddCoachBtn');
     function editAddCoachRow(row={ coach_type:'seat_soft', quantity:1 }){
@@ -335,9 +299,7 @@
     editAddCoachBtn?.addEventListener('click', () => editAddCoachRow());
     editCoachTableBody?.addEventListener('click', (e) => {
       if(e.target.closest('.remove-edit-row')){ e.target.closest('tr')?.remove(); }
-    });
-
-    // xoá toa hiện có
+    });
     document.addEventListener('click', async (e) => {
       const btn = e.target.closest('.remove-existing-coach');
       if(!btn) return;
@@ -362,8 +324,7 @@
       const rs = await API.updateVehicle(id, payload);
       if(!(rs && rs.ok)){
         return alert(rs && rs.error || 'Cập nhật phương tiện thất bại');
-      }
-      // nếu có hàng thêm toa mới, gọi API add coaches
+      }
       const rows = Array.from(editCoachTableBody?.querySelectorAll('tr') || []);
       if(rows.length){
         const coaches = rows.map(r => ({ coach_type: r.querySelector('.coach_type').value, quantity: Number(r.querySelector('.quantity').value||1) }))
@@ -378,9 +339,7 @@
       editModal.setAttribute('aria-hidden','true');
       const list = await API.getVehicles();
       renderVehicles(list);
-    });
-
-    // Form logic for create (bus/train)
+    });
     const form = document.getElementById('vehicleForm');
     const vehicleTypeSel = form.querySelector('select[name="vehicle_type"]');
     const busFields = document.getElementById('busFields');
@@ -411,8 +370,7 @@
         <td><input type="number" class="quantity" min="1" value="${row.quantity}" /></td>
         <td><button type="button" class="icon-btn remove-coach" title="Xoá"><i class="ri-delete-bin-6-line"></i></button></td>
       `;
-      coachTableBody.appendChild(tr);
-      // cập nhật total_seats khi đổi loại
+      coachTableBody.appendChild(tr);
       const sel = tr.querySelector('.coach_type');
       const seatInput = tr.querySelector('.total_seats');
       sel.addEventListener('change', () => { seatInput.value = sel.value==='seat_VIP' ? 24 : 40; });
@@ -437,8 +395,7 @@
         const coach_type = fd.get('bus_coach_type');
         const total_seats = Number(fd.get('bus_total_seats')||0);
         payload = { name, vehicle_type, license_plate, coach: { coach_type, total_seats } };
-      } else {
-        // train: collect coach rows
+      } else {
         const rows = Array.from(coachTableBody?.querySelectorAll('tr') || []);
         const coaches = rows.map(r => ({
           coach_type: r.querySelector('.coach_type').value,
@@ -457,9 +414,7 @@
       } else {
         alert(res && res.error ? res.error : 'Không thể tạo phương tiện');
       }
-    });
-
-    // Delete handler
+    });
     vehicleTable.addEventListener('click', async (e) => {
       const btn = e.target.closest('.delete-vehicle');
       if(!btn) return;

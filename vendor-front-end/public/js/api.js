@@ -1,12 +1,8 @@
-// public/js/api.js
-// Centralized API layer that talks to Laravel backend vendor APIs.
-// Reads base URL and token from window (set in head.ejs) or localStorage.
+
 
 const API = (() => {
   let baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : 'http://127.0.0.1:8000/api';
-  const getToken = () => (typeof window !== 'undefined' && window.API_TOKEN) ? window.API_TOKEN : (localStorage.getItem('API_TOKEN') || '');
-
-  // Cache of locations to resolve city name -> location_id
+  const getToken = () => (typeof window !== 'undefined' && window.API_TOKEN) ? window.API_TOKEN : (localStorage.getItem('API_TOKEN') || '');
   let locationCache = [];
 
   function authHeaders(json = true){
@@ -17,8 +13,7 @@ const API = (() => {
     return headers;
   }
 
-  async function request(path, options = {}){
-    // Normalize baseURL from window in case settings changed at runtime
+  async function request(path, options = {}){
     baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : baseURL;
     const url = baseURL.replace(/\/$/, '') + '/' + path.replace(/^\//,'');
     const res = await fetch(url, options);
@@ -26,15 +21,13 @@ const API = (() => {
     let data;
     try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text }; }
     if(!res.ok){
-      if(res.status === 401 || res.status === 403){
-        // auto-logout and redirect to login
+      if(res.status === 401 || res.status === 403){
         try { localStorage.removeItem('API_TOKEN'); } catch {}
         if(typeof window !== 'undefined'){ window.API_TOKEN = ''; if(location.pathname !== '/login'){ location.href = '/login'; } }
       }
       const message = (data && (data.message || data.error || data.errors)) || `HTTP ${res.status}`;
       throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
-    }
-    // Unwrap common envelope { success, status, message, data }
+    }
     return (data && Object.prototype.hasOwnProperty.call(data, 'data')) ? data.data : data;
   }
 
@@ -42,15 +35,13 @@ const API = (() => {
     try { return new Date(date).toISOString(); } catch { return null; }
   }
 
-  function mapDashboard(payload){
-    // Try to map backend payload to charts format; fallback to demo if fields missing
+  function mapDashboard(payload){
     const demo = {
       yearHistory: [120, 300, 250, 400, 750, 280, 560, 320, 480, 130, 500, 460],
       weekActivity: { labels: ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'], booked: [240,80,320,470,150,400,380], canceled: [120,50,200,350,90,260,300] },
       seatToday: { labels: ['Đặt','Trống','Bán','Giữ','Tạm'], values: [35,20,15,10,20] }
     };
-    if(!payload || typeof payload !== 'object') return demo;
-    // Flexible mapping
+    if(!payload || typeof payload !== 'object') return demo;
     return {
       yearHistory: payload.yearHistory || payload.year_history || demo.yearHistory,
       weekActivity: {
@@ -86,8 +77,7 @@ const API = (() => {
       }
     },
 
-    async getTickets(){
-      // returns array of { id, vehicle, type, plate, seats, time, date, route, price, status }
+    async getTickets(){
     
       try {
         const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });
@@ -130,12 +120,10 @@ const API = (() => {
           start_date: String(payload.startDate||'').trim(),
           from_city: String(payload.fromCity||'').trim(),
           to_city: String(payload.toCity||'').trim()
-        };
-        // include bus or train prices appropriately
+        };
         if(payload.price !== undefined && payload.price !== ''){
           body.price = Number(payload.price);
-        }
-        // include train-specific prices if provided
+        }
         if(payload.regular_price !== undefined && payload.regular_price !== ''){
           body.regular_price = Number(payload.regular_price);
         }
@@ -151,8 +139,7 @@ const API = (() => {
 
     async getTransfers(){
       try {
-        const grouped = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
-        // Hỗ trợ cả 2 dạng trả về: mảng [{location_id, location_name, stops:[...]}, ...] hoặc object { city: [stops] }
+        const grouped = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
         if(Array.isArray(grouped)){
           return grouped.map(g => ({ location_id: g.location_id || g.id, city: g.location_name || g.city || 'Không rõ', stops: Array.isArray(g.stops) ? g.stops : [] }));
         }
@@ -166,11 +153,9 @@ const API = (() => {
       }
     },
 
-    async createTransfer(payload){
-      // payload: { city: cityName, point: stopName }
+    async createTransfer(payload){
       const { city, point } = payload || {};
-      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
-      // Đảm bảo đã có danh sách location để map name -> id
+      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
       if(!locationCache.length){ await this.getCities(); }
       const match = locationCache.find(l => (l.name || '').toLowerCase() === String(city).toLowerCase());
       if(!match){ return { ok:false, error: 'Không tìm thấy thành phố trong danh sách' }; }
@@ -183,8 +168,7 @@ const API = (() => {
       }
     },
 
-    async updateTransfer(id, payload){
-      // payload: { name, address, location_id | city }
+    async updateTransfer(id, payload){
       try {
         let body = { ...payload };
         if(!body.location_id && body.city){
@@ -209,11 +193,9 @@ const API = (() => {
       }
     },
 
-    async createTransfer(payload){
-      // payload: { city: cityName, point: stopName }
+    async createTransfer(payload){
       const { city, point } = payload || {};
-      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
-      // Đảm bảo đã có danh sách location để map name -> id
+      if(!city || !point){ return { ok:false, error: 'Thiếu thành phố hoặc điểm trung chuyển' }; }
       if(!locationCache.length){ await this.getCities(); }
       const match = locationCache.find(l => (l.name || '').toLowerCase() === String(city).toLowerCase());
       if(!match){ return { ok:false, error: 'Không tìm thấy thành phố trong danh sách' }; }
@@ -329,8 +311,7 @@ const API = (() => {
 
     async getCities(){
       try {
-        const out = await request('/routes/location', { headers: authHeaders(false) });
-        // out có thể là {data:[{id,name}]} hoặc mảng
+        const out = await request('/routes/location', { headers: authHeaders(false) });
         locationCache = Array.isArray(out.data) ? out.data : (Array.isArray(out) ? out : []);
         return locationCache.map(l => l.name);
       } catch(e){

@@ -8,8 +8,7 @@ import {
   MapPin,
   CalendarCheck,
   ArrowRightLeft,
-} from "lucide-react";
-// import style from "./AddressOption.module.css";
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -46,12 +45,7 @@ interface schedule {
   } | null;
   date: Date | undefined;
   vehicle: string;
-}
-
-// interface location {
-//   name: string;
-//   id: number;
-// }
+}
 
 function AddressOption() {
   const navigate = useNavigate();
@@ -65,25 +59,11 @@ function AddressOption() {
 
   const [schedule, setSchedule] = useState<schedule>(initSchedule);
   const [toggleAddress, setToggleAddress] = useState(false);
-  const [indexNav, setIndexNav] = useState(0);
-
-  //
+  const [indexNav, setIndexNav] = useState(0);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const isSearchDisabled =
-    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
-
-  // const param = new URLSearchParams({
-  //   data: encodeURIComponent(JSON.stringify(schedule)),
-  // });
-
-  // const getData = JSON.parse(decodeURIComponent(param.get("data") || ""));
-
-  // const toBook = () => {
-  //   navigate(`/book?data=${encodeURIComponent(JSON.stringify(schedule))}`);
-  // };
-
-  // console.log(getData);
+    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
 
   const location = useLocation();
   useEffect(() => {
@@ -95,9 +75,9 @@ function AddressOption() {
   return (
     <>
       <div className="grid size-full grid-rows-[50px]">
-        {/* Vehicle Option Navigator */}
+        {}
         <div className="relative overflow-hidden rounded-t-2xl bg-[#5B2642]">
-          {/* top loading/error banner */}
+          {}
           {loading && (
             <div className="absolute top-3 right-3 z-10 flex items-center gap-2 rounded-md bg-white/90 px-3 py-1.5 text-sm text-[#5B2642] shadow">
               <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#5B2642]/40 border-t-[#5B2642]" />
@@ -181,9 +161,9 @@ function AddressOption() {
         </div>
 
         <div className="grid grid-rows-[60%_40%] rounded-b-2xl bg-white">
-          {/* Schedule Option */}
+          {}
           <div className="grid h-[80%] w-[90%] grid-cols-3 self-end justify-self-center">
-            {/* From */}
+            {}
             <div className="relative grid auto-cols-[min-content_1fr] grid-flow-col items-center gap-2.5 rounded-l-2xl bg-[#FFF1E3] outline outline-[#aaa]">
               <div className="absolute top-1.5 left-2.5 text-xs text-[#aaa]">
                 Nơi xuất phát
@@ -208,7 +188,7 @@ function AddressOption() {
                     }));
                   }}
                 >
-                  {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
+                  {}
                   <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
                     <SelectValue
                       placeholder={
@@ -220,7 +200,7 @@ function AddressOption() {
                       }
                     />
                   </SelectTrigger>
-                  {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
+                  {}
                   <SelectContent align="start" className="min-w-full">
                     <SelectGroup>
                       <SelectLabel>Điểm đón</SelectLabel>
@@ -245,7 +225,7 @@ function AddressOption() {
                 </Select>
               </div>
             </div>
-            {/* To */}
+            {}
             <div className="relative grid auto-cols-[min-content_1fr] grid-flow-col items-center gap-2.5 bg-[#FFF1E3] outline outline-[#aaa]">
               <div
                 className={clsx(
@@ -281,7 +261,7 @@ function AddressOption() {
                     }));
                   }}
                 >
-                  {/* Chữa cháy tại chỗ: dùng ! để override w-fit & h-9 trong SelectTrigger gốc */}
+                  {}
                   <SelectTrigger className="!h-full !w-full border-0 bg-transparent px-2 py-0 text-left opacity-0 shadow-none focus-visible:border-0 focus-visible:ring-0">
                     <SelectValue
                       placeholder={
@@ -293,7 +273,7 @@ function AddressOption() {
                       }
                     />
                   </SelectTrigger>
-                  {/* size-full ở Content không cần vì Content dùng portal; nếu muốn bằng chiều rộng trigger: min-w-full hoặc w-[var(--radix-select-trigger-width)] */}
+                  {}
                   <SelectContent align="start" className="min-w-full">
                     <SelectGroup>
                       <SelectLabel>Điểm đến</SelectLabel>
@@ -317,7 +297,7 @@ function AddressOption() {
                 </Select>
               </div>
             </div>
-            {/* Calender */}
+            {}
             <div className="relative grid auto-cols-[min-content_1fr] grid-flow-col items-center gap-2.5 rounded-r-2xl bg-[#FFF1E3] outline outline-[#aaa]">
               <div className="absolute top-1.5 left-2.5 text-xs text-[#aaa]">
                 Lịch xuất phát
@@ -354,13 +334,7 @@ function AddressOption() {
                         captionLayout="dropdown"
                         onSelect={(date) => {
                           setDate(date);
-                          setOpen(false);
-
-                          // const onlyDate = date
-                          //   ? date.toLocaleDateString("en-CA", {
-                          //       timeZone: "Asia/Ho_Chi_Minh",
-                          //     })
-                          //   : undefined;
+                          setOpen(false);
 
                           setSchedule((prev) => ({
                             ...prev,

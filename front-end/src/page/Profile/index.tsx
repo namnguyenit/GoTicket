@@ -33,10 +33,8 @@ const supportItems = [
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { setAuth } = useContext(LogOutContext);
-  // Validate profile
-  const [profile, setProfile] = useState<any>(null);
-  //Get profile
+  const { setAuth } = useContext(LogOutContext);
+  const [profile, setProfile] = useState<any>(null);
   useEffect(() => {
     const getProfile = async () => {
       try {
@@ -47,8 +45,7 @@ export default function Profile() {
             Authorization: localStorage.getItem("Authorisation") || "",
           },
         });
-        const json = await res.json();
-        // console.log(json);
+        const json = await res.json();
         setProfile({
           ...json,
           data: { ...json.data, phone_number: json.data.phone },
@@ -58,8 +55,7 @@ export default function Profile() {
       }
     };
     getProfile();
-  }, []);
-  //PUT profile
+  }, []);
   const putProfile = async () => {
     try {
       const res = await fetch(`${URL}/api/auth/myinfo`, {
@@ -76,18 +72,15 @@ export default function Profile() {
       if (!json.success) throw Error("Dữ liệu ko hợp lệ ❌");
       toast.success("Cập nhập tài khoản thành công  🎉");
       setAuth(null);
-    } catch (error: any) {
-      // console.log(error);
+    } catch (error: any) {
       toast.error(error.message);
     }
-  };
-
-  // console.log(profile);
+  };
 
   return (
     <div className="relative h-[130vh] w-full bg-gradient-to-b from-[#faf6f6] via-[#f7f1f1] to-[#f3eded]">
       <div className="absolute top-[80px] left-1/2 w-full max-w-6xl -translate-x-1/2 px-4 py-8 md:px-6 md:py-10 lg:px-8">
-        {/* Header */}
+        {}
         <header className="mb-6 flex items-center justify-between rounded-xl border border-white/50 bg-white/70 p-4 shadow-sm backdrop-blur-sm md:mb-8 md:p-6">
           <div className="flex items-center gap-4 md:gap-5">
             <Avatar className="h-12 w-12 rounded-full border-4 border-[#f7ac3d] bg-white md:h-14 md:w-14">
@@ -114,9 +107,9 @@ export default function Profile() {
           </Button>
         </header>
 
-        {/* Main */}
+        {}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[260px_1fr]">
-          {/* Sidebar */}
+          {}
           <aside className="flex h-max flex-col gap-4 rounded-xl border border-white/50 bg-white/70 p-4 shadow-sm backdrop-blur-sm">
             <nav className="flex flex-col gap-2">
               {navigationItems.map((item) => (
@@ -160,9 +153,9 @@ export default function Profile() {
               ))}
             </div>
 
-            {/* Logout section removed */}
+            {}
 
-            {/* Profile picture card */}
+            {}
             <div className="rounded-xl border border-white/50 bg-white/70 p-4 shadow-sm">
               <Label className="text-sm font-semibold text-[#5b2642]">
                 Profile picture
@@ -184,7 +177,7 @@ export default function Profile() {
             </div>
           </aside>
 
-          {/* Content */}
+          {}
           <section className="rounded-xl border border-white/50 bg-white/80 p-5 shadow-sm backdrop-blur-sm md:p-6">
             <div className="mb-4 border-b border-[#d8dee4] pb-3">
               <h2 className="text-xl font-semibold text-[#5b2642] md:text-[23px]">
@@ -214,7 +207,7 @@ export default function Profile() {
                 </p>
               </div>
 
-              {/* Phone field */}
+              {}
               <div className="col-span-1 flex flex-col gap-2">
                 <Label className="text-sm font-semibold text-[#5b2642]">
                   Số điện thoại
@@ -288,7 +281,7 @@ export default function Profile() {
                 />
               </div>
 
-              {/* Location field removed */}
+              {}
             </div>
 
             <p className="mt-4 text-xs text-[#57606a]">

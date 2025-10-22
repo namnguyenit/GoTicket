@@ -9,7 +9,7 @@ class UpdateVehicleRequest extends ApiRequest
 {
     public function authorize(): bool{
         $vehicle = $this->route('vehicle');
-        // user()->vendor?->id để tránh lỗi null
+
         return $vehicle && $this->user() && optional($this->user()->vendor)->id === $vehicle->vendor_id;
     }
     public function rules(): array{
@@ -23,7 +23,7 @@ class UpdateVehicleRequest extends ApiRequest
                 'max:50',
                 Rule::unique('vehicles','license_plate')->ignore($vehicleId)
             ],
-            // capacity được tính từ coaches; không nhận trực tiếp ở đây
+
         ];
     }
     public function messages(): array

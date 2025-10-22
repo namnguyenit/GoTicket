@@ -43,7 +43,7 @@ function About() {
   return (
     <>
       <div className="w-full">
-        {/* Hero */}
+        {}
         <section className="relative flex h-[320px] w-full items-center justify-center overflow-hidden bg-[url(/book-page-bg.jpg)] bg-cover bg-center after:absolute after:inset-0 after:bg-[#003580]/80">
           <div className="relative z-10 flex items-center justify-center px-6 text-center">
             <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-white md:text-5xl">
@@ -52,7 +52,7 @@ function About() {
           </div>
         </section>
 
-        {/* Mission */}
+        {}
         <section className="mx-auto w-full max-w-6xl px-6 py-14 md:px-8 md:py-20">
           <div className="grid gap-10 md:grid-cols-2 md:items-start md:gap-16">
             <div className="space-y-6">
@@ -93,7 +93,7 @@ function About() {
           </div>
         </section>
 
-        {/* Values Grid */}
+        {}
         <section className="mx-auto w-full max-w-6xl px-6 pb-16 md:px-8 md:pb-24">
           <div className="mb-10 flex flex-col gap-3 text-center">
             <h2 className="text-2xl font-bold text-[#5b2642] md:text-3xl">

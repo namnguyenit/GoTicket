@@ -8,9 +8,6 @@ enum ApiSuccess: string
     case ACTION_SUCCESS = 'ACTION_SUCCESS';
     case CREATED_SUCCESS = 'CREATED_SUCCESS';
 
-
-
-    // Mã thành công cho nhà xe
     case VEHICLE_CREATED ='VEHICLE_CREATED';
     case VEHICLE_UPDATED ='VEHICLE_UPDATED';
     case VEHICLE_DELETED ='VEHICLE_DELETED';

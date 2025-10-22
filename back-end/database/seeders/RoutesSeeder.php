@@ -17,7 +17,7 @@ class RoutesSeeder extends Seeder
             ['Đà Nẵng','Quảng Nam'],['Đà Nẵng','Quảng Ngãi'],['Đà Nẵng','Thừa Thiên Huế'],
             ['Cần Thơ','Hồ Chí Minh'],['Cần Thơ','An Giang'],['Cần Thơ','Kiên Giang'],
         ];
-        // tạo thêm tuyến ngẫu nhiên giữa 63 tỉnh để phong phú
+
         $names = array_keys($locations->toArray());
         for($i=0;$i<20;$i++){
             $a = $names[array_rand($names)];
