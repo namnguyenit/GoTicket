@@ -20,7 +20,6 @@ class UpdateTripRequest extends FormRequest
             'base_price' => ['sometimes','numeric','between:0,99999999.99'],
             'status' => ['sometimes','in:scheduled,cancelled'],
 
-            // train-specific price updates (if trip is a train)
             'regular_price' => ['sometimes','numeric','between:0,99999999.99'],
             'vip_price' => ['sometimes','numeric','between:0,99999999.99'],
 

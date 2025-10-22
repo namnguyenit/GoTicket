@@ -61,8 +61,7 @@ export function useFetch<T = any>(baseUrl: string) {
         let json: T | null = null;
         try {
           json = await res.json();
-        } catch {
-          // có thể không phải JSON
+        } catch {
         }
 
         if (!res.ok) {
@@ -72,8 +71,7 @@ export function useFetch<T = any>(baseUrl: string) {
               data: json,
               error: `HTTP ${res.status}: ${res.statusText}`,
             },
-          });
-          // ⚠️ không trả về null nữa, chỉ return undefined
+          });
           return;
         }
 

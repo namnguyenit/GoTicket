@@ -26,7 +26,7 @@ class TripController extends Controller
 
     public function search(SearchRequest $request)
     {
-        // SearchRequest đã tự động lấy tất cả tham số từ URL và validate chúng
+
         $validated = $request->validated();
 
         $origin = $this->locationService->findIdBYName($validated['origin_location']);
@@ -35,8 +35,7 @@ class TripController extends Controller
         if (!$origin || !$destination) {
             return $this->error(ApiError::NOT_FOUND, ['message' => 'Điểm đi hoặc điểm đến không hợp lệ.']);
         }
-        
-        // Gói tất cả các điều kiện, bao gồm cả những cái có thể là null
+
         $criteria = array_merge($validated, [
             'origin_id' => $origin->id,
             'destination_id' => $destination->id,
@@ -45,13 +44,11 @@ class TripController extends Controller
         $trips = $this->tripService->searchTrips($criteria);
         $requestedPage = $request->query('page', 1);
 
-        // Nếu người dùng yêu cầu một trang lớn hơn trang cuối cùng VÀ tổng số kết quả > 0
         if ($requestedPage > $trips->lastPage() && $trips->total() > 0) {
             return $this->error(ApiError::NOT_FOUND, ['message' => 'Trang bạn yêu cầu không tồn tại.']);
         }
         $trips->appends($request->query());
 
-        // Dùng Resource::collection với paginator (Laravel giữ nguyên meta/links)
         $resource = TripResource::collection($trips);
         return $this->success($resource, ApiSuccess::GET_DATA_SUCCESS);
 
@@ -78,15 +75,12 @@ class TripController extends Controller
             return $this->error(ApiError::NOT_FOUND);
         }
 
-        // $trip->stops sẽ chứa một collection tất cả các điểm dừng của chuyến đi
         $stops = $trip->stops;
 
-        // Dùng collection của Laravel để lọc ra 2 danh sách riêng biệt
-        // Dựa vào cột 'stop_type' trong bảng trung gian 'trip_stops'
+
         $pickupPoints = $stops->where('pivot.stop_type', 'pickup')->values();
         $dropoffPoints = $stops->where('pivot.stop_type', 'dropoff')->values();
 
-        // Trả về dữ liệu với Resource chuẩn
         return $this->success([
             'pickup_points' => \App\Http\Resources\StopResource::collection($pickupPoints),
             'dropoff_points' => \App\Http\Resources\StopResource::collection($dropoffPoints),

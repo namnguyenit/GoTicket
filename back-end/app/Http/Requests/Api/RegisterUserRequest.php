@@ -8,7 +8,7 @@ class RegisterUserRequest extends ApiRequest
 {
     public function authorize(): bool
     {
-        // Mọi người đều có quyền đăng ký
+
         return true;
     }
 

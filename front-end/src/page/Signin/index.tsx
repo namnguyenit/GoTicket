@@ -39,19 +39,19 @@ function Signin() {
 
   return (
     <div className="relative flex min-h-[130vh] w-full flex-col overflow-hidden bg-gradient-to-br from-[#fffdf7] via-[#fff4d4] to-[#fbe1f0]">
-      {/* Decorative ambient background layers */}
+      {}
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-        {/* Soft radial glow */}
+        {}
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#fdbf00]/30 blur-3xl md:h-96 md:w-96" />
         <div className="absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-[#6d0236]/25 blur-3xl md:h-[500px] md:w-[500px]" />
-        {/* Subtle radial lighting overlay */}
+        {}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,rgba(255,255,255,0.7),transparent_65%)]" />
-        {/* Angle light sweep */}
+        {}
         <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.15)_0%,rgba(255,255,255,0)_45%,rgba(255,255,255,0.12)_75%)] mix-blend-overlay" />
-        {/* Fine noise / pattern (fallback simple translucent layer) */}
+        {}
         <div className="absolute inset-0 opacity-[0.07] [background:repeating-linear-gradient(60deg,rgba(255,255,255,0.7)_0px,rgba(255,255,255,0.7)_1px,transparent_1px,transparent_6px)]" />
       </div>
-      {/* Hero (smaller & balanced) */}
+      {}
       <section className="relative flex h-72 w-full items-center justify-center overflow-hidden bg-[url(/book-page-bg.jpg)] bg-cover bg-center after:absolute after:inset-0 after:bg-black/40 md:h-80">
         <div className="relative z-10 flex items-center justify-center px-4">
           <h1 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
@@ -60,7 +60,7 @@ function Signin() {
         </div>
       </section>
 
-      {/* Form Panel overlapping hero */}
+      {}
       <section className="relative z-10 -mt-20 flex w-full grow items-start justify-center px-4 pb-12 md:-mt-24">
         <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/70 shadow-xl backdrop-blur-md">
           <CardContent className="p-6 md:p-8">
@@ -73,7 +73,7 @@ function Signin() {
               </p>
             </header>
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {/* Email */}
+              {}
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="email"
@@ -99,7 +99,7 @@ function Signin() {
                   />
                 </div>
               </div>
-              {/* Password */}
+              {}
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="password"

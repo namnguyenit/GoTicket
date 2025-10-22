@@ -90,8 +90,7 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        errorBox.textContent = '';
-        // Persist base URL if changed
+        errorBox.textContent = '';
         const baseUrl = form.baseUrl.value.trim();
         if(baseUrl){ localStorage.setItem('API_BASE_URL', baseUrl); window.API_BASE_URL = baseUrl; }
         try {

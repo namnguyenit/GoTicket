@@ -32,7 +32,7 @@ class ManagerVehicleService{
     public function createVehicle(array $data)
     {
         return DB::transaction(function () use ($data) {
-            // Bước 1: Tạo Vehicle trước
+
             $vehicle = $this->managerVehicleRepository->create([
                 'vendor_id' => auth()->user()->vendor->id,
                 'name' => $data['name'],
@@ -43,9 +43,8 @@ class ManagerVehicleService{
             $allSeatsToCreate = [];
             $now = Carbon::now();
 
-            // Bước 2: Xử lý logic dựa trên loại phương tiện
             if ($data['vehicle_type'] === 'bus') {
-                // --- LOGIC CHO XE BUS ---
+
                 $coachData = $data['coach'];
                 $coach = $this->coachRepository->create([
                     'vehicle_id' => $vehicle->id,
@@ -54,7 +53,6 @@ class ManagerVehicleService{
                     'total_seats' => $coachData['total_seats'],
                 ]);
 
-                // Chuẩn bị tạo ghế cho coach này (bảng seats KHÔNG có timestamps)
                 for ($i = 1; $i <= $coachData['total_seats']; $i++) {
                     $seatNumber = 'S' . str_pad((string)$i, 2, '0', STR_PAD_LEFT);
                     $allSeatsToCreate[] = [
@@ -64,19 +62,17 @@ class ManagerVehicleService{
                 }
 
             } elseif ($data['vehicle_type'] === 'train') {
-                // --- LOGIC CHO TÀU HỎA ---
+
                 $coachGroups = $data['coaches'];
 
-                // Dùng để đếm số thứ tự cho mỗi loại toa (ví dụ: Toa VIP 1, Toa VIP 2)
                 $identifierCounters = [];
 
                 foreach ($coachGroups as $group) {
                     $coachType = $group['coach_type'];
                     $quantity = $group['quantity'];
 
-                    // Quy tắc tính số ghế:
-                    // - seat_soft: 40 ghế/toa
-                    // - seat_VIP: 6 khoang x 4 ghế = 24 ghế/toa
+
+
                     $totalSeats = $coachType === 'seat_VIP' ? 6 * 4 : 40;
 
                     if (!isset($identifierCounters[$coachType])) {
@@ -93,9 +89,8 @@ class ManagerVehicleService{
                             'total_seats' => $totalSeats,
                         ]);
 
-                        // seat_number: đánh số theo khoang đối với VIP, theo thứ tự đối với seat_soft
                         if ($coachType === 'seat_VIP') {
-                            // 6 khoang, mỗi khoang 4 ghế: K1A..K1D, K2A..K2D ...
+
                             for ($k = 1; $k <= 6; $k++) {
                                 foreach (['A','B','C','D'] as $pos) {
                                     $allSeatsToCreate[] = [
@@ -117,7 +112,6 @@ class ManagerVehicleService{
                 }
             }
 
-            // Bước 3: Tạo tất cả các ghế cần thiết trong một lệnh duy nhất
             if (!empty($allSeatsToCreate)) {
                 $this->seatRepository->createMany($allSeatsToCreate);
             }

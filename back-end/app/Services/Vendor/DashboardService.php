@@ -28,7 +28,7 @@ class DashboardService
         ];
 
         $weeklyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfWeek, $endOfWeek, 'day');
-        // Map weeklyData if needed
+
 
         $startOfYear = $now->copy()->startOfYear();
         $endOfYear = $now->copy()->endOfYear();
@@ -39,7 +39,7 @@ class DashboardService
         ];
 
         $yearlyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfYear, $endOfYear, 'month');
-        // Map yearlyData if needed
+
 
         return [
             'weekly_revenue_by_day' => $weeklyRevenue,

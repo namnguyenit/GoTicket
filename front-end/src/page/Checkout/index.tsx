@@ -162,9 +162,7 @@ function CheckOut() {
 
   useEffect(() => {
     setInfo((pre) => ({ ...pre, seats: params.seats }));
-  }, [location]);
-
-  // console.log(info);
+  }, [location]);
 
   const {
     data: dataConfirm,
@@ -182,7 +180,7 @@ function CheckOut() {
   return (
     <>
       <div className="min-h-screen w-full bg-gradient-to-b from-[#faf6f6] via-[#f7f1f1] to-[#f3eded]">
-        {/* Hero */}
+        {}
         <div className="relative h-[260px] w-full bg-[url(/book-page-bg.jpg)] bg-cover bg-center">
           <div className="absolute inset-0 bg-black/20" />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -191,10 +189,10 @@ function CheckOut() {
             </div>
           </div>
         </div>
-        {/* Content */}
+        {}
         <div className="mx-auto w-full max-w-[1180px] px-4 py-8 md:px-6 md:py-10 lg:px-8">
           <div className="grid grid-cols-1 gap-5 md:gap-7 lg:grid-cols-[1fr_400px] lg:gap-8">
-            {/* Left column */}
+            {}
             <div className="flex flex-col gap-8">
               <Card className="overflow-hidden rounded-xl border border-[#ffffff1a] bg-white/40 shadow-[0_4px_14px_rgba(0,0,0,0.05)] backdrop-blur-sm">
                 <div className="flex h-14 items-center gap-3 bg-[#5b2642] px-5 md:h-16 md:gap-4 md:px-7">
@@ -438,7 +436,7 @@ function CheckOut() {
               </Card>
             </div>
 
-            {/* Right column (summary) */}
+            {}
             <Card className="h-max overflow-hidden rounded-xl border border-[#ffffff1a] bg-white/40 shadow-[0_4px_14px_rgba(0,0,0,0.05)] backdrop-blur-sm lg:sticky lg:top-6">
               <div className="flex h-14 items-center gap-3 bg-[#5b2642] px-5 md:h-16 md:gap-4 md:px-6">
                 <Ticket

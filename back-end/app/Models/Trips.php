@@ -25,7 +25,6 @@ class Trips extends Model
         'updated_at' => 'datetime',
     ];
 
-    // ĐỊNH NGHĨA LẠI MỐI QUAN HỆ NÀY
     public function vendorRoute(){
         return $this->belongsTo(VendorRoute::class, 'vendor_route_id');
     }

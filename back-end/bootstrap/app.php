@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
         $middleware->alias([
             'role' => RoleMiddleware::class
         ]);
@@ -35,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+
         // Giữ nguyên handler này, nó sẽ xử lý AuthenticationException khi redirectUsing trả về null
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) { // Kiểm tra lại cho chắc chắn
@@ -46,6 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Xử lý cho web nếu cần
             // return redirect()->guest(route('login'));
         });
+
 
     })
     ->create();

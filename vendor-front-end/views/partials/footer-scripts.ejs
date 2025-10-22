@@ -1,21 +1,19 @@
-  </div> <!-- /.layout -->
+  </div> 
 
-  <!-- Dependencies -->
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   
-  <!-- App scripts -->
+  
   <script src="/public/js/api.js"></script>
   <script src="/public/js/charts.js"></script>
   <script src="/public/js/app.js"></script>
-  <script>
-    // Simple auth guard for pages that require authentication
+  <script>
     (function(){
       if(window.REQUIRE_AUTH && !window.API_TOKEN){
         if(location.pathname !== '/login'){
           location.href = '/login';
         }
-      }
-      // Logout handler
+      }
       const lg = document.querySelector('.logout');
       if(lg){
         lg.addEventListener('click', function(){

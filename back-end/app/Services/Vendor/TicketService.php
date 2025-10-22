@@ -58,7 +58,6 @@ class TicketService
                 ]
             );
 
-            // Parse datetimes
             [$dep, $arr] = explode('-', $data['start_time']);
             $depAt = Carbon::parse(($data['start_date'].' '.$dep).':00');
             $arrAt = Carbon::parse(($data['start_date'].' '.$arr).':00');
@@ -66,13 +65,11 @@ class TicketService
                 $arrAt = $arrAt->addDay(); // overnight case
             }
 
-            // Determine pricing for train vs bus
             $isTrain = ($vehicle->vehicle_type === 'train');
             $regularPrice = $isTrain ? (float)$data['regular_price'] : (float)($data['price'] ?? 0);
             $vipPrice     = $isTrain ? (float)$data['vip_price'] : (float)($data['price'] ?? 0);
             $basePrice    = $isTrain ? $regularPrice : (float)($data['price'] ?? 0);
 
-            // Create trip
             $trip = Trips::create([
                 'vendor_route_id' => $vendorRoute->id,
                 'departure_datetime' => $depAt,
@@ -81,7 +78,6 @@ class TicketService
                 'status' => 'scheduled',
             ]);
 
-            // Attach coaches of vehicle to trip_coaches in a simple order
             $order = 1;
             foreach ($vehicle->coaches as $coach){
                 DB::table('trip_coaches')->insert([
@@ -91,7 +87,6 @@ class TicketService
                 ]);
             }
 
-            // Seed trip_seats from coach seats
             foreach ($vehicle->coaches as $coach){
                 foreach ($coach->seats as $seat){
                     $seatPrice = $basePrice;

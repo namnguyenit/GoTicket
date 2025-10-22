@@ -21,9 +21,9 @@ class CreateTicketRequest extends ApiRequest
             'start_time' => ['required','regex:/^\d{2}:\d{2}-\d{2}:\d{2}$/'],
             'from_city'  => ['required','string','min:1'],
             'to_city'    => ['required','string','min:1','different:from_city'],
-            // price only required for bus; optional otherwise
+
             'price'         => ['sometimes','numeric','between:0,99999999.99'],
-            // train-specific prices
+
             'regular_price' => ['sometimes','numeric','between:0,99999999.99'],
             'vip_price'     => ['sometimes','numeric','between:0,99999999.99'],
         ];

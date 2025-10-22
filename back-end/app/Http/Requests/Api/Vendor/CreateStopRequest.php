@@ -8,7 +8,7 @@ class CreateStopRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Yêu cầu đăng nhập và có vendor
+
         return auth()->check() && auth()->user()?->vendor()->exists();
     }
 
@@ -26,7 +26,7 @@ class CreateStopRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:500'],
             'location_id' => ['required', 'integer', 'exists:locations,id'],
-            // Không cho client gửi, nhưng validate giá trị đã merge từ server
+
             'vendor_id' => ['required', 'integer', 'exists:vendors,id'],
         ];
     }

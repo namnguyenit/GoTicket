@@ -15,6 +15,7 @@ use App\Models\VendorRoute;
 use App\Models\Trips;
 use App\Models\Bookings;
 use App\Models\BookingDetails;
+use App\Models\Payments;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -23,142 +24,159 @@ class TestDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // Lấy các user nhà xe, khách hàng và các dữ liệu nền tảng đã được tạo từ các Seeder trước
         $vendorUsers = User::where('role', 'vendor')->get();
-        $customerUser = User::where('role', 'customer')->first();
+
+        if($vendorUsers->isEmpty()){
+            for($i=1;$i<=5;$i++){
+                $vendorUsers->push(User::create([
+                    'name' => 'Nhà xe Demo '.$i,
+                    'email' => 'vendor_demo'.$i.'@goticket.com',
+                    'password' => bcrypt('password'),
+                    'role' => 'vendor',
+                ]));
+            }
+        }
+        $customers = User::where('role','customer')->take(10)->get();
+        if($customers->count()<10){
+            for($i=$customers->count()+1;$i<=10;$i++){
+                $customers->push(User::create([
+                    'name' => 'Customer '.$i,
+                    'email' => 'customer'.$i.'@goticket.com',
+                    'password' => bcrypt('password'),
+                    'role' => 'customer',
+                ]));
+            }
+        }
+
         $routes = Routes::all();
-        $locations = Location::all();
+        $locations = Location::pluck('id','name');
+        $hcm = $locations['Hồ Chí Minh'] ?? null; $hn = $locations['Hà Nội'] ?? null; $dn = $locations['Đà Nẵng'] ?? null; $ld = $locations['Lâm Đồng'] ?? null;
 
-        // Lấy ID cụ thể của HCM và Đà Lạt để dùng cho điểm dừng, đảm bảo tính chính xác
-        $locationHCMId = $locations->firstWhere('name', 'Hồ Chí Minh')->id;
-        $locationDLId = $locations->firstWhere('name', 'Lâm Đồng')->id;
+        $tripCount = 0;
+        foreach ($vendorUsers as $idx => $vendorUser) {
 
-        // Tạo dữ liệu chi tiết cho từng nhà xe
-        foreach ($vendorUsers as $index => $vendorUser) {
-            // 1. TẠO NHÀ XE (VENDOR)
-            $vendor = Vendor::create([
-                'user_id' => $vendorUser->id,
+            $vendor = Vendor::firstOrCreate([
+                'user_id' => $vendorUser->id
+            ], [
                 'company_name' => $vendorUser->name,
                 'address' => 'Địa chỉ của ' . $vendorUser->name,
                 'status' => 'active',
             ]);
 
-            // 2. TẠO XE (VEHICLE)
-            $vehicle = Vehicles::create([
-                'vendor_id' => $vendor->id,
-                'name' => 'Xe giường nằm ' . '51A-111.0' . ($index + 1),
-                'license_plate' => '51A-111.0' . ($index + 1),
-                'vehicle_type' => 'bus',
-            ]);
-            
-            // 2.1. TẠO TOA XE (COACH) VÀ GHẾ (SEATS) CHO XE VỪA TẠO
-            $coach = Coaches::create([
-                'vehicle_id' => $vehicle->id,
-                'identifier' => 'Tầng 1',
-                'coach_type' => 'sleeper_regular',
-                'total_seats' => 40,
-            ]);
-
-            $createdSeats = [];
-            for ($s = 1; $s <= 40; $s++) {
-                $createdSeats[] = Seats::create([
-                    'coach_id' => $coach->id,
-                    'seat_number' => 'A' . $s,
-                ]);
-            }
-
-            // 3. TẠO CÁC ĐIỂM DỪNG (STOPS)
-            $stopHCM = Stops::create([
-                'vendor_id' => $vendor->id,
-                'location_id' => $locationHCMId,
-                'name' => 'VP ' . $vendorUser->name . ' Sài Gòn',
-                'address' => 'Q1, TPHCM',
-            ]);
-            $stopDL = Stops::create([
-                'vendor_id' => $vendor->id,
-                'location_id' => $locationDLId,
-                'name' => 'VP ' . $vendorUser->name . ' Đà Lạt',
-                'address' => 'TP Đà Lạt',
-            ]);
-
-            // 4. GÁN TUYẾN ĐƯỜNG CHO NHÀ XE (VENDOR ROUTE)
-            // Lấy route tương ứng từ RoutesSeeder một cách an toàn
-            if ($routes->has($index)) {
-                $vendorRoute = VendorRoute::create([
+            $numVehicles = rand(2,3);
+            $vehicleIds = [];
+            for($v=1;$v<=$numVehicles;$v++){
+                $type = (rand(0,3)===0) ? 'train' : 'bus';
+                $vehicle = Vehicles::create([
                     'vendor_id' => $vendor->id,
-                    'route_id' => $routes[$index]->id,
-                    'name' => 'Tuyến ' . $vendorUser->name,
-                    'is_active' => true,
+                    'name' => ($type==='bus'?'Xe giường nằm ':'Tàu ').Str::upper(Str::random(4)),
+                    'license_plate' => $type==='bus' ? (str_pad((string)rand(10,99),2,'0',STR_PAD_LEFT).'A-'.rand(100.100,999).'.'.rand(10,99)) : null,
+                    'vehicle_type' => $type,
                 ]);
+                $vehicleIds[] = $vehicle->id;
 
-                // 5. TẠO CÁC CHUYẾN ĐI (TRIPS)
-                for ($i = 0; $i < 3; $i++) {
-                    $trip = Trips::create([
-                        'vendor_route_id' => $vendorRoute->id,
-                        'departure_datetime' => Carbon::tomorrow()->addHours(7 + $i * 2),
-                        'arrival_datetime' => Carbon::tomorrow()->addHours(15 + $i * 2),
-                        'base_price' => 350000,
-                        'status' => 'scheduled',
+                if($type==='bus'){
+                    $coach = Coaches::create([
+                        'vehicle_id' => $vehicle->id,
+                        'identifier' => 'Coach-1',
+                        'coach_type' => 'sleeper_regular',
+                        'total_seats' => 40,
                     ]);
-
-                    // 5.1. GÁN XE VÀO CHUYẾN ĐI (bảng trip_coaches)
-                    $trip->coaches()->attach($coach->id, ['coach_order' => 1]);
-
-                    // 5.2. TẠO KHO VÉ CHO CHUYẾN ĐI (bảng trip_seats)
-                    foreach ($createdSeats as $seat) {
-                        $trip->seats()->attach($seat->id, [
-                            'price' => $trip->base_price,
-                            'status' => 'available'
-                        ]);
+                    for($s=1;$s<=40;$s++){
+                        Seats::create(['coach_id'=>$coach->id,'seat_number'=>'A'.$s]);
                     }
+                } else {
+                    $vip = Coaches::create(['vehicle_id'=>$vehicle->id,'identifier'=>'VIP','coach_type'=>'seat_VIP','total_seats'=>24]);
+                    $soft= Coaches::create(['vehicle_id'=>$vehicle->id,'identifier'=>'SOFT','coach_type'=>'seat_soft','total_seats'=>40]);
+                    for($s=1;$s<=24;$s++){ Seats::create(['coach_id'=>$vip->id,'seat_number'=>'V'.$s]); }
+                    for($s=1;$s<=40;$s++){ Seats::create(['coach_id'=>$soft->id,'seat_number'=>'S'.$s]); }
                 }
             }
-        }
 
-        // 6. TẠO MỘT LƯỢT ĐẶT VÉ MẪU
-        $firstTrip = Trips::first();
-        if ($customerUser && $firstTrip) {
-            // Lấy 2 ghế đầu tiên còn trống của chuyến để đặt
-            $seatsToBook = DB::table('trip_seats')
-                ->where('trip_id', $firstTrip->id)
-                ->where('status', 'available')
-                ->join('seats', 'trip_seats.seat_id', '=', 'seats.id')
-                ->select('trip_seats.seat_id', 'trip_seats.price')
-                ->limit(2)
-                ->get();
+            if($hcm){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Sài Gòn'],['location_id'=>$hcm,'address'=>'Q1, TPHCM']); }
+            if($dn){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Đà Nẵng'],['location_id'=>$dn,'address'=>'Hải Châu, ĐN']); }
+            if($ld){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Đà Lạt'],['location_id'=>$ld,'address'=>'TP Đà Lạt']); }
+            if($hn){ Stops::firstOrCreate(['vendor_id'=>$vendor->id,'name'=>'VP '.$vendor->company_name.' Hà Nội'],['location_id'=>$hn,'address'=>'Hoàn Kiếm, HN']); }
 
-            if($seatsToBook->count() == 2) {
-                $totalPrice = $seatsToBook->sum('price');
-                $pickupStopId = Stops::first()->id;
-                $dropoffStopId = Stops::skip(1)->first()->id;
-                
-                // TẠO BOOKING - ĐÃ SỬA LỖI
-                $booking = Bookings::create([
-                    'user_id' => $customerUser->id,
-                    'trip_id' => $firstTrip->id, // <-- THÊM DÒNG NÀY ĐỂ KHỚP VỚI MIGRATION
-                    'booking_code' => 'GOTICKET-' . strtoupper(Str::random(8)),
-                    'status' => 'confirmed',
-                    'total_price' => $totalPrice,
+            $vendorRoutes = [];
+            foreach ($routes->random(min(3, max(1,$routes->count()))) as $r){
+                $vendorRoutes[] = VendorRoute::firstOrCreate([
+                    'vendor_id'=>$vendor->id,
+                    'route_id'=>$r->id
+                ],[
+                    'name'=>'Tuyến '.$vendor->company_name.' '.$r->id,
+                    'is_active'=>true,
                 ]);
+            }
 
-                // Tạo chi tiết booking cho từng ghế
-                foreach($seatsToBook as $seat) {
-                    BookingDetails::create([
-                        'booking_id' => $booking->id,
-                        'trip_id' => $firstTrip->id,
-                        'seat_id' => $seat->seat_id,
-                        'price_at_booking' => $seat->price,
-                        'pickup_stop_id' => $pickupStopId,
-                        'dropoff_stop_id' => $dropoffStopId,
+            foreach($vendorRoutes as $vr){
+                $perVR = rand(2,3);
+                for($t=0;$t<$perVR;$t++){
+                    $dep = Carbon::today()->addDays(rand(-1,7))->setTime(rand(5,20), [0,15,30,45][array_rand([0,15,30,45])]);
+                    $arr = (clone $dep)->addHours(rand(2,10));
+                    $price = rand(150,600)*1000;
+                    $trip = Trips::create([
+                        'vendor_route_id'=>$vr->id,
+                        'departure_datetime'=>$dep,
+                        'arrival_datetime'=>$arr,
+                        'base_price'=>$price,
+                        'status'=> (rand(0,5)===0)?'cancelled':'scheduled',
                     ]);
+
+                    $vehicleId = $vehicleIds[array_rand($vehicleIds)];
+                    $coachIds = Coaches::where('vehicle_id',$vehicleId)->pluck('id');
+                    $order=1; foreach($coachIds as $cid){ $trip->coaches()->attach($cid,['coach_order'=>$order++]); }
+
+                    $seats = Seats::whereIn('coach_id',$coachIds)->get();
+                    foreach($seats as $seat){
+                        $coach = $seat->coach()->first();
+                        $seatPrice = $price;
+                        if($coach && $coach->coach_type === 'seat_VIP'){ $seatPrice = $price * 1.3; }
+                        $trip->seats()->attach($seat->id,['price'=>round($seatPrice,2),'status'=>'available']);
+                    }
+
+                    $tripCount++;
                 }
-                
-                // Cập nhật trạng thái ghế đã đặt
-                DB::table('trip_seats')
-                    ->where('trip_id', $firstTrip->id)
-                    ->whereIn('seat_id', $seatsToBook->pluck('seat_id'))
-                    ->update(['status' => 'booked']);
             }
         }
+
+        $trips = Trips::with('seats')->inRandomOrder()->limit(20)->get();
+        foreach($trips as $trip){
+            $toBook = rand(1,3);
+            $available = DB::table('trip_seats')->where('trip_id',$trip->id)->where('status','available')->limit($toBook)->get();
+            if($available->isEmpty()) continue;
+            $customer = $customers->random();
+            $total = 0; $seatIds = [];
+            foreach($available as $row){ $seatIds[]=$row->seat_id; $total += $row->price; }
+            $booking = Bookings::create([
+                'user_id'=>$customer->id,
+                'trip_id'=>$trip->id,
+                'booking_code'=>'GOTICKET-'.strtoupper(Str::random(8)),
+                'status'=>'confirmed',
+                'total_price'=>$total,
+            ]);
+            foreach($available as $row){
+                BookingDetails::create([
+                    'booking_id'=>$booking->id,
+                    'trip_id'=>$trip->id,
+                    'seat_id'=>$row->seat_id,
+                    'price_at_booking'=>$row->price,
+                    'pickup_stop_id'=>Stops::inRandomOrder()->value('id'),
+                    'dropoff_stop_id'=>Stops::inRandomOrder()->value('id'),
+                ]);
+            }
+            DB::table('trip_seats')->where('trip_id',$trip->id)->whereIn('seat_id',$seatIds)->update(['status'=>'booked']);
+
+            Payments::create([
+                'booking_id'=>$booking->id,
+                'transaction_id'=>'TX'.strtoupper(Str::random(10)),
+                'amount'=>$total,
+                'payment_method'=>'card',
+                'status'=>'success',
+                'paid_at'=>now(),
+            ]);
+        }
+
+
     }
 }

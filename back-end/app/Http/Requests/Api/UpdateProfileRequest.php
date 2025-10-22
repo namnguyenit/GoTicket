@@ -17,15 +17,13 @@ class UpdateProfileRequest extends ApiRequest
         $userId = auth('api')->id(); // Lấy ID của người dùng đang đăng nhập
 
         return [
-            // Cập nhật thông tin cơ bản
+
             'name' => 'sometimes|string|max:255',
             'phone_number' => 'sometimes|string|digits:10',
 
-            // ✅ LOGIC MẬT KHẨU MỚI
-            // Mật khẩu hiện tại, bắt buộc phải có nếu người dùng muốn đổi mật khẩu mới
+
             'current_password' => 'required_with:password|string', 
-            
-            // Mật khẩu mới, không bắt buộc, nhưng nếu có thì phải mạnh và được xác nhận
+
             'password' => [
                 'sometimes',
                 'string',

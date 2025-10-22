@@ -27,11 +27,7 @@ function Book() {
       ? new Date(json.date).toLocaleDateString("en-CA", {
           timeZone: "Asia/Ho_Chi_Minh",
         })
-      : null;
-
-    // const params = encodeURIComponent(
-    //   `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`,
-    // );
+      : null;
 
     const query = json?.region
       ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
@@ -55,14 +51,14 @@ function Book() {
             <AddressOption />
           </div>
         </div>
-        {/*  Trip */}
+        {}
         <div className="my-25 grid w-[70%] grid-cols-[1fr_3fr] gap-8">
-          {/* Filters */}
+          {}
           <div className="grid grid-cols-1 content-start">
             <div className="flex h-14 items-center justify-center bg-[#57112f] text-3xl font-bold text-white">
               Filters
             </div>
-            {/* Filter for ticket cost */}
+            {}
             <div className="dash-bottom grid h-52 grid-rows-[30%_50%] content-evenly bg-white">
               <div className="dash-bottom flex h-4/5 w-4/5 items-center self-center justify-self-center text-xl font-bold text-[#57112f]">
                 Giá vé
@@ -109,7 +105,7 @@ function Book() {
               </div>
             </div>
           </div>
-          {/* Tickets */}
+          {}
           <div>
             {error && (
               <div
@@ -222,8 +218,7 @@ function Ticket({ data }: Ticket) {
   const { data: seatDatas, loading: seatLoading, error, get } = useFetch(URL);
 
   useEffect(() => {
-    book && get(`/api/trips/${data.id}`);
-    // book && console.log(seatDatas);
+    book && get(`/api/trips/${data.id}`);
   }, [book]);
 
   const [initTrip, setInitTrip] = useState<initTrip>({
@@ -240,16 +235,14 @@ function Ticket({ data }: Ticket) {
       seats: seatDatas?.data.coaches[0].seats || [],
       totalPrice: 0,
     }));
-  }, [seatDatas]);
-
-  // console.log(initTrip);
+  }, [seatDatas]);
 
   return (
     <>
       <div className="mb-5">
-        {/* Ticket */}
+        {}
         <div className="mb-5 grid h-[180px] grid-cols-[20%_50%_30%] rounded-2xl bg-white shadow-sm">
-          {/* Logo */}
+          {}
           <div className="flex flex-col items-center justify-evenly">
             <img
               className="w-2/3 rounded-sm object-cover object-center"
@@ -260,7 +253,7 @@ function Ticket({ data }: Ticket) {
               {data.vendorName}
             </div>
           </div>
-          {/* Info */}
+          {}
           <div className="grid grid-rows-[40%_40%] content-evenly">
             <div className="flex flex-col justify-evenly">
               <div className="text-lg font-bold text-[#6a314b]">
@@ -311,7 +304,7 @@ function Ticket({ data }: Ticket) {
               </div>
             </div>
           </div>
-          {/* Price */}
+          {}
           <div className="flex flex-col items-center justify-evenly border-l-2">
             <div className="text-2xl font-bold text-red-500">
               {data.price ? data.price.toLocaleString("vi-VN") : null} đ
@@ -326,7 +319,7 @@ function Ticket({ data }: Ticket) {
             </div>
           </div>
         </div>
-        {/* Seat */}
+        {}
         <div
           className={clsx(
             "relative overflow-hidden rounded-2xl bg-white shadow-sm transition-[height] duration-500 ease-in",
@@ -334,19 +327,19 @@ function Ticket({ data }: Ticket) {
           )}
         >
           <div className="absolute top-0 left-0 grid h-[450px] w-full grid-rows-[70%_10%_15%] content-center justify-items-center">
-            {/* Hai tầng */}
+            {}
             <div className="flex w-[80%] justify-between">
               {!seatLoading && seatDatas && !error ? (
                 <>
-                  {/* Tầng 1 */}
+                  {}
                   <div className="flex w-[40%] flex-col items-center justify-evenly">
                     <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                       Tầng 1
                     </div>
                     <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                      {/* Bỏ */}
+                      {}
                       <div className="col-start-2 row-start-7"></div>
-                      {/* Dải Ghế */}
+                      {}
                       {initTrip.seats
                         .slice(0, initTrip.seats.length / 2)
                         .map((item, index) => (
@@ -397,15 +390,15 @@ function Ticket({ data }: Ticket) {
                         ))}
                     </div>
                   </div>
-                  {/* Tầng 2 */}
+                  {}
                   <div className="flex w-[40%] flex-col items-center justify-evenly">
                     <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                       Tầng 2
                     </div>
                     <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                      {/* Bỏ */}
+                      {}
                       <div className="col-start-2 row-start-7"></div>
-                      {/* Dải Ghế */}
+                      {}
                       {initTrip.seats
                         .slice(initTrip.seats.length / 2)
                         .map((item, index) => (
@@ -483,7 +476,7 @@ function Ticket({ data }: Ticket) {
               ) : null}
             </div>
 
-            {/* Status */}
+            {}
             <div className="flex w-[85%] gap-5">
               <div className="flex items-center gap-1">
                 <div className="h-[15px] w-[25px] bg-green-500"></div>
@@ -502,7 +495,7 @@ function Ticket({ data }: Ticket) {
                 <div className="text-xs text-[#555]">Chọn</div>
               </div>
             </div>
-            {/* Submit */}
+            {}
             <div className="flex w-[80%] items-center justify-between">
               <div className="text-xs">
                 <div className="flex items-center gap-2">

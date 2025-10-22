@@ -47,9 +47,7 @@ function Navigator() {
     if (!logout && !auth) {
       fetchAPI();
     }
-  }, [auth, logout]);
-
-  // console.log(auth);
+  }, [auth, logout]);
 
   return (
     <>

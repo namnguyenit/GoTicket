@@ -14,25 +14,13 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Tên bảng liên kết với model.
-     *
-     * @var string
-     */
+    
     protected $table = 'users';
 
-    /**
-     * Khóa chính của bảng.
-     *
-     * @var string
-     */
+    
     protected $primaryKey = 'id';
 
-    /**
-     * Các thuộc tính có thể gán giá trị hàng loạt (mass assignable).
-     *
-     * @var array<int, string>
-     */
+    
     protected $fillable = [
         'name',
         'email',
@@ -65,21 +53,13 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Vendor::class, 'user_id');
     }
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
+    
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
+    
     public function getJWTCustomClaims()
     {
         return [];

@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\Vendor\TripController as VendorTripController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\Api\Admin\DashboardAdminController; 
 use App\Http\Controllers\Api\Admin\VendorController;
 
@@ -26,14 +26,8 @@ Route::get('/login', function () {
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
-=======
-use App\Http\Controllers\Api\Vendor\StopController;
->>>>>>> origin/main
 
 
-
-
-// --- CÁC ROUTE CÔNG KHAI ---
 Route::controller(TripController::class)->group(function () {
     Route::get('trips/search', 'search');
     Route::get('trips/{trip}', 'getTripDetail')->whereNumber('trip');
@@ -41,8 +35,6 @@ Route::controller(TripController::class)->group(function () {
 });
 Route::get('routes/location', [RouteController::class, 'getAllLocationCity']);
 
-
-// --- CÁC ROUTE XÁC THỰC ---
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('register', 'register');
     Route::post('login', 'login');
@@ -56,7 +48,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 Route::middleware('auth:api')->group(function()  {
 
-<<<<<<< HEAD
+
 
 
 Route::group(['middleware' => ['api', 'auth:api']], function()  {
@@ -98,16 +90,10 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']); 
 
         Route::post('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'store']);
-=======
-    // --- USER ROUTES ---
-    Route::controller(BookingController::class)->prefix('bookings')->group(function() {
-        Route::post('initiate', 'initiate');
-        Route::post('confirm', 'confirm');
-        // còn thiếu, đợi nâng cấp
->>>>>>> origin/main
+
+
     });
 
-    // --- ADMIN ROUTES ---
     Route::middleware('role:admin')->prefix('admin')->group(function() {
         Route::controller(UserController::class)->prefix('users')->group(function() {
             Route::get('/', 'getAll');
@@ -118,7 +104,6 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         });
     });
 
-    // --- VENDOR ROUTES ---
     Route::middleware('role:vendor')->prefix('vendor')->group(function() {
         Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
         Route::get('dashboard/info', [DashboardController::class, 'getInfo']);
@@ -131,7 +116,6 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
             Route::put('/{vehicle}', 'update')->whereNumber('vehicle');//erro
             Route::delete('/{vehicle}', 'destroy')->whereNumber('vehicle');//erro
 
-            // Manage coaches of a vehicle
             Route::post('/{vehicle}/coaches', 'addCoaches')->whereNumber('vehicle');
             Route::delete('/{vehicle}/coaches/{coach}', 'removeCoach')->whereNumber('vehicle')->whereNumber('coach');
         });
@@ -146,7 +130,6 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');
         });
 
-        // Trips CRUD (vendor)
         Route::controller(VendorTripController::class)->prefix('trips')->group(function () {
             Route::post('/', 'store');
             Route::get('/', 'index');
@@ -155,7 +138,6 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
             Route::delete('/{trip}', 'destroy')->whereNumber('trip');
         });
 
-        // Tickets
         Route::post('tickets', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'store']);
         Route::delete('tickets/{trip}', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'destroy'])->whereNumber('trip');
     });

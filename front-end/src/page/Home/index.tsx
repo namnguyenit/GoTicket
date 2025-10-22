@@ -3,8 +3,7 @@ import AddressOption from "../../components/AddressOption";
 import Assets from "../../assets";
 import type { JSX } from "react";
 
-function Home() {
-  // console.log(localStorage.getItem("Authorisation"));
+function Home() {
 
   return (
     <>
@@ -120,7 +119,7 @@ function HomeDeals() {
           <div className="text-2xl font-bold">Travel Offer Deals</div>
         </div>
         <div className="grid h-[80%] w-[80%] grid-cols-2 gap-x-8">
-          {/* Ảnh bên trái */}
+          {}
           <div className="flex flex-col items-center gap-y-[5%] overflow-hidden rounded-xl bg-white shadow-md transition-transform duration-500 hover:scale-[1.01]">
             <img
               className="h-[70%] object-cover select-none"
@@ -135,7 +134,7 @@ function HomeDeals() {
               <div className="text-lg font-bold">360.000 đ</div>
             </div>
           </div>
-          {/* Nhóm ảnh bên phải */}
+          {}
           <div className="grid grid-cols-2 grid-rows-2 gap-8">
             <HomeDealItems
               imgSrc="/HomePage/deal-2.jpg"

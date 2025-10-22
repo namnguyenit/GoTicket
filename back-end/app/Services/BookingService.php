@@ -20,20 +20,10 @@ class BookingService
         $this->bookingRepository = $bookingRepository;
     }
 
-    /**
-     * ✅ THÊM PHƯƠNG THỨC NÀY VÀO
-     *
-     * Khởi tạo và xác thực thông tin đặt vé trước khi tới trang thanh toán.
-     *
-     * @param int $tripId
-     * @param array $seatIds
-     * @param User $user
-     * @return array
-     * @throws ValidationException
-     */
+    
     public function initiateBooking(int $tripId, array $seatIds, User $user): array
     {
-        // 1. Lấy thông tin chuyến đi kèm tất cả các ghế và trạng thái của chúng
+
         $trip = $this->tripRepository->findById($tripId);
 
         if (!$trip || $trip->status !== 'scheduled') {
@@ -42,7 +32,6 @@ class BookingService
             ]);
         }
 
-        // 2. Tạo một map để tra cứu thông tin ghế của chuyến đi nhanh hơn
         $tripSeatsMap = $trip->seats->keyBy('id');
         
         $totalPrice = 0;
@@ -52,13 +41,11 @@ class BookingService
         foreach ($seatIds as $seatId) {
             $seat = $tripSeatsMap->get($seatId);
 
-            // 3. Kiểm tra xem ghế có thuộc chuyến đi không và có trống không
             if (!$seat || $seat->pivot->status !== 'available') {
                 $unavailableSeats[] = $seatId;
                 continue;
             }
 
-            // 4. Nếu hợp lệ, tính tổng tiền và thu thập thông tin
             $totalPrice += $seat->pivot->price;
             $selectedSeatsInfo[] = [
                 'id' => $seat->id,
@@ -67,7 +54,6 @@ class BookingService
             ];
         }
 
-        // 5. Nếu có bất kỳ ghế nào không hợp lệ, ném lỗi
         if (!empty($unavailableSeats)) {
             throw ValidationException::withMessages([
                 'seat_ids' => 'Một hoặc nhiều ghế bạn chọn không hợp lệ hoặc đã được đặt.',
@@ -75,7 +61,6 @@ class BookingService
             ]);
         }
 
-        // 6. Nếu mọi thứ ổn, trả về dữ liệu cho trang thanh toán
         return [
         'user_info' => [
             'name' => $user->name,
@@ -84,13 +69,12 @@ class BookingService
         ],
         'trip_info' => [
             'id' => $trip->id,
-            // SỬA DÒNG NÀY:
-            // 'vendor_name' => $trip->vendorRoute->vendor->user->name,
 
-            // BẰNG DÒNG NÀY:
-            // Dùng toán tử `?->` (optional chaining) để truy cập an toàn.
-            // Nếu bất kỳ phần nào là null, kết quả sẽ là null.
-            // Sau đó dùng `??` (null coalescing) để gán giá trị mặc định.
+
+
+
+
+
             'vendor_name' => $trip->vendorRoute?->vendor?->user?->name ?? 'Không xác định',
 
             'departure_datetime' => $trip->departure_datetime,
@@ -103,20 +87,11 @@ class BookingService
     ];
     }
 
-    // ... (phương thức initiateBooking giữ nguyên)
 
-    /**
-     * Xác nhận và tạo booking.
-     *
-     * @param int $tripId
-     * @param array $seatIds
-     * @param User $user
-     * @return \App\Models\Bookings
-     * @throws ValidationException
-     */
+    
     public function confirmBooking(array $data, User $user)
     {
-        // BƯỚC KIỂM TRA LẠI CUỐI CÙNG
+
         $trip = $this->tripRepository->findById($data['trip_id']);
         if (!$trip || $trip->status !== 'scheduled') {
             throw ValidationException::withMessages(['trip_id' => 'Chuyến đi không còn hợp lệ.']);
@@ -139,7 +114,6 @@ class BookingService
             ];
         }
 
-        // ✅ TỔ CHỨC LẠI DỮ LIỆU ĐỂ TRUYỀN XUỐNG REPOSITORY
         $bookingData = [
             'user_id' => $user->id,
             'total_price' => $totalPrice,

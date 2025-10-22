@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // --- TÀI KHOẢN ADMIN ---
+
         User::create([
             'name' => 'Admin User',
             'email' => 'admin@goticket.com',
@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // --- CÁC TÀI KHOẢN NHÀ XE (VENDOR) ---
         User::create([
             'name' => 'Nhà xe Phương Trang',
             'email' => 'vendor1@goticket.com',
@@ -32,7 +31,6 @@ class UserSeeder extends Seeder
             'role' => 'vendor',
         ]);
 
-        // --- CÁC TÀI KHOẢN NGƯỜI DÙNG (USER) ---
         User::create([
             'name' => 'John Doe',
             'email' => 'user1@goticket.com',
