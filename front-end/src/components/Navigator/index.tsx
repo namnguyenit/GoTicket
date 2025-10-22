@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { URL } from "@/config";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 
 import { LogOutContext } from "@/context/LogoutProvider";
 
 function Navigator() {
-  const [auth, setAuth] = useState<any>();
+  const { auth, setAuth } = useContext(LogOutContext);
   const { logout, setLogout } = useContext(LogOutContext);
   const navigate = useNavigate();
 

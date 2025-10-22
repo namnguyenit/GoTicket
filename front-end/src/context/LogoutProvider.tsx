@@ -3,9 +3,10 @@ const LogOutContext = createContext<any>("");
 
 function LogOutProvider({ children }: { children: JSX.Element }) {
   const [logout, setLogout] = useState<boolean>(false);
+  const [auth, setAuth] = useState<any>();
   console.log(logout);
   return (
-    <LogOutContext.Provider value={{ logout, setLogout }}>
+    <LogOutContext.Provider value={{ logout, setLogout, auth, setAuth }}>
       {children}
     </LogOutContext.Provider>
   );

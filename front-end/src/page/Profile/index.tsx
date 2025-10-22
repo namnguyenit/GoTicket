@@ -1,10 +1,14 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { HelpCircle, LogOut, Pencil, Settings, User } from "lucide-react";
+import { HelpCircle, Pencil, Settings, User } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { URL } from "@/config";
+import { useNavigate } from "react-router-dom";
+import { LogOutContext } from "@/context/LogoutProvider";
+import { toast } from "sonner";
 const navigationItems = [
   {
     id: "public-profile",
@@ -26,15 +30,60 @@ const supportItems = [
     icon: HelpCircle,
   },
 ];
-const logoutItems = [
-  {
-    id: "logout",
-    label: "Đăng xuất",
-    icon: LogOut,
-    variant: "destructive",
-  },
-];
+
 export default function Profile() {
+  const navigate = useNavigate();
+  const { setAuth } = useContext(LogOutContext);
+  // Validate profile
+  const [profile, setProfile] = useState<any>(null);
+  //Get profile
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const res = await fetch(`${URL}/api/auth/myinfo`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem("Authorisation") || "",
+          },
+        });
+        const json = await res.json();
+        // console.log(json);
+        setProfile({
+          ...json,
+          data: { ...json.data, phone_number: json.data.phone },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getProfile();
+  }, []);
+  //PUT profile
+  const putProfile = async () => {
+    try {
+      const res = await fetch(`${URL}/api/auth/myinfo`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("Authorisation") || "",
+        },
+        body: JSON.stringify(profile.data),
+      });
+      const json = await res.json();
+      console.log(json);
+      navigate("/");
+      if (!json.success) throw Error("Dữ liệu ko hợp lệ ❌");
+      toast.success("Cập nhập tài khoản thành công  🎉");
+      setAuth(null);
+    } catch (error: any) {
+      // console.log(error);
+      toast.error(error.message);
+    }
+  };
+
+  // console.log(profile);
+
   return (
     <div className="relative h-[130vh] w-full bg-gradient-to-b from-[#faf6f6] via-[#f7f1f1] to-[#f3eded]">
       <div className="absolute top-[80px] left-1/2 w-full max-w-6xl -translate-x-1/2 px-4 py-8 md:px-6 md:py-10 lg:px-8">
@@ -51,7 +100,7 @@ export default function Profile() {
                 Your personal account
               </span>
               <h1 className="text-xl font-semibold text-[#5b2642] md:text-2xl">
-                Peter Griffin
+                My Account
               </h1>
             </div>
           </div>
@@ -111,22 +160,7 @@ export default function Profile() {
               ))}
             </div>
 
-            <Separator className="bg-[#d0d7de7a]" />
-
-            <div>
-              <div className="mb-2 text-xs font-semibold tracking-wide text-[#5b2642] uppercase">
-                Đăng xuất
-              </div>
-              {logoutItems.map((item) => (
-                <button
-                  key={item.id}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-left text-[#dc0000] hover:bg-red-50"
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="text-sm">{item.label}</span>
-                </button>
-              ))}
-            </div>
+            {/* Logout section removed */}
 
             {/* Profile picture card */}
             <div className="rounded-xl border border-white/50 bg-white/70 p-4 shadow-sm">
@@ -164,8 +198,15 @@ export default function Profile() {
                   Name
                 </Label>
                 <Input
-                  defaultValue="Nguyễn Thành Nhân"
+                  placeholder="Your name"
+                  value={profile?.data?.name || ""}
                   className="h-9 border-[#d0d7de] bg-white text-sm text-[#24292f] shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  onChange={(e) => {
+                    setProfile((pre: any) => ({
+                      ...pre,
+                      data: { ...pre.data, name: e.target.value },
+                    }));
+                  }}
                 />
                 <p className="text-xs text-[#623d51]">
                   Your name may appear around GitHub where you contribute or are
@@ -173,19 +214,26 @@ export default function Profile() {
                 </p>
               </div>
 
+              {/* Phone field */}
               <div className="col-span-1 flex flex-col gap-2">
                 <Label className="text-sm font-semibold text-[#5b2642]">
-                  Email
+                  Số điện thoại
                 </Label>
                 <Input
-                  defaultValue="n@gmail.com"
-                  className="h-9 border-[#d0d7de] bg-white text-sm text-black shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  value={profile?.data?.phone_number || ""}
+                  type="tel"
+                  placeholder="Nhập số điện thoại"
+                  className="h-9 border-[#d0d7de] bg-white text-sm text-[#24292f] shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  onChange={(e) => {
+                    setProfile((pre: any) => ({
+                      ...pre,
+                      data: { ...pre.data, phone_number: e.target.value },
+                    }));
+                  }}
                 />
                 <p className="text-xs text-[#623d51]">
-                  You have set your email address to private. To toggle email
-                  privacy, go to{" "}
-                  <span className="text-[#f7ac3d]">email settings</span> and
-                  uncheck "Keep my email address private."
+                  Cập nhật số điện thoại để nhận thông báo về tài khoản và
+                  chuyến đi.
                 </p>
               </div>
 
@@ -195,8 +243,13 @@ export default function Profile() {
                 </Label>
                 <Input
                   type="password"
-                  defaultValue="............."
                   className="h-9 border-[#d0d7de] bg-white text-[32px] font-bold tracking-[0.32px] text-[#959595] shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  onChange={(e) => {
+                    setProfile((pre: any) => ({
+                      ...pre,
+                      data: { ...pre.data, current_password: e.target.value },
+                    }));
+                  }}
                 />
               </div>
 
@@ -206,8 +259,13 @@ export default function Profile() {
                 </Label>
                 <Input
                   type="password"
-                  defaultValue="............."
                   className="h-9 border-[#d0d7de] bg-white text-[32px] font-bold tracking-[0.32px] text-[#959595] shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  onChange={(e) => {
+                    setProfile((pre: any) => ({
+                      ...pre,
+                      data: { ...pre.data, password: e.target.value },
+                    }));
+                  }}
                 />
               </div>
 
@@ -217,35 +275,20 @@ export default function Profile() {
                 </Label>
                 <Input
                   type="password"
-                  defaultValue="............."
                   className="h-9 border-[#d0d7de] bg-white text-[32px] font-bold tracking-[0.32px] text-[#959595] shadow-[inset_0px_1px_0px_#d0d7de33]"
+                  onChange={(e) => {
+                    setProfile((pre: any) => ({
+                      ...pre,
+                      data: {
+                        ...pre.data,
+                        password_confirmation: e.target.value,
+                      },
+                    }));
+                  }}
                 />
               </div>
 
-              <div className="col-span-1 flex flex-col gap-2">
-                <Label className="text-sm font-semibold text-[#5b2642]">
-                  Location
-                </Label>
-                <Input
-                  defaultValue="Cẩm xuyên ,Hà Tĩnh"
-                  className="h-9 border-[#d0d7de] bg-white text-sm text-[#24292f] shadow-[inset_0px_1px_0px_#d0d7de33]"
-                />
-              </div>
-
-              <div className="col-span-1 flex flex-col gap-2">
-                <div className="flex items-start gap-2">
-                  <Checkbox className="mt-1 h-[13px] w-[13px] border-[#767676] bg-white" />
-                  <div>
-                    <Label className="text-sm font-semibold text-[#5b2642]">
-                      Display current local time
-                    </Label>
-                    <p className="text-xs text-[#623d51]">
-                      Other users will see the time difference from their local
-                      time.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {/* Location field removed */}
             </div>
 
             <p className="mt-4 text-xs text-[#57606a]">
@@ -257,7 +300,12 @@ export default function Profile() {
             </p>
 
             <div className="mt-5">
-              <Button className="bg-[#f7ac3d] px-4 py-2 text-white shadow hover:bg-[#f7ac3d]/90">
+              <Button
+                className="bg-[#f7ac3d] px-4 py-2 text-white shadow hover:bg-[#f7ac3d]/90"
+                onClick={() => {
+                  putProfile();
+                }}
+              >
                 Update profile
               </Button>
             </div>
