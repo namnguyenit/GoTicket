@@ -132,12 +132,30 @@
                   <th>Identifier</th>
                   <th>Loại toa</th>
                   <th>Số ghế</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
-          <small class="muted">Danh sách toa hiện có (chỉ hiển thị, thay đổi cấu trúc toa cần thao tác riêng)</small>
+          <div class="row-between" style="margin:8px 0">
+            <strong>Thêm toa mới</strong>
+            <button type="button" class="btn" id="editAddCoachBtn"><i class="ri-add-line"></i> Thêm toa</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="editCoachTable">
+              <thead>
+                <tr>
+                  <th>Loại toa</th>
+                  <th>Số ghế/toa</th>
+                  <th>Số lượng</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <small class="muted">Ghế mềm: 40 chỗ/toa · Ghế VIP: 24 chỗ/toa. Xóa toa cũ bằng nút 🗑 ở bảng trên.</small>
         </div>
 
         <div class="modal-footer">

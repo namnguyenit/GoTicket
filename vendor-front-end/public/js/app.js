@@ -221,16 +221,56 @@
       if((detail?.vehicle_type || '').toLowerCase() === 'train' && Array.isArray(detail?.coaches)){
         editTrainSec.style.display = '';
         coachTbody.innerHTML = detail.coaches.map(c => `
-          <tr>
+          <tr data-coach-id="${c.id}">
             <td>${c.identifier}</td>
             <td>${c.coach_type === 'seat_VIP' ? 'Ghế VIP' : 'Ghế mềm'}</td>
             <td>${c.total_seats}</td>
+            <td><button type="button" class="icon-btn remove-existing-coach" title="Xoá"><i class="ri-delete-bin-6-line"></i></button></td>
           </tr>`).join('');
       } else {
         editTrainSec.style.display = 'none';
         coachTbody.innerHTML = '';
       }
       editModal.setAttribute('aria-hidden','false');
+    });
+
+    // xử lý thêm toa mới trong modal Sửa
+    const editCoachTableBody = document.querySelector('#editCoachTable tbody');
+    const editAddCoachBtn = document.getElementById('editAddCoachBtn');
+    function editAddCoachRow(row={ coach_type:'seat_soft', quantity:1 }){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <select class="coach_type">
+            <option value="seat_soft" ${row.coach_type==='seat_soft'?'selected':''}>Ghế mềm (40)</option>
+            <option value="seat_VIP" ${row.coach_type==='seat_VIP'?'selected':''}>Ghế VIP (24)</option>
+          </select>
+        </td>
+        <td><input type="text" class="total_seats" value="${row.coach_type==='seat_VIP'?24:40}" readonly /></td>
+        <td><input type="number" class="quantity" min="1" value="${row.quantity}" /></td>
+        <td><button type="button" class="icon-btn remove-edit-row" title="Bỏ"><i class="ri-close-line"></i></button></td>
+      `;
+      editCoachTableBody.appendChild(tr);
+      const sel = tr.querySelector('.coach_type');
+      const seatInput = tr.querySelector('.total_seats');
+      sel.addEventListener('change', () => { seatInput.value = sel.value==='seat_VIP' ? 24 : 40; });
+    }
+    editAddCoachBtn?.addEventListener('click', () => editAddCoachRow());
+    editCoachTableBody?.addEventListener('click', (e) => {
+      if(e.target.closest('.remove-edit-row')){ e.target.closest('tr')?.remove(); }
+    });
+
+    // xoá toa hiện có
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.remove-existing-coach');
+      if(!btn) return;
+      const tr = btn.closest('tr');
+      const coachId = tr?.getAttribute('data-coach-id');
+      const vehicleId = editForm.id.value;
+      if(coachId && vehicleId && confirm('Xoá toa này?')){
+        const rs = await API.removeVehicleCoach(vehicleId, coachId);
+        if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá toa thất bại'); }
+      }
     });
 
     editForm.addEventListener('submit', async (e) => {
@@ -243,13 +283,24 @@
         license_plate: fd.get('license_plate') || null,
       };
       const rs = await API.updateVehicle(id, payload);
-      if(rs && rs.ok){
-        editModal.setAttribute('aria-hidden','true');
-        const list = await API.getVehicles();
-        renderVehicles(list);
-      } else {
-        alert(rs && rs.error || 'Cập nhật phương tiện thất bại');
+      if(!(rs && rs.ok)){
+        return alert(rs && rs.error || 'Cập nhật phương tiện thất bại');
       }
+      // nếu có hàng thêm toa mới, gọi API add coaches
+      const rows = Array.from(editCoachTableBody?.querySelectorAll('tr') || []);
+      if(rows.length){
+        const coaches = rows.map(r => ({ coach_type: r.querySelector('.coach_type').value, quantity: Number(r.querySelector('.quantity').value||1) }))
+                            .filter(c => c.quantity>0);
+        if(coaches.length){
+          const addRs = await API.addVehicleCoaches(id, coaches);
+          if(!(addRs && addRs.ok)){
+            return alert(addRs && addRs.error || 'Thêm toa thất bại');
+          }
+        }
+      }
+      editModal.setAttribute('aria-hidden','true');
+      const list = await API.getVehicles();
+      renderVehicles(list);
     });
 
     // Form logic for create (bus/train)

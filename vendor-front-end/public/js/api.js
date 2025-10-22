@@ -222,6 +222,24 @@ const API = (() => {
       }
     },
 
+    async addVehicleCoaches(id, coaches){
+      try {
+        const data = await request(`/vendor/vehicles/${id}/coaches`, { method: 'POST', headers: authHeaders(true), body: JSON.stringify({ coaches }) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async removeVehicleCoach(vehicleId, coachId){
+      try {
+        await request(`/vendor/vehicles/${vehicleId}/coaches/${coachId}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
     async deleteVehicle(id){
       try {
         await request(`/vendor/vehicles/${id}`, { method: 'DELETE', headers: authHeaders(false) });

@@ -143,5 +143,45 @@ class ManagerVehicleService{
         return $this->managerVehicleRepository->delete($vehicle);
     }
 
+    public function addCoaches(Vehicles $vehicle, array $coaches){
+        return DB::transaction(function() use ($vehicle, $coaches){
+            $created = [];
+            foreach($coaches as $group){
+                $coachType = $group['coach_type'];
+                $quantity = (int) ($group['quantity'] ?? 1);
+                $totalSeats = $coachType === 'seat_VIP' ? 24 : 40;
+                for($i=0;$i<$quantity;$i++){
+                    $identifier = strtoupper($coachType).' '.uniqid();
+                    $coach = $this->coachRepository->create([
+                        'vehicle_id' => $vehicle->id,
+                        'identifier' => $identifier,
+                        'coach_type' => $coachType,
+                        'total_seats' => $totalSeats,
+                    ]);
+                    $created[] = $coach;
+                    if($coachType === 'seat_VIP'){
+                        $batch = [];
+                        for($k=1;$k<=6;$k++){
+                            foreach(['A','B','C','D'] as $pos){
+                                $batch[] = [ 'coach_id'=>$coach->id, 'seat_number'=>'K'.$k.$pos ];
+                            }
+                        }
+                        $this->seatRepository->createMany($batch);
+                    } else {
+                        $batch = [];
+                        for($s=1;$s<=40;$s++){
+                            $batch[] = ['coach_id'=>$coach->id,'seat_number'=>'S'.str_pad((string)$s,2,'0',STR_PAD_LEFT)];
+                        }
+                        $this->seatRepository->createMany($batch);
+                    }
+                }
+            }
+            return $created;
+        });
+    }
+
+    public function removeCoach(\App\Models\Coaches $coach){
+        return $this->coachRepository->delete($coach);
+    }
 
 }

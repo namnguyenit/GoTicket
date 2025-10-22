@@ -66,6 +66,10 @@ Route::middleware('auth:api')->group(function()  {
             Route::get('/{vehicle}', 'show')->whereNumber('vehicle');//erro
             Route::put('/{vehicle}', 'update')->whereNumber('vehicle');//erro
             Route::delete('/{vehicle}', 'destroy')->whereNumber('vehicle');//erro
+
+            // Manage coaches of a vehicle
+            Route::post('/{vehicle}/coaches', 'addCoaches')->whereNumber('vehicle');
+            Route::delete('/{vehicle}/coaches/{coach}', 'removeCoach')->whereNumber('vehicle')->whereNumber('coach');
         });
 
         Route::controller(StopController::class)->prefix('stops')->group(function () {
