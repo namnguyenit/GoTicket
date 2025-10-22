@@ -511,9 +511,10 @@ Sample success (201):
   "message": "Tạo mới thành công",
   "data": {
     "id": 7,
+    "name": "Xe ABC",
     "license_plate": "51A-123.45",
-    "type": null,
-    "capacity": null,
+    "vehicle_type": "bus",
+    "capacity": 34,
     "created_at": "2025-10-22T07:15:00.000000Z"
   }
 }
@@ -546,7 +547,7 @@ Sample success (200) — phân trang:
   "message": "Lấy dữ liệu thành công",
   "data": {
     "data": [
-      { "id": 7, "license_plate": "51A-123.45", "type": null, "capacity": null, "created_at": "2025-10-22T07:15:00.000000Z" }
+      { "id": 7, "name": "Xe ABC", "license_plate": "51A-123.45", "vehicle_type": "bus", "capacity": 34, "created_at": "2025-10-22T07:15:00.000000Z" }
     ],
     "links": { "first": "...", "last": "...", "prev": null, "next": null },
     "meta": { "current_page": 1, "last_page": 1, "per_page": 10, "total": 1 }
@@ -563,9 +564,10 @@ Sample success (200):
   "message": "Lấy dữ liệu thành công",
   "data": {
     "id": 7,
+    "name": "Xe ABC",
     "license_plate": "51A-123.45",
-    "type": null,
-    "capacity": null,
+    "vehicle_type": "bus",
+    "capacity": 34,
     "created_at": "2025-10-22T07:15:00.000000Z"
   }
 }
@@ -575,9 +577,9 @@ Sample success (200):
 Body (JSON):
 ```json
 {
-  "license_plate": "51A-999.99",
-  "type": "bus",
-  "capacity": 40
+  "name": "Xe ABC (mới)",
+  "vehicle_type": "bus",
+  "license_plate": "51A-999.99"
 }
 ```
 
@@ -589,9 +591,10 @@ Sample success (200):
   "message": "Cập nhật thành công",
   "data": {
     "id": 7,
+    "name": "Xe ABC (mới)",
     "license_plate": "51A-999.99",
-    "type": "bus",
-    "capacity": 40,
+    "vehicle_type": "bus",
+    "capacity": 34,
     "created_at": "2025-10-22T07:15:00.000000Z"
   }
 }

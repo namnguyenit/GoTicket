@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\RouteController;
 use App\Http\Controllers\Api\TripController;
+use App\Http\Controllers\Api\Vendor\TripController as VendorTripController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
@@ -75,16 +76,15 @@ Route::middleware('auth:api')->group(function()  {
             Route::get('/{stop}', 'show')->whereNumber('stop');
             Route::put('/{stop}', 'update')->whereNumber('stop');
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');
-
+        });
 
         // Trips CRUD (vendor)
-        Route::controller(TripController::class)->prefix('trips')->group(function () {
+        Route::controller(VendorTripController::class)->prefix('trips')->group(function () {
             Route::post('/', 'store');
             Route::get('/', 'index');
             Route::get('/{trip}', 'show')->whereNumber('trip');
             Route::put('/{trip}', 'update')->whereNumber('trip');
             Route::delete('/{trip}', 'destroy')->whereNumber('trip');
-        });
         });
     });
 });

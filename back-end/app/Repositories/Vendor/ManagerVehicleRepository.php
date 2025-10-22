@@ -5,7 +5,6 @@ namespace App\Repositories\Vendor;
 use App\Models\Vehicles;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 
 
 class ManagerVehicleRepository implements ManagerVehicleRepositoryInterface{
@@ -24,6 +23,7 @@ class ManagerVehicleRepository implements ManagerVehicleRepositoryInterface{
     public function getByVendor(int $vendorId)
     {
         return Vehicles::where('vendor_id', $vendorId)
+            ->with('coaches')
             ->latest()
             ->paginate(10);
     }

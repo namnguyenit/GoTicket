@@ -19,16 +19,16 @@ class ManagerVehicleController extends Controller
 {
     use ResponseHelper;
 
-    protected $managerVehicelService;
+    protected $managerVehicleService;
 
-    public function __construct(ManagerVehicleService $managerVehicelService)
+    public function __construct(ManagerVehicleService $managerVehicleService)
     {
-        $this->managerVehicelService = $managerVehicelService;
+        $this->managerVehicleService = $managerVehicleService;
     }
     public function store(CreateVehicleRequest $request){
         try{
             $validated = $request->validated();
-            $vehicle = $this->managerVehicelService->createVehicle($validated);
+            $vehicle = $this->managerVehicleService->createVehicle($validated);
             return $this->success(new VehicleResource($vehicle), ApiSuccess::VEHICLE_CREATED);
         } catch (\Exception $e){
             return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
@@ -38,8 +38,21 @@ class ManagerVehicleController extends Controller
     public function index(): \Illuminate\Http\JsonResponse
     {
         try{
-            $vehicles = $this->managerVehicelService->getVehicleByVendor();
+            $vehicles = $this->managerVehicleService->getVehicleByVendor();
             return $this->success(VehicleResource::collection($vehicles), ApiSuccess::GET_DATA_SUCCESS);
+        }catch (\Exception $e){
+            return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
+        }
+    }
+
+    public function show(Vehicles $vehicle)
+    {
+        try{
+            if ($vehicle->vendor_id != auth()->user()->vendor->id){
+                return $this->error(ApiError::FORBIDDEN);
+            }
+            $vehicle->load('coaches');
+            return $this->success(new VehicleResource($vehicle), ApiSuccess::GET_DATA_SUCCESS);
         }catch (\Exception $e){
             return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
         }
@@ -49,20 +62,20 @@ class ManagerVehicleController extends Controller
     {
         try{
             $validated = $request->validated();
-            $updateVehicle = $this->managerVehicelService->updateVehicle($vehicle, $validated);
+            $updateVehicle = $this->managerVehicleService->updateVehicle($vehicle, $validated);
             return $this->success(new VehicleResource($updateVehicle), ApiSuccess::VEHICLE_UPDATED);
         }catch (\Exception $e){
             return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
         }
     }
 
-    public function delete(Vehicles $vehicle)
+    public function destroy(Vehicles $vehicle)
     {
         try{
             if ($vehicle->vendor_id != auth()->user()->vendor->id){
                 return $this->error(ApiError::FORBIDDEN);
             }
-            $this->managerVehicelService->deleteVehicle($vehicle);
+            $this->managerVehicleService->deleteVehicle($vehicle);
             return $this->success(null, ApiSuccess::VEHICLE_DELETED);
         }catch (\Exception $e){
             return $this->error(ApiError::SERVER_ERROR, $e->getMessage());
@@ -71,7 +84,7 @@ class ManagerVehicleController extends Controller
 
 
     public function showAllVerhicel(){
-        $data = $this->managerVehicelService->getVehicleByVendor();
+        $data = $this->managerVehicleService->getVehicleByVendor();
 
         // ✅ Sửa lỗi gõ nhầm: erro -> error
         if ($data->isEmpty()) {

@@ -16,10 +16,21 @@ class VehicleResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name' => $this->name,
             'license_plate' => $this->license_plate,
-            'type' => $this->type,
-            'capacity' => $this->capacity,
-            'created_at' => $this->created_at->toDateTimeString(),
+            'vehicle_type' => $this->vehicle_type,
+            'capacity' => (int) ($this->coaches ? $this->coaches->sum('total_seats') : ($this->coaches()->sum('total_seats') ?? 0)),
+            'coaches' => $this->whenLoaded('coaches', function(){
+                return $this->coaches->map(function($c){
+                    return [
+                        'id' => $c->id,
+                        'identifier' => $c->identifier,
+                        'coach_type' => $c->coach_type,
+                        'total_seats' => (int) $c->total_seats,
+                    ];
+                });
+            }),
+            'created_at' => optional($this->created_at)->toDateTimeString(),
         ];
     }
 }

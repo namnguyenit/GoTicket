@@ -9,20 +9,21 @@ class UpdateVehicleRequest extends ApiRequest
 {
     public function authorize(): bool{
         $vehicle = $this->route('vehicle');
-        return $vehicle && $vehicle->vendor_id === $this->user()->vendor_id;
+        // user()->vendor?->id để tránh lỗi null
+        return $vehicle && $this->user() && optional($this->user()->vendor)->id === $vehicle->vendor_id;
     }
     public function rules(): array{
-        $vendorId = auth()->user()->vendor->id;
         $vehicleId = $this->route('vehicle')->id;
         return [
+            'name' => 'sometimes|string|max:100',
+            'vehicle_type' => ['sometimes', Rule::in(['bus','train'])],
             'license_plate' => [
-                'required',
+                'nullable',
                 'string',
-                'max:20',
-                Rule::unique('vehicles')->ignore($vehicleId)->where('vendor_id', $vendorId)
+                'max:50',
+                Rule::unique('vehicles','license_plate')->ignore($vehicleId)
             ],
-            'type' => 'required|string|max:255',
-            'capacity' => 'required|integer|min:1',
+            // capacity được tính từ coaches; không nhận trực tiếp ở đây
         ];
     }
     public function messages(): array

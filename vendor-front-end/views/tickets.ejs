@@ -1,0 +1,80 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+  <%- include('partials/topbar') %>
+  <section class="card">
+    <div class="card-title row-between">
+      <span>Danh sách các vé</span>
+      <button class="btn btn-primary" data-open-modal="#ticketModal"><i class="ri-add-circle-line"></i> Tạo</button>
+    </div>
+    <div class="table-wrap">
+      <table class="table" id="ticketTable">
+        <thead>
+          <tr>
+            <th>Tên phương tiện</th>
+            <th>Loại xe</th>
+            <th>Biển số</th>
+            <th>Số ghế</th>
+            <th>Giờ xuất hành</th>
+            <th>Ngày khởi hành</th>
+            <th>Tuyến đường</th>
+            <th>Giá</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be filled by public/js/app.js from API.getTickets() -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Modal: Create Ticket -->
+  <div class="modal" id="ticketModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Tạo vé</h3>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="ticketForm" class="modal-body">
+        <div class="form-group dropdown">
+          <label>Chọn phương tiện</label>
+          <select name="vehicleId">
+            <!-- Fill from API.getVehicles() -->
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Chọn giờ khởi hành</label>
+          <select name="startTime">
+            <option>08:00-10:30</option>
+            <option>12:30-16:30</option>
+            <option>18:00-21:00</option>
+          </select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Chọn ngày khởi hành</label>
+          <input type="date" name="startDate" />
+        </div>
+        <div class="form-group dropdown">
+          <label>Chọn điểm khởi hành</label>
+          <select name="fromCity"></select>
+        </div>
+        <div class="form-group dropdown">
+          <label>Chọn điểm kết thúc</label>
+          <select name="toCity"></select>
+        </div>
+        <div class="form-group">
+          <label>Giá vé</label>
+          <input type="number" name="price" placeholder="Nhập giá vé" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-close-modal>Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer-scripts') %>

@@ -20,7 +20,7 @@ class CreateVehicleRequest extends ApiRequest
         $rules = [
             'name' => 'required|string|max:100',
             'vehicle_type' => ['required', Rule::in(['bus', 'train'])],
-            'license_plate' => 'nullable|string|max:50|unique:vehicles,license_plate,NULL,id,vendor_id,' . $vendorId,
+            'license_plate' => 'nullable|string|max:50|unique:vehicles,license_plate',
         ];
 
         // Lấy giá trị vehicle_type từ request để thêm rule điều kiện
@@ -38,7 +38,7 @@ class CreateVehicleRequest extends ApiRequest
             $rules = array_merge($rules, [
                 'coaches' => 'required|array|min:1',
                 'coaches.*.coach_type' => ['required', Rule::in(['seat_soft', 'seat_VIP'])],
-                'coaches.*.total_seats' => 'required|integer|min:1',
+                // total_seats được tính tự động theo loại toa; không nhận từ client
                 'coaches.*.quantity' => 'required|integer|min:1',
             ]);
         }
