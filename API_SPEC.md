@@ -75,11 +75,11 @@ Sample success response (200):
 
 ```json
 {
-    "name": "Tên Mới",
-    "email": "email.moi@example.com",
+    "name": "Tên Mới nk",
+    "phone_number": "0917571916",
     "current_password": "123456",
-    "password": "1234567",
-    "password_confirmation": "1234567"
+    "password": "123456",
+    "password_confirmation": "123456"
 }
 ```
 
@@ -394,4 +394,5 @@ Unauthorized:
   "message": "Chưa xác thực"
 }
 ```
+
 
