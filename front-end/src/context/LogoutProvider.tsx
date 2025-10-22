@@ -2,7 +2,7 @@ import { createContext, useState, type JSX } from "react";
 const LogOutContext = createContext<any>("");
 
 function LogOutProvider({ children }: { children: JSX.Element }) {
-  const [logout, setLogout] = useState<boolean>(false);
+  const [logout, setLogout] = useState<boolean>(true);
   const [auth, setAuth] = useState<any>();
   console.log(logout);
   return (
