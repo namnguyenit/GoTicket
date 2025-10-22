@@ -68,7 +68,7 @@ export default function Profile() {
           "Content-Type": "application/json",
           Authorization: localStorage.getItem("Authorisation") || "",
         },
-        body: JSON.stringify(profile.data),
+        body: JSON.stringify(profile?.data),
       });
       const json = await res.json();
       console.log(json);
