@@ -49,7 +49,7 @@
       // fill table
       const tbody = ticketTable.querySelector('tbody');
       tbody.innerHTML = tickets.map(t => `
-        <tr>
+        <tr data-trip-id="${t.id}">
           <td>${t.vehicle}</td>
           <td>${t.type}</td>
           <td>${t.plate}</td>
@@ -57,25 +57,56 @@
           <td>${t.time}</td>
           <td>${t.date}</td>
           <td>${t.route}</td>
-          <td>${formatCurrency(t.price)}</td>
+          <td>${renderPriceCell(t)}</td>
           <td>
-            <button class="icon-btn" title="Sửa"><i class="ri-pencil-line"></i></button>
-            <button class="icon-btn" title="Xoá"><i class="ri-delete-bin-6-line"></i></button>
+            <button class="icon-btn edit-trip" title="Sửa"><i class="ri-pencil-line"></i></button>
+            <button class="icon-btn delete-trip" title="Xoá"><i class="ri-delete-bin-6-line"></i></button>
           </td>
         </tr>`).join('');
 
       // fill modal selects
       const form = document.getElementById('ticketForm');
       const vehicleSel = form.querySelector('select[name="vehicleId"]');
-      vehicleSel.innerHTML = vehicles.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+      vehicleSel.innerHTML = vehicles.map(v => `<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
       const fromSel = form.querySelector('select[name="fromCity"]');
       const toSel = form.querySelector('select[name="toCity"]');
       fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
 
+      // toggle price fields depending on selected vehicle type
+      function syncTicketPriceFields(){
+        const opt = vehicleSel.options[vehicleSel.selectedIndex];
+        const type = (opt && opt.getAttribute('data-type')) || '';
+        const showTrain = String(type).toLowerCase() === 'train';
+        document.getElementById('trainPriceFields').style.display = showTrain ? '' : 'none';
+        document.getElementById('basePriceField').style.display = showTrain ? 'none' : '';
+      }
+      vehicleSel.addEventListener('change', syncTicketPriceFields);
+      syncTicketPriceFields();
+
+      // actions: edit/delete trip rows
+      ticketTable.addEventListener('click', async (e) => {
+        const delBtn = e.target.closest('.delete-trip');
+        const editBtn = e.target.closest('.edit-trip');
+        const tr = e.target.closest('tr');
+        const id = tr && tr.getAttribute('data-trip-id');
+        if(delBtn && id){
+          if(confirm('Xoá vé này?')){
+            const rs = await API.deleteTrip(id);
+            if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
+          }
+        } else if(editBtn && id){
+          alert('Chức năng sửa vé sẽ được bổ sung trong bản sau.');
+        }
+      });
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const payload = Object.fromEntries(new FormData(form).entries());
-        payload.price = Number(payload.price);
+        const fd = new FormData(form);
+        const payload = Object.fromEntries(fd.entries());
+        // sanitize numeric fields
+        if(payload.price !== undefined && payload.price !== ''){ payload.price = Number(payload.price); } else { delete payload.price; }
+        if(payload.regular_price !== undefined && payload.regular_price !== ''){ payload.regular_price = Number(payload.regular_price); }
+        if(payload.vip_price !== undefined && payload.vip_price !== ''){ payload.vip_price = Number(payload.vip_price); }
         const res = await API.createTicket(payload);
         if(res && res.ok){
           alert('Tạo vé thành công');
@@ -411,5 +442,16 @@
 })();
 
 function formatCurrency(value){
-  return (value || 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  return (Number(value) || 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }
+
+function renderPriceCell(t){
+  if(t && t.type && t.type.toLowerCase() === 'train' && t.price && typeof t.price === 'object'){
+    const reg = t.price.regular != null ? formatCurrency(t.price.regular) : '—';
+    const vip = t.price.vip != null ? formatCurrency(t.price.vip) : '—';
+    return `<div class="price-col"><div>Thường: ${reg}</div><div>VIP: ${vip}</div></div>`;
+  }
+  return formatCurrency(t && t.price);
+}
+
+

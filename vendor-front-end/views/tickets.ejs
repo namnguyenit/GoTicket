@@ -64,9 +64,17 @@
           <label>Chọn điểm kết thúc</label>
           <select name="toCity"></select>
         </div>
-        <div class="form-group">
-          <label>Giá vé</label>
+        <div class="form-group" id="basePriceField">
+          <label>Giá vé (cơ bản)</label>
           <input type="number" name="price" placeholder="Nhập giá vé" />
+        </div>
+        <div class="form-group" id="trainPriceFields" style="display:none">
+          <label>Giá tàu</label>
+          <div class="row">
+            <input type="number" name="regular_price" placeholder="Giá toa thường" style="margin-right:8px;" />
+            <input type="number" name="vip_price" placeholder="Giá toa VIP" />
+          </div>
+          <small class="muted">Chỉ áp dụng khi phương tiện là tàu hoả</small>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn" data-close-modal>Hủy</button>

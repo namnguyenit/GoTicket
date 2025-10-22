@@ -6,9 +6,6 @@ use App\Models\Trips;
 use App\Models\Vehicles;
 use App\Models\VendorRoute;
 use App\Models\Routes as AppRoute;
-use App\Models\Seats;
-use App\Models\Coaches;
-use App\Models\TripSeats;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -69,12 +66,18 @@ class TicketService
                 $arrAt = $arrAt->addDay(); // overnight case
             }
 
+            // Determine pricing for train vs bus
+            $isTrain = ($vehicle->vehicle_type === 'train');
+            $regularPrice = $isTrain ? (float)$data['regular_price'] : (float)($data['price'] ?? 0);
+            $vipPrice     = $isTrain ? (float)$data['vip_price'] : (float)($data['price'] ?? 0);
+            $basePrice    = $isTrain ? $regularPrice : (float)($data['price'] ?? 0);
+
             // Create trip
             $trip = Trips::create([
                 'vendor_route_id' => $vendorRoute->id,
                 'departure_datetime' => $depAt,
                 'arrival_datetime' => $arrAt,
-                'base_price' => $data['price'],
+                'base_price' => round($basePrice, 2),
                 'status' => 'scheduled',
             ]);
 
@@ -91,10 +94,14 @@ class TicketService
             // Seed trip_seats from coach seats
             foreach ($vehicle->coaches as $coach){
                 foreach ($coach->seats as $seat){
+                    $seatPrice = $basePrice;
+                    if ($isTrain) {
+                        $seatPrice = ($coach->coach_type === 'seat_VIP') ? $vipPrice : $regularPrice;
+                    }
                     DB::table('trip_seats')->insert([
                         'trip_id' => $trip->id,
                         'seat_id' => $seat->id,
-                        'price' => $data['price'],
+                        'price' => round($seatPrice, 2),
                         'status' => 'available',
                     ]);
                 }

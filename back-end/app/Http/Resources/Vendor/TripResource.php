@@ -20,6 +20,19 @@ class TripResource extends JsonResource
             'departure_datetime' => $this->departure_datetime?->toISOString(),
             'arrival_datetime' => $this->arrival_datetime?->toISOString(),
             'base_price' => $this->base_price,
+            'train_prices' => $this->when(($vehicle && ($vehicle->vehicle_type ?? null) === 'train'), function(){
+                $regular = null; $vip = null;
+                if ($this->relationLoaded('seats')) {
+                    foreach ($this->seats as $seat) {
+                        $coachType = optional($seat->coach)->coach_type;
+                        $price = (float) ($seat->pivot->price ?? 0);
+                        if ($coachType === 'seat_VIP') { $vip = $vip ?? $price; }
+                        else { $regular = $regular ?? $price; }
+                        if ($regular !== null && $vip !== null) break;
+                    }
+                }
+                return ['regular' => $regular, 'vip' => $vip];
+            }),
             'status' => $this->status,
             'route' => [
                 'origin' => $origin->name ?? null,

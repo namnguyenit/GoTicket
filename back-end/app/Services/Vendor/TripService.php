@@ -22,7 +22,9 @@ class TripService
                 'vendorRoute.route.origin:id,name',
                 'vendorRoute.route.destination:id,name',
                 'coaches:id,vehicle_id,total_seats',
-                'coaches.vehicle:id,name,vehicle_type,license_plate'
+                'coaches.vehicle:id,name,vehicle_type,license_plate',
+                'seats',
+                'seats.coach:id,coach_type'
             ])
             ->withCount(['seats as empty_number' => function($q){
                 $q->where('trip_seats.status', 'available');

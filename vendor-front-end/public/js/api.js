@@ -87,6 +87,8 @@ const API = (() => {
     },
 
     async getTickets(){
+      // returns array of { id, vehicle, type, plate, seats, time, date, route, price }
+    
       try {
         const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });
         const items = Array.isArray(resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
@@ -98,7 +100,11 @@ const API = (() => {
           const vehicle = t.vehicle || {};
           const route = (t.route && (t.route.label || ((t.route.origin && t.route.destination) ? `${t.route.origin} - ${t.route.destination}` : ''))) || '—';
           const seats = Number.isFinite(t.capacity) ? t.capacity : (Array.isArray(t.coaches) ? t.coaches.reduce((sum,c)=>sum+(Number(c.total_seats)||0),0) : null);
+          const isTrain = (vehicle.vehicle_type || '').toLowerCase() === 'train';
+          const regular = t.train_prices?.regular ?? null;
+          const vip = t.train_prices?.vip ?? null;
           return {
+            id: t.id,
             vehicle: vehicle.name || '—',
             type: vehicle.vehicle_type || '—',
             plate: vehicle.license_plate || '—',
@@ -106,7 +112,7 @@ const API = (() => {
             time,
             date,
             route,
-            price: t.base_price || 0
+            price: isTrain ? { regular, vip } : (t.base_price || 0)
           };
         });
       } catch (e){
@@ -122,9 +128,19 @@ const API = (() => {
           start_time: String(payload.startTime||'').trim(),
           start_date: String(payload.startDate||'').trim(),
           from_city: String(payload.fromCity||'').trim(),
-          to_city: String(payload.toCity||'').trim(),
-          price: Number(payload.price||0)
+          to_city: String(payload.toCity||'').trim()
         };
+        // include bus or train prices appropriately
+        if(payload.price !== undefined && payload.price !== ''){
+          body.price = Number(payload.price);
+        }
+        // include train-specific prices if provided
+        if(payload.regular_price !== undefined && payload.regular_price !== ''){
+          body.regular_price = Number(payload.regular_price);
+        }
+        if(payload.vip_price !== undefined && payload.vip_price !== ''){
+          body.vip_price = Number(payload.vip_price);
+        }
         const data = await request('/vendor/tickets', { method: 'POST', headers: authHeaders(true), body: JSON.stringify(body) });
         return { ok:true, id: data.id, data };
       } catch(e){
@@ -259,6 +275,15 @@ const API = (() => {
     async removeVehicleCoach(vehicleId, coachId){
       try {
         await request(`/vendor/vehicles/${vehicleId}/coaches/${coachId}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteTrip(id){
+      try {
+        await request(`/vendor/trips/${id}`, { method: 'DELETE', headers: authHeaders(false) });
         return { ok:true };
       } catch(e){
         return { ok:false, error: e.message };
