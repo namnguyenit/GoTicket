@@ -45,7 +45,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
     Route::group(['prefix' => 'auth'], function() {
         Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
-
+        Route::put('myinfo', [AuthController::class, 'updateProfile']);
         
     });
     Route::group(['prefix' => 'bookings'], function() {
