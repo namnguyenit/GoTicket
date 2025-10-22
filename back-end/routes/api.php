@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Vendor\StopController;
 
 
 
+
 // --- CÁC ROUTE CÔNG KHAI ---
 Route::controller(TripController::class)->group(function () {
     Route::get('trips/search', 'search');
@@ -75,6 +76,15 @@ Route::middleware('auth:api')->group(function()  {
             Route::put('/{stop}', 'update')->whereNumber('stop');
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');
 
+
+        // Trips CRUD (vendor)
+        Route::controller(TripController::class)->prefix('trips')->group(function () {
+            Route::post('/', 'store');
+            Route::get('/', 'index');
+            Route::get('/{trip}', 'show')->whereNumber('trip');
+            Route::put('/{trip}', 'update')->whereNumber('trip');
+            Route::delete('/{trip}', 'destroy')->whereNumber('trip');
+        });
         });
     });
 });

@@ -607,6 +607,199 @@ Sample success (200):
 }
 ```
 
+### Vendor Trips (CRUD chuyến đi)
+
+Tất cả endpoint yêu cầu Header: `Authorization: Bearer <JWT>` và role `vendor`. Mọi thao tác đều kiểm tra quyền sở hữu (trip thuộc `vendor_route` của vendor hiện tại). Khi gửi `stops`, mỗi phần tử cần đủ `stop_id`, `stop_type` (pickup|dropoff), `scheduled_time` (ISO time).
+
+#### POST /api/vendor/trips
+Body (JSON):
+```json
+{
+  "vendor_route_id": 5,
+  "departure_datetime": "2025-11-01T08:00:00Z",
+  "arrival_datetime": "2025-11-01T14:00:00Z",
+  "base_price": 350000,
+  "status": "scheduled",
+  "stops": [
+    { "stop_id": 10, "stop_type": "pickup", "scheduled_time": "2025-11-01T07:30:00Z" },
+    { "stop_id": 12, "stop_type": "dropoff", "scheduled_time": "2025-11-01T14:15:00Z" }
+  ]
+}
+```
+
+Sample success (201):
+```json
+{
+  "success": true,
+  "status": 201,
+  "message": "Tạo mới thành công",
+  "data": {
+    "id": 123,
+    "vendor_route_id": 5,
+    "departure_datetime": "2025-11-01T08:00:00.000Z",
+    "arrival_datetime": "2025-11-01T14:00:00.000Z",
+    "base_price": 350000,
+    "status": "scheduled",
+    "stops": [
+      {
+        "id": 10,
+        "name": "Bến A",
+        "address": "...",
+        "location_id": 1,
+        "pivot": {
+          "stop_type": "pickup",
+          "scheduled_time": "2025-11-01T07:30:00.000Z"
+        }
+      },
+      {
+        "id": 12,
+        "name": "Bến B",
+        "address": "...",
+        "location_id": 2,
+        "pivot": {
+          "stop_type": "dropoff",
+          "scheduled_time": "2025-11-01T14:15:00.000Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+Validation error (422) ví dụ:
+```json
+{
+  "success": false,
+  "status": 422,
+  "error_code": "VALIDATION_FAILED",
+  "message": "Yêu cầu không hợp lệ",
+  "errors": {
+    "vendor_route_id": ["Trường này là bắt buộc."],
+    "departure_datetime": ["Trường này là bắt buộc."],
+    "arrival_datetime": ["Phải lớn hơn departure_datetime."],
+    "base_price": ["Giá không hợp lệ."],
+    "stops.0.stop_id": ["Điểm dừng không hợp lệ."]
+  }
+}
+```
+
+#### GET /api/vendor/trips
+Query: `per_page` (mặc định 10)
+
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": {
+    "data": [
+      {
+        "id": 123,
+        "vendor_route_id": 5,
+        "departure_datetime": "2025-11-01T08:00:00.000Z",
+        "arrival_datetime": "2025-11-01T14:00:00.000Z",
+        "base_price": 350000,
+        "status": "scheduled"
+      }
+    ],
+    "meta": { "current_page": 1, "last_page": 1, "per_page": 10, "total": 1 }
+  }
+}
+```
+
+#### GET /api/vendor/trips/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Lấy dữ liệu thành công",
+  "data": {
+    "id": 123,
+    "vendor_route_id": 5,
+    "departure_datetime": "2025-11-01T08:00:00.000Z",
+    "arrival_datetime": "2025-11-01T14:00:00.000Z",
+    "base_price": 350000,
+    "status": "scheduled",
+    "stops": [
+      {
+        "id": 10,
+        "name": "Bến A",
+        "address": "...",
+        "location_id": 1,
+        "pivot": {
+          "stop_type": "pickup",
+          "scheduled_time": "2025-11-01T07:30:00.000Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+#### PUT /api/vendor/trips/{id}
+Body (JSON) — cập nhật một phần hoặc toàn bộ:
+```json
+{
+  "departure_datetime": "2025-11-01T09:00:00Z",
+  "base_price": 380000,
+  "stops": [
+    { "stop_id": 10, "stop_type": "pickup", "scheduled_time": "2025-11-01T08:30:00Z" },
+    { "stop_id": 12, "stop_type": "dropoff", "scheduled_time": "2025-11-01T14:30:00Z" }
+  ]
+}
+```
+
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Cập nhật thành công",
+  "data": {
+    "id": 123,
+    "vendor_route_id": 5,
+    "departure_datetime": "2025-11-01T09:00:00.000Z",
+    "arrival_datetime": "2025-11-01T14:00:00.000Z",
+    "base_price": 380000,
+    "status": "scheduled",
+    "stops": [
+      {
+        "id": 10,
+        "name": "Bến A",
+        "address": "...",
+        "location_id": 1,
+        "pivot": {
+          "stop_type": "pickup",
+          "scheduled_time": "2025-11-01T08:30:00.000Z"
+        }
+      },
+      {
+        "id": 12,
+        "name": "Bến B",
+        "address": "...",
+        "location_id": 2,
+        "pivot": {
+          "stop_type": "dropoff",
+          "scheduled_time": "2025-11-01T14:30:00.000Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+#### DELETE /api/vendor/trips/{id}
+Sample success (200):
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Huỷ chuyến đi thành công."
+}
+```
+
 ---
 
 ## Envelope error samples

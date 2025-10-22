@@ -29,7 +29,7 @@ class StopController extends Controller
     public function store(CreateStopRequest $request)
     {
         try {
-            $data = $request->validated(); // đã có vendor_id từ prepareForValidation
+            $data = $request->validated(); 
             $stop = $this->stopService->createStop($data);
 
             return $this->success(new StopResource($stop), ApiSuccess::CREATED_SUCCESS);
