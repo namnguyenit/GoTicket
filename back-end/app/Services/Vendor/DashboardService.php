@@ -16,50 +16,45 @@ class DashboardService
     }
 
     public function getDashboardStats(): array
-{
-    $vendor = Auth::user()->vendor;
-    $now = Carbon::now();
+    {
+        $vendor = Auth::user()->vendor;
+        $now = Carbon::now();
 
-    // --- Thống kê doanh thu theo ngày trong tuần hiện tại ---
-    $startOfWeek = $now->copy()->startOfWeek(Carbon::MONDAY); // Bắt đầu từ T2
-    $endOfWeek = $now->copy()->endOfWeek(Carbon::SUNDAY);   // Kết thúc vào CN
-    
-    // Tạo một mảng doanh thu mặc định cho tuần, tất cả đều bằng 0
-    $weeklyRevenue = [
-        'Mon' => 0, 'Tue' => 0, 'Wed' => 0, 'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0,
-    ];
+        $startOfWeek = $now->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $now->copy()->endOfWeek(Carbon::SUNDAY);
+        
+        $weeklyRevenue = [
+            'Mon' => 0, 'Tue' => 0, 'Wed' => 0, 'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0,
+        ];
 
-    // Lấy dữ liệu thực tế từ CSDL
-    $weeklyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfWeek, $endOfWeek, 'day');
-    
-    // Cập nhật doanh thu vào mảng
-    // foreach ($weeklyData as $data) {
-    //     $dayName = Carbon::parse($data->date)->format('D'); // Lấy tên viết tắt của ngày (Mon, Tue...)
-    //     $weeklyRevenue[$dayName] = (float) $data->total_revenue;
-    // }
+        $weeklyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfWeek, $endOfWeek, 'day');
+        // Map weeklyData if needed
 
-    // --- Thống kê doanh thu theo tháng trong năm hiện tại ---
-    $startOfYear = $now->copy()->startOfYear();
-    $endOfYear = $now->copy()->endOfYear();
+        $startOfYear = $now->copy()->startOfYear();
+        $endOfYear = $now->copy()->endOfYear();
 
-    // Tạo mảng doanh thu mặc định cho năm
-    $monthlyRevenue = [
-        'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0, 'May' => 0, 'Jun' => 0, 
-        'Jul' => 0, 'Aug' => 0, 'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0,
-    ];
+        $monthlyRevenue = [
+            'Jan' => 0, 'Feb' => 0, 'Mar' => 0, 'Apr' => 0, 'May' => 0, 'Jun' => 0, 
+            'Jul' => 0, 'Aug' => 0, 'Sep' => 0, 'Oct' => 0, 'Nov' => 0, 'Dec' => 0,
+        ];
 
-    // Lấy dữ liệu thực tế từ CSDL
-    $yearlyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfYear, $endOfYear, 'month');
+        $yearlyData = $this->dashboardRepository->getRevenueGroupedByPeriod($vendor->id, $startOfYear, $endOfYear, 'month');
+        // Map yearlyData if needed
 
-    // Cập nhật doanh thu vào mảng
-    // foreach ($yearlyData as $data) {
-    //     $monthName = Carbon::create()->month($data->month)->format('M'); // Lấy tên viết tắt của tháng (Jan, Feb...)
-    //     $monthlyRevenue[$monthName] = (float) $data->total_revenue;
-    // }
+        return [
+            'weekly_revenue_by_day' => $weeklyRevenue,
+            'yearly_revenue_by_month' => $monthlyRevenue,
+        ];
+    }
 
-    return [
-        'weekly_revenue_by_day' => $weeklyRevenue,
-        'yearly_revenue_by_month' => $monthlyRevenue,
-    ];
-}
+    public function getVendorInfo(): ?\App\Models\Vendor
+    {
+        $user = Auth::user();
+        if(!$user || !$user->vendor){
+            return null;
+        }
+        return $user->vendor
+            ->load(['user'])
+            ->loadCount(['vehicles','vendorRoutes']);
+    }
 }

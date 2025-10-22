@@ -31,6 +31,15 @@
         d.seatToday.values
       );
     });
+    // Hiển thị tên nhà xe ở topbar
+    const vendorNameEl = document.getElementById('vendorName');
+    if(vendorNameEl){
+      API.getVendorInfo().then(info => {
+        if(info && (info.company_name || (info.owner && info.owner.name))){
+          vendorNameEl.textContent = info.company_name || info.owner.name;
+        }
+      });
+    }
   }
 
   // TICKETS PAGE
@@ -85,7 +94,7 @@
       const html = (Array.isArray(groups) ? groups : []).map(g => {
         const stops = (g.stops || []);
         const items = stops.map((s) => `
-          <li class="chip" data-stop-id="${s.id}">
+          <li data-stop-id="${s.id}">
             <span>${s.name || s.address || ('#'+s.id)}</span>
             <div class="chip-actions">
               <button class="icon-btn edit-stop" title="Sửa" data-id="${s.id}"><i class="ri-pencil-line"></i></button>
@@ -93,12 +102,12 @@
             </div>
           </li>`).join('');
         return `
-          <div class="group-card">
-            <div class="row-between">
-              <div class="group-title">${g.city}</div>
+          <div class="transfer-card">
+            <div class="header">
+              <div class="city">${g.city}</div>
               <button class="btn add-stop" data-city="${g.city}"><i class="ri-add-circle-line"></i> Thêm</button>
             </div>
-            <ul class="chip-list">${items || '<li class="muted">(Chưa có điểm trung chuyển)</li>'}</ul>
+            <ul>${items || '<li class="empty">(Chưa có điểm trung chuyển)</li>'}</ul>
           </div>`;
       }).join('');
       transferGroups.innerHTML = html || '<div class="muted">Chưa có dữ liệu trung chuyển.</div>';

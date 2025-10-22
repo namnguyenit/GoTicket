@@ -76,6 +76,16 @@ const API = (() => {
       }
     },
 
+    async getVendorInfo(){
+      try {
+        const data = await request('/vendor/dashboard/info', { headers: authHeaders(false) });
+        return data; // { id, company_name, ... }
+      } catch(e){
+        console.warn('Vendor info fallback:', e.message);
+        return null;
+      }
+    },
+
     async getTickets(){
       try {
         const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });

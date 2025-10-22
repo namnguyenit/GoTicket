@@ -24,4 +24,13 @@ class DashboardController extends Controller
         $stats = $this->dashboardService->getDashboardStats();
         return $this->success($stats, ApiSuccess::GET_DATA_SUCCESS);
     }
+
+    public function getInfo()
+    {
+        $vendor = $this->dashboardService->getVendorInfo();
+        if(!$vendor){
+            return $this->error(\App\Enums\ApiError::VENDOR_NOT_ASSOCIATED);
+        }
+        return $this->success(new \App\Http\Resources\Vendor\VendorResource($vendor), ApiSuccess::GET_DATA_SUCCESS);
+    }
 }

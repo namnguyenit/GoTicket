@@ -58,6 +58,7 @@ Route::middleware('auth:api')->group(function()  {
     // --- VENDOR ROUTES ---
     Route::middleware('role:vendor')->prefix('vendor')->group(function() {
         Route::get('dashboard/stats', [DashboardController::class, 'getStats']);
+        Route::get('dashboard/info', [DashboardController::class, 'getInfo']);
 
         Route::controller(ManagerVehicleController::class)->prefix('vehicles')->group(function() {
             Route::post('/', 'store');//erro
