@@ -68,19 +68,13 @@ Route::middleware('auth:api')->group(function()  {
 
         Route::controller(StopController::class)->prefix('stops')->group(function () {
             Route::post('/', 'store');
-<<<<<<< HEAD
             Route::get('/', 'index');
             Route::get('/by-location', 'listByLocation');
             Route::get('/location/{location}', 'listByLocationId')->whereNumber('location');
             Route::get('/{stop}', 'show')->whereNumber('stop');
             Route::put('/{stop}', 'update')->whereNumber('stop');
             Route::delete('/{stop}', 'destroy')->whereNumber('stop');
-=======
-            Route::get('/', 'index');//errro
-            Route::get('/{stop}', 'show')->whereNumber('stop');//erro
-            Route::put('/{stop}', 'update')->whereNumber('stop');//erro
-            Route::delete('/{stop}', 'destroy')->whereNumber('stop');//erro
->>>>>>> 13cfc2ff64543effbcbc0954bc9ab03d7b0f198f
+
         });
     });
 });
