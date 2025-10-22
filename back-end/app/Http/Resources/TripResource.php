@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class TripResource extends JsonResource
 {
@@ -22,9 +23,7 @@ class TripResource extends JsonResource
             // Điểm đón (pickTake): placeholder, bạn sẽ cài đặt sau
             'pickTake' => $this->resolvePickTake(),
             // Ngày/giờ khởi hành (ISO 8601 có microseconds, UTC Z)
-            'departureDate' => $this->departure_datetime
-                ? $this->departure_datetime->copy()->utc()->format('Y-m-d\TH:i:s.u\Z')
-                : null,
+            'departureDate' => $this->iso($this->departure_datetime),
             // Số ghế trống (được tính ở withCount -> alias empty_number)
             'emptyNumber' => $this->when(isset($this->empty_number), (int) ($this->empty_number ?? 0)),
             // Tên nhà xe
@@ -53,5 +52,10 @@ class TripResource extends JsonResource
     {
         // Ví dụ: lấy stop pickup đầu tiên khi đã eager load stops
         return null;
+    }
+    protected function iso($dt): ?string{
+        if (!$dt) return null;
+        $c=$dt instanceof Carbon ? $dt : Carbon::parse($dt);
+        return $c->copy()->utc()->format('Y-m-d\TH:i:s.u\Z');
     }
 }

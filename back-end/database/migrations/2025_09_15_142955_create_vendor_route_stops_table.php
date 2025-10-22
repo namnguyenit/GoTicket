@@ -12,15 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vendor_route_stops', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('vendor_route_id');
-            $table->unsignedInteger('stop_id');
+            $table->id();
+            $table->foreignId('vendor_route_id')->constrained('vendor_routes')->onDelete('cascade');
+            $table->foreignId('stop_id')->constrained('stops')->onDelete('cascade');
             $table->enum('stop_type', ['pickup', 'dropoff']);
             $table->integer('stop_order');
             $table->integer('offset_minutes_from_departure')->default(0);
-
-            $table->foreign('vendor_route_id')->references('id')->on('vendor_routes')->cascadeOnDelete();
-            $table->foreign('stop_id')->references('id')->on('stops')->cascadeOnDelete();
             $table->unique(['vendor_route_id', 'stop_id', 'stop_type']);
         });
     }

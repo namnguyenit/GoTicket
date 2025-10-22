@@ -86,10 +86,10 @@ class TripController extends Controller
         $pickupPoints = $stops->where('pivot.stop_type', 'pickup')->values();
         $dropoffPoints = $stops->where('pivot.stop_type', 'dropoff')->values();
 
-        // Trả về dữ liệu thành công dưới dạng JSON
+        // Trả về dữ liệu với Resource chuẩn
         return $this->success([
-            'pickup_points' => $pickupPoints,
-            'dropoff_points' => $dropoffPoints,
+            'pickup_points' => \App\Http\Resources\StopResource::collection($pickupPoints),
+            'dropoff_points' => \App\Http\Resources\StopResource::collection($dropoffPoints),
         ], ApiSuccess::GET_DATA_SUCCESS);
     }
 }

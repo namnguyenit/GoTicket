@@ -12,19 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedInteger('trip_id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('booking_id');
+            $table->id();
+            $table->foreignId('trip_id')->constrained('trips')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('booking_id')->unique()->constrained('bookings')->cascadeOnDelete();
             $table->unsignedTinyInteger('rating'); // validation logic enforce 1..5
             $table->text('comment')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->unique('booking_id');            
-            
-            $table->foreign('trip_id')->references('id')->on('trips')->cascadeOnDelete();
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->foreign('booking_id')->references('id')->on('bookings')->cascadeOnDelete();
         });
     }
 

@@ -1,0 +1,72 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/sidebar') %>
+
+<main class="content">
+  <%- include('partials/topbar') %>
+  <section class="card">
+    <div class="card-title">Cài đặt</div>
+    <div class="grid two-cols gap-lg">
+      <div>
+        <h4>API Backend</h4>
+        <form id="settingsForm" class="form">
+          <div class="form-group">
+            <label>API Base URL</label>
+            <input type="text" name="baseUrl" placeholder="http://127.0.0.1:8000/api" />
+            <small>Ví dụ: http://127.0.0.1:8000/api</small>
+          </div>
+          <div class="form-group">
+            <label>JWT Token</label>
+            <input type="text" name="token" placeholder="Dán token \"Bearer\" ở đây" />
+            <small>Token sẽ được lưu trong LocalStorage của trình duyệt.</small>
+          </div>
+          <div class="row-end">
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <h4>Giá trị hiện tại</h4>
+        <ul class="list">
+          <li><strong>API_BASE_URL:</strong> <span id="curBaseUrl"></span></li>
+          <li><strong>API_TOKEN:</strong> <span id="curToken"></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  (function(){
+    const form = document.getElementById('settingsForm');
+    const baseUrlInput = form.querySelector('input[name="baseUrl"]');
+    const tokenInput = form.querySelector('input[name="token"]');
+    const curBase = document.getElementById('curBaseUrl');
+    const curTok = document.getElementById('curToken');
+
+    function refreshDisplay(){
+      const base = localStorage.getItem('API_BASE_URL') || 'http://127.0.0.1:8000/api';
+      const tok = localStorage.getItem('API_TOKEN') || '';
+      curBase.textContent = base;
+      curTok.textContent = tok ? (tok.slice(0,8)+'...'+tok.slice(-6)) : '(chưa cài đặt)';
+      baseUrlInput.value = base;
+      tokenInput.value = tok;
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const base = baseUrlInput.value.trim();
+      const tok = tokenInput.value.trim();
+      if(base) localStorage.setItem('API_BASE_URL', base);
+      localStorage.setItem('API_TOKEN', tok);
+      // Update globals for current page session
+      window.API_BASE_URL = base || window.API_BASE_URL;
+      window.API_TOKEN = tok;
+      alert('Đã lưu cấu hình API.');
+      refreshDisplay();
+    });
+
+    refreshDisplay();
+  })();
+  </script>
+
+<%- include('partials/footer-scripts') %>

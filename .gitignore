@@ -58,6 +58,7 @@ dist-ssr
 *.sln
 *.sw?
 
-front-end/.gitignore
-
 ##---------------------------------------
+
+
+tmp/
