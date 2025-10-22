@@ -9,7 +9,7 @@ class UserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        // Trả về mảng dữ liệu cơ bản
+        
         return [
             'id' => $this->id,
             'name' => $this->name,

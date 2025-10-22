@@ -26,7 +26,7 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
         $startOfYear = $now->copy()->startOfYear();
         $endOfYear = $now->copy()->endOfYear();
 
-        // === HÀM TÍNH DOANH THU (giữ nguyên) ===
+        //hàm tính doanh thu 
         $createRevenueSubquery = function ($startDate, $endDate) {
             return function ($query) use ($startDate, $endDate) {
                 $query->selectRaw('SUM(total_price)')
@@ -43,18 +43,17 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
             };
         };
 
-        // === ✅ HÀM MỚI: ĐẾM SỐ LƯỢNG VÉ ===
+        //hàm đếm số lượng vé 
         $createTicketCountSubquery = function ($startDate, $endDate) {
             return function ($query) use ($startDate, $endDate) {
                 $query->selectRaw('COUNT(*)')
                     ->from('booking_details')
-                    // Join để liên kết đến bảng Bookings và lấy ngày tạo
                     ->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
                     ->join('trips', 'booking_details.trip_id', '=', 'trips.id')
                     ->join('vendor_routes', 'trips.vendor_route_id', '=', 'vendor_routes.id')
                     ->where('bookings.status', 'confirmed')
                     ->whereBetween('bookings.created_at', [$startDate, $endDate])
-                    // Liên kết với query chính qua vendor_id
+
                     ->whereColumn('vendor_routes.vendor_id', 'vendors.id');
             };
         };
@@ -63,17 +62,17 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
             ->with('user:id,name,email,phone_number')
             ->select('vendors.id', 'vendors.user_id', 'vendors.company_name', 'vendors.status')
             
-            // --- Tính toán doanh thu ---
+
             ->selectSub($createRevenueSubquery($startOfWeek, $endOfWeek), 'weekly_revenue')
             ->selectSub($createRevenueSubquery($startOfMonth, $endOfMonth), 'monthly_revenue')
             ->selectSub($createRevenueSubquery($startOfYear, $endOfYear), 'yearly_revenue')
 
-            // --- ✅ Tính toán số vé ---
+
             ->selectSub($createTicketCountSubquery($startOfToday, $endOfToday), 'daily_tickets')
             ->selectSub($createTicketCountSubquery($startOfWeek, $endOfWeek), 'weekly_tickets')
             ->selectSub($createTicketCountSubquery($startOfMonth, $endOfMonth), 'monthly_tickets')
             
-            // Sắp xếp theo doanh thu năm giảm dần
+
             ->orderByDesc('yearly_revenue')
             ->limit($limit)
             ->get();
@@ -105,7 +104,7 @@ class DashboardAdminRepository implements DashboardAdminRepositoryInterface
         };
 
 
-        // Tính toán trạng thái Vendor
+
         $vendorStatuses = Vendor::select('status', DB::raw('count(*) as count'))
             ->groupBy('status')
             ->pluck('count', 'status')
@@ -127,7 +126,7 @@ return [
                  'users' => User::count(),
                  'vendors' => Vendor::count(),
             ],
-            'vendor_status_distribution' => [ // ✅ THÊM KHỐI MỚI NÀY
+            'vendor_status_distribution' => [ 
                 'active' => $vendorStatuses['active'] ?? 0,
                 'pending' => $vendorStatuses['pending'] ?? 0,
                 'suspended' => $vendorStatuses['suspended'] ?? 0,

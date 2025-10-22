@@ -45,20 +45,20 @@ class UserService{
 
     public function update(User $user, array $data): bool
     {
-        // ✅ 1. TẠO MẢNG DỮ LIỆU CHỈ BAO GỒM CÁC TRƯỜNG CỦA USER
+        
         $userData = collect($data)->only(['name', 'phone_number', 'role'])->toArray();
         
         if (empty($userData)) {
-            return true; // Không có gì để cập nhật
+            return true; 
         }
 
         return DB::transaction(function () use ($user, $data, $userData) { 
             $originalRole = $user->role;
             
-            // 2. CẬP NHẬT USER (Gọi Repository chỉ với dữ liệu User đã lọc)
+            
             $updated = $this->userRepository->update($user, $userData); 
 
-            // 3. LOGIC TẠO VENDOR KHI CHUYỂN ROLE (Giữ nguyên logic này, sử dụng $data ban đầu)
+
             if ($updated && $originalRole !== 'vendor' && ($data['role'] ?? null) === 'vendor') {
                 $user->load('vendor'); 
                 
@@ -80,7 +80,7 @@ class UserService{
 
     public function createVendor(array $data): User
     {
-        // Tách dữ liệu thành 2 phần: User và Vendor
+       
         $userData = [
             'name' => $data['name'],
             'email' => $data['email'],

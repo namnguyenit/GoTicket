@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Rule; // ✅ THÊM DÒNG NÀY
+use Illuminate\Validation\Rule; 
 
 class UpdateProfileRequest extends ApiRequest
 {
@@ -14,7 +14,7 @@ class UpdateProfileRequest extends ApiRequest
 
     public function rules(): array
     {
-        $userId = auth('api')->id(); // Lấy ID của người dùng đang đăng nhập
+        $userId = auth('api')->id(); 
 
         return [
 
@@ -27,7 +27,7 @@ class UpdateProfileRequest extends ApiRequest
             'password' => [
                 'sometimes',
                 'string',
-                'confirmed', // Yêu cầu phải có trường 'password_confirmation'
+                'confirmed', 
                 Password::min(6),
             ],
         ];

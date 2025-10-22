@@ -29,13 +29,13 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::query();
 
-        // Nếu có tham số 'role' được truyền vào, thêm điều kiện lọc
+        
         if ($role) {
             $query->where('role', $role);
 
-            // ĐIỀU KIỆN ĐẶC BIỆT: Nếu là 'vendor', lấy kèm thông tin vendor
+
             if ($role === 'vendor') {
-                // Eager load the 'vendor' relationship
+
                 $query->with('vendor');
             }
         }
@@ -48,16 +48,16 @@ class UserRepository implements UserRepositoryInterface
     {
         $query = User::query();
 
-        // Nếu không có role hoặc role là 'customer', chỉ tìm theo tên user
+
         if (!$role || $role === 'customer') {
             $query->where('role', 'customer')
                   ->where('name', 'LIKE', $name . '%');
         } 
-        // Nếu role là 'vendor', tìm kiếm phức tạp hơn
+
         elseif ($role === 'vendor') {
             $query->where('role', 'vendor')
-                  ->with('vendor') // Lấy kèm thông tin vendor
-                  // Điều kiện: Hoặc tên user khớp, HOẶC tên công ty của vendor khớp
+                  ->with('vendor') 
+
                   ->where(function ($q) use ($name) {
                       $q->where('name', 'LIKE', $name . '%')
                         ->orWhereHas('vendor', function ($subQ) use ($name) {
@@ -82,7 +82,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function update(User $user, array $data): bool
     {
-        // $data ở đây chỉ chứa name, phone_number, role (đã được lọc từ Service)
+
         if (empty($data)) {
             return true;
         }
@@ -93,21 +93,21 @@ class UserRepository implements UserRepositoryInterface
     public function createVendor(array $userData, array $vendorData): User
     {
         return DB::transaction(function () use ($userData, $vendorData) {
-            // 1. Tạo User (vai trò vendor)
+
             $user = User::create([
                 'name' => $userData['name'],
                 'phone_number' => $userData['phone_number'],
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
-                'role' => 'vendor', // Gán vai trò là vendor
+                'role' => 'vendor',
             ]);
 
-            // 2. Tạo bản ghi Vendor
+
             Vendor::create([
                 'user_id' => $user->id,
                 'company_name' => $vendorData['company_name'],
+                'status' => 'pending', 
                 'address' => $vendorData['address'],
-                'status' => 'pending', // Mặc định là 'pending'
             ]);
 
             return $user;

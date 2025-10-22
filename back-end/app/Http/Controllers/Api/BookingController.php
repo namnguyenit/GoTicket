@@ -7,7 +7,7 @@ use App\Enums\ApiSuccess;
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\ResponseHelper;
 use App\Http\Requests\Api\ConfirmBookingRequest;
-use App\Http\Requests\Api\InitiateBookingRequest; // ✅ Import request mới
+use App\Http\Requests\Api\InitiateBookingRequest; 
 use App\Services\BookingService;
 use Illuminate\Validation\ValidationException;
 
@@ -49,7 +49,7 @@ class BookingController extends Controller
     public function confirm(ConfirmBookingRequest $request)
     {
         $user = auth('api')->user();
-        $validated = $request->validated(); // Lấy tất cả dữ liệu đã được validate
+        $validated = $request->validated(); 
 
         try {
 

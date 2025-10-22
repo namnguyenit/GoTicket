@@ -17,7 +17,7 @@ class DashboardAdminService
     {
         $vendors = $this->dashboardRepository->getTopVendorsByRevenue($limit);
 
-        // Chuyển đổi dữ liệu để thân thiện hơn với frontend
+        
         return $vendors->map(function ($vendor) {
             return [
                 'vendor_info' => [
@@ -29,12 +29,12 @@ class DashboardAdminService
                     'phone_number' => $vendor->user->phone_number,
                 ],
                 'revenue' => [
-                    // Giữ nguyên phần doanh thu
+        
                     'this_week' => (float) ($vendor->weekly_revenue ?? 0),
                     'this_month' => (float) ($vendor->monthly_revenue ?? 0),
                     'this_year' => (float) ($vendor->yearly_revenue ?? 0),
                 ],
-                // ✅ THÊM KHỐI DỮ LIỆU MỚI NÀY VÀO
+        
                 'tickets_sold' => [
                     'today' => (int) ($vendor->daily_tickets ?? 0),
                     'this_week' => (int) ($vendor->weekly_tickets ?? 0),
