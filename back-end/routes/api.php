@@ -94,5 +94,6 @@ Route::middleware('auth:api')->group(function()  {
 
         // Tickets
         Route::post('tickets', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'store']);
+        Route::delete('tickets/{trip}', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'destroy'])->whereNumber('trip');
     });
 });

@@ -62,7 +62,8 @@
             <td>${renderStatus(t.status)}</td>
             <td>
               <button class="icon-btn edit-trip" title="Sửa"><i class="ri-pencil-line"></i></button>
-              <button class="icon-btn delete-trip" title="Xoá"><i class="ri-delete-bin-6-line"></i></button>
+              <button class="icon-btn delete-trip" title="Huỷ chuyến"><i class="ri-forbid-2-line"></i></button>
+              <button class="icon-btn hard-delete-trip" title="Xoá vé"><i class="ri-delete-bin-6-line"></i></button>
             </td>
           </tr>`).join('');
       }
@@ -90,12 +91,19 @@
       // actions: edit/delete trip rows
       ticketTable.addEventListener('click', async (e) => {
         const delBtn = e.target.closest('.delete-trip');
+        const hardBtn = e.target.closest('.hard-delete-trip');
+        const deleteTicketBtn = e.target.closest('.delete-ticket');
         const editBtn = e.target.closest('.edit-trip');
         const tr = e.target.closest('tr');
         const id = tr && tr.getAttribute('data-trip-id');
         if(delBtn && id){
-          if(confirm('Xoá vé này?')){
+          if(confirm('Huỷ chuyến này (không xoá khỏi DB)?')){
             const rs = await API.deleteTrip(id);
+            if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Huỷ chuyến thất bại'); }
+          }
+        } else if(hardBtn && id){
+          if(confirm('Xoá vé này khỏi DB?')){
+            const rs = await API.deleteTicket(id);
             if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
           }
         } else if(editBtn && id){

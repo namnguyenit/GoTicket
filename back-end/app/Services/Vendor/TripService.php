@@ -162,4 +162,18 @@ class TripService
         $trip->status = 'cancelled';
         $trip->save();
     }
+
+    public function hardDeleteTrip(Trips $trip): void
+    {
+        $vendorId = Auth::user()->vendor->id;
+        if (!$trip->vendorRoute()->where('vendor_id', $vendorId)->exists()) {
+            abort(403);
+        }
+        DB::transaction(function() use ($trip){
+            DB::table('trip_seats')->where('trip_id', $trip->id)->delete();
+            DB::table('trip_coaches')->where('trip_id', $trip->id)->delete();
+            DB::table('trip_stops')->where('trip_id', $trip->id)->delete();
+            $trip->delete();
+        });
+    }
 }

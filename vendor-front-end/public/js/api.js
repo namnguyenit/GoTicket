@@ -291,6 +291,24 @@ const API = (() => {
       }
     },
 
+    async hardDeleteTrip(id){
+      try {
+        await request(`/vendor/trips/${id}?hard=1`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteTicket(id){
+      try {
+        await request(`/vendor/tickets/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
     async updateTrip(id, payload){
       try {
         const data = await request(`/vendor/trips/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });

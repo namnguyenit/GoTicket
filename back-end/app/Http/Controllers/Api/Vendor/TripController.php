@@ -81,6 +81,10 @@ class TripController extends Controller
     public function destroy(Trips $trip)
     {
         try {
+            if (request()->boolean('hard')) {
+                $this->tripService->hardDeleteTrip($trip);
+                return $this->success(null, ApiSuccess::TRIP_CANCELLED);
+            }
             $this->tripService->cancelTrip($trip);
             return $this->success(null, ApiSuccess::TRIP_CANCELLED);
         } catch (\Throwable $e) {
