@@ -90,20 +90,16 @@ class ManagerVehicleController extends Controller
             return $this->success([], ApiSuccess::GET_DATA_SUCCESS);
         }
 
-        return $this->success($data, ApiSuccess::GET_DATA_SUCCESS);
+        return $this->success(\App\Http\Resources\Vendor\VehicleResource::collection($data), ApiSuccess::GET_DATA_SUCCESS);
     }
 
-    public function addCoaches(Request $request, Vehicles $vehicle)
+    public function addCoaches(\App\Http\Requests\Api\Vendor\AddCoachesRequest $request, Vehicles $vehicle)
     {
         try{
             if ($vehicle->vendor_id != auth()->user()->vendor->id){
                 return $this->error(ApiError::FORBIDDEN);
             }
-            $validated = $request->validate([
-                'coaches' => 'required|array|min:1',
-                'coaches.*.coach_type' => 'required|in:seat_soft,seat_VIP',
-                'coaches.*.quantity' => 'required|integer|min:1',
-            ]);
+            $validated = $request->validated();
             $created = $this->managerVehicleService->addCoaches($vehicle, $validated['coaches']);
             return $this->success(['created' => count($created)], ApiSuccess::ACTION_SUCCESS);
         }catch (\Throwable $e){

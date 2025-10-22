@@ -38,29 +38,15 @@ class UserController extends Controller
         return $this->success(new UserResource($user), ApiSuccess::GET_DATA_SUCCESS);
     }
     
-    public function findByName(Request $request){
-        $name = $request->query('name'); 
-
-        if (!$name) {
-            return $this->error(ApiError::VALIDATION_FAILED, ['name' => 'The name field is required.']);
-        }
-
-        $users = $this->userService->findByName($name);
+    public function findByName(\App\Http\Requests\Api\FindUserByNameRequest $request){
+        $validated = $request->validated();
+        $users = $this->userService->findByName($validated['name']);
         return $this->success(UserResource::collection($users), ApiSuccess::GET_DATA_SUCCESS);
     }
 
-    public function updateUser(Request $request, string $email){
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'phone_number' => 'sometimes|string|digits:10',
-            'role' =>  'sometimes|string',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error(ApiError::VALIDATION_FAILED, $validator->errors());
-        }
-
-        $result = $this->userService->updateUser($email, $validator->validated());
+    public function updateUser(\App\Http\Requests\Api\UpdateUserRequest $request, string $email){
+        $validated = $request->validated();
+        $result = $this->userService->updateUser($email, $validated);
 
         if (!$result) {
             return $this->error(ApiError::NOT_FOUND);
