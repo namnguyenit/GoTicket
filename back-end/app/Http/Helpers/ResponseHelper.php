@@ -3,17 +3,17 @@
 namespace App\Http\Helpers;
 
 use App\Enums\ApiError;
-use App\Enums\ApiSuccess; // Import ApiSuccess
+use App\Enums\ApiSuccess; 
 use Illuminate\Http\JsonResponse;
 
 trait ResponseHelper
 {
     public function success(mixed $data = null, ApiSuccess $apiSuccess = ApiSuccess::ACTION_SUCCESS): JsonResponse
     {
-        $httpCode = $apiSuccess->getHttpCode(); // Lấy mã code ra biến
+        $httpCode = $apiSuccess->getHttpCode(); 
         $response = [
             'success' => true,
-            'status' => $httpCode, // <-- THÊM DÒNG NÀY
+            'status' => $httpCode, 
             'message' => $apiSuccess->getMessage(),
         ];
 

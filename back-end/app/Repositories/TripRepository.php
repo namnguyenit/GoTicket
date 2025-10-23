@@ -2,7 +2,7 @@
 namespace App\Repositories;
 
 use App\Models\Trips;
-use Illuminate\Database\Eloquent\Builder; // Cần import Builder
+use Illuminate\Database\Eloquent\Builder; 
 
 class TripRepository implements TripRepositoryInterface
 {
@@ -10,9 +10,9 @@ class TripRepository implements TripRepositoryInterface
     {
 
         return Trips::with([
-            'vendorRoute.vendor.user:id,name', // Lấy tên nhà xe
-            'coaches.seats', // Lấy danh sách xe và tất cả các ghế của mỗi xe
-            'seats' // Lấy danh sách ghế của chuyến đi này kèm trạng thái (pivot data)
+            'vendorRoute.vendor.user:id,name', 
+            'coaches.seats', 
+            'seats' 
         ])->find($id);
     }
     
@@ -77,6 +77,6 @@ class TripRepository implements TripRepositoryInterface
                         },
                     ])
                     ->orderBy('departure_datetime')
-                    ->paginate(12); // Tự động phân trang 12 cái/trang
+                    ->paginate(12); 
     }
 }

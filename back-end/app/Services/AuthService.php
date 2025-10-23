@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Enums\ApiError;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthService
 {
@@ -34,10 +36,26 @@ class AuthService
             return ['error' => ApiError::EMAIL_NOT_EXISTS];
         }
 
+        
+        
+        if ($user->role === 'vendor') {
+        
+            $user->load('vendor'); 
+            
+        
+            if (! $user->vendor || $user->vendor->status !== 'active') {
+        
+                return ['error' => ApiError::ACCOUNT_INACTIVE];
+            }
+        }
+        
+        
+
         if (! $token = auth('api')->attempt($credentials)) {
 
             return ['error' => ApiError::WRONG_PASSWORD];
         }
+
 
         return ['token' => $token];
     }
@@ -45,11 +63,11 @@ class AuthService
     public function getMyAccount(): ?User
     {
 
+        Log::info('Attempting to get user via auth(\'api\')->user()');
+        $user = auth('api')->user();
+        Log::info('Result from auth(\'api\')->user():', ['user_id' => $user?->id]); // Log ID nếu user tồn tại
+        return $user;
 
-
-
-
-        return auth('api')->user();
     }
 
 

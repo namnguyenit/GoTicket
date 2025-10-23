@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\TripService;
 use App\Services\LocationService;
-use App\Http\Requests\Api\SearchRequest; // Dùng lại SearchRequest bạn đã tạo
+use App\Http\Requests\Api\SearchRequest; 
 use App\Http\Helpers\ResponseHelper;
 use App\Enums\ApiError;
 use App\Enums\ApiSuccess;

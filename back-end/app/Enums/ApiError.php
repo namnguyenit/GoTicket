@@ -45,6 +45,10 @@ enum ApiError: string
 
 
 
+
+    case ACCOUNT_INACTIVE = "ACCOUNT_INACTIVE";
+
+
     public function getHttpCode(): int
     {
         return match ($this) {
@@ -54,6 +58,7 @@ enum ApiError: string
             self::VALIDATION_FAILED, self::EMAIL_ALREADY_EXISTS => 422,
             self::EMAIL_NOT_EXISTS ,self::WRONG_PASSWORD => 423,
             self::DATA_NULL => 201,
+
 
             self::VENDOR_NOT_ASSOCIATED => 403,
             self::VENDOR_INACTIVE => 403,
@@ -74,6 +79,7 @@ enum ApiError: string
             self::PAYMENT_NOT_FOUND => 404,
             self::PAYMENT_STATUS_CONFLICT => 422,
 
+
             default => 500, // Mặc định là lỗi server
         };
     }
@@ -91,6 +97,7 @@ enum ApiError: string
             self::WRONG_PASSWORD => 'Sai mật khẩu',
             self::EMAIL_NOT_EXISTS => 'email không tồn tại',
             self::DATA_NULL => 'data trống',
+
 
 
             self::VENDOR_NOT_ASSOCIATED => "Tài khoản nhà xe chưa được cấp phép",
@@ -111,6 +118,7 @@ enum ApiError: string
             self::BOOKING_CANCEL_NOT_ALLOWED =>"Đơn đặt chỗ không thể hủy",
             self::PAYMENT_NOT_FOUND => "Không tìm thấy thanh toán",
             self::PAYMENT_STATUS_CONFLICT => "Trạng thái thanh toán xung đột",
+
 
             default => 'Lỗi không xác định.',
         };
