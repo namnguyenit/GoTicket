@@ -31,4 +31,8 @@ class Vendor extends Model
     public function vendorRoutes(){
         return $this->hasMany(VendorRoute::class, 'vendor_id');
     }
+
+    public function stops(){
+        return $this->hasMany(Stops::class, 'vendor_id');
+    }
 }

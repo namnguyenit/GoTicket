@@ -77,6 +77,26 @@ class TripController extends Controller
 
         $stops = $trip->stops;
 
+        if ($stops->isEmpty()) {
+            $vr = $trip->vendorRoute;
+            if ($vr) {
+                $template = $vr->stopsTemplate()->with('stop')->get();
+                $pickupPoints = $template->where('stop_type','pickup')->map->stop->filter();
+                $dropoffPoints = $template->where('stop_type','dropoff')->map->stop->filter();
+                if ($pickupPoints->isNotEmpty() || $dropoffPoints->isNotEmpty()) {
+                    return $this->success([
+                        'pickup_points' => \App\Http\Resources\StopResource::collection($pickupPoints->values()),
+                        'dropoff_points' => \App\Http\Resources\StopResource::collection($dropoffPoints->values()),
+                    ], ApiSuccess::GET_DATA_SUCCESS);
+                }
+                // fallback: all vendor stops if no template
+                $vendorStops = $vr->vendor?->stops ?? collect();
+                return $this->success([
+                    'pickup_points' => \App\Http\Resources\StopResource::collection($vendorStops),
+                    'dropoff_points' => \App\Http\Resources\StopResource::collection($vendorStops),
+                ], ApiSuccess::GET_DATA_SUCCESS);
+            }
+        }
 
         $pickupPoints = $stops->where('pivot.stop_type', 'pickup')->values();
         $dropoffPoints = $stops->where('pivot.stop_type', 'dropoff')->values();

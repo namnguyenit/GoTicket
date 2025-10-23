@@ -116,9 +116,10 @@ class BookingService
 
         $bookingData = [
             'user_id' => $user->id,
+            'trip_id' => $data['trip_id'],
             'total_price' => $totalPrice,
-            'pickup_stop_id' => $data['pickup_stop_id'],   // Thêm dòng này
-            'dropoff_stop_id' => $data['dropoff_stop_id'], // Thêm dòng này
+            'pickup_stop_id' => $data['pickup_stop_id'],
+            'dropoff_stop_id' => $data['dropoff_stop_id'],
         ];
 
         return $this->bookingRepository->create($bookingData, $selectedSeatsInfo);
