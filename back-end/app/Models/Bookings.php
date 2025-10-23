@@ -8,7 +8,6 @@ class Bookings extends Model
 {
     protected $table = 'bookings';
 
-
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -19,9 +18,12 @@ class Bookings extends Model
         'status'
     ];
 
-
     public function user(){
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function trip(){
+        return $this->belongsTo(Trips::class, 'trip_id');
     }
 
     public function details(){

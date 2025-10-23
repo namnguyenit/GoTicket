@@ -1,6 +1,29 @@
 
 
 (function(){
+  // Manage Bookings page render
+  const bookingTable = document.getElementById('bookingTable');
+  if(bookingTable){
+    (async () => {
+      const list = await API.getVendorBookings(1, 50);
+      const tbody = bookingTable.querySelector('tbody');
+      function fmt(dt){ try{ return dt ? new Date(dt).toLocaleString('vi-VN') : '—'; }catch{ return '—'; } }
+      function vnd(n){ return (Number(n)||0).toLocaleString('vi-VN',{style:'currency',currency:'VND'}); }
+      tbody.innerHTML = (list||[]).map(b => `
+        <tr data-id="${b.id}">
+          <td>${b.code}</td>
+          <td>${b.customer}</td>
+          <td>${b.contact}</td>
+          <td>${b.route}</td>
+          <td>${fmt(b.depAt)}</td>
+          <td>${b.seats}</td>
+          <td>${vnd(b.total)}</td>
+          <td>${renderStatus(b.status)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="8" class="muted">Chưa có vé nào</td></tr>';
+    })();
+  }
+
   document.addEventListener('click', (e) => {
     const openBtn = e.target.closest('[data-open-modal]');
     if(openBtn){

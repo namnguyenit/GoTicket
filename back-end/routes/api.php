@@ -20,8 +20,7 @@ use App\Http\Controllers\Api\Admin\VendorController;
 
 
 Route::get('/login', function () {
-    // Trả về lỗi 401 nếu có ai đó vô tình truy cập route này qua web
-    // Hoặc bạn có thể để trống hoặc trả về view nếu muốn
+
     return response()->json(['message' => 'Not authenticated via web.'], 401);
 })->name('login');
 
@@ -70,7 +69,6 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
 
 
-    // Nhóm các route chỉ dành cho ADMIN
     Route::group(['middleware' => 'role:admin', 'prefix' => 'admin'], function() {
 
         Route::get('/test', function () {
@@ -79,7 +77,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
 
         Route::get('/users', [UserController::class, 'getAll']);
-        Route::get('/users/search', [UserController::class, 'findByName']); // Đặt trước route có tham số
+        Route::get('/users/search', [UserController::class, 'findByName']);
         Route::get('/users/{email}', [UserController::class, 'findByEmail']);
         Route::put('/users/{email}', [UserController::class, 'update']);
         Route::delete('/users/{email}', [UserController::class, 'delete']);
@@ -143,5 +141,9 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
         Route::post('tickets', [TicketController::class, 'store']);
         Route::delete('tickets/{trip}', [TicketController::class, 'destroy'])->whereNumber('trip');
+
+        // Vendor bookings management
+        Route::get('bookings', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'index']);
+        Route::get('bookings/{booking}', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'show'])->whereNumber('booking');
     });
 });

@@ -28,6 +28,10 @@ app.get('/vehicles', (req, res) => {
 	res.render('vehicles', { title: 'Quản lý xe', requireAuth: true });
 });
 
+app.get('/manage-bookings', (req, res) => {
+	res.render('manage-bookings', { title: 'Quản lý vé', requireAuth: true });
+});
+
 app.get('/settings', (req, res) => {
 	res.render('settings', { title: 'Cài đặt', requireAuth: false });
 });

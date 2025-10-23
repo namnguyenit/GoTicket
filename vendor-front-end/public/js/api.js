@@ -311,7 +311,7 @@ const API = (() => {
 
     async getCities(){
       try {
-        const out = await request('/routes/location', { headers: authHeaders(false) });
+        const out = await request('/routes/location', { headers: authHeaders(false) });
         locationCache = Array.isArray(out.data) ? out.data : (Array.isArray(out) ? out : []);
         return locationCache.map(l => l.name);
       } catch(e){
@@ -319,8 +319,30 @@ const API = (() => {
         locationCache = [];
         return [];
       }
+    },
+
+    async getVendorBookings(page=1, perPage=20){
+      try {
+        const resp = await request(`/vendor/bookings?per_page=${perPage}&page=${page}`, { headers: authHeaders(false) });
+        const items = Array.isArray(resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+        return items.map(b => ({
+          id: b.id,
+          code: b.booking_code,
+          customer: b.user?.name || '—',
+          contact: b.user?.email || b.user?.phone_number || '—',
+          route: b.trip?.route || '—',
+          depAt: b.trip?.departure_datetime || null,
+          seats: b.seat_count || 0,
+          total: b.total_price || 0,
+          status: b.status || '—'
+        }));
+      } catch(e){
+        console.warn('Vendor bookings fallback:', e.message);
+        return [];
+      }
     }
   };
 })();
 
 window.API = API;
+
