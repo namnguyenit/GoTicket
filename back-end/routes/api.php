@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\Vendor\StopController;
 use \App\Http\Controllers\Api\Vendor\TicketController;
 
 
-use App\Http\Controllers\Api\Admin\DashboardAdminController; 
+use App\Http\Controllers\Api\Admin\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\VendorController;
 
 
@@ -30,7 +30,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
->>>>>>> dbdd407f0f435579f5182860f23bebfa1f161654
 
 Route::controller(TripController::class)->group(function () {
     Route::get('trips/search', 'search');
@@ -61,19 +60,19 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
     Route::group(['prefix' => 'auth'], function() {
         Route::get('myinfo', [AuthController::class, 'getInfoAccout']);
         Route::put('myinfo', [AuthController::class, 'updateProfile']);
-        
+
     });
     Route::group(['prefix' => 'bookings'], function() {
         Route::post('initiate', [BookingController::class, 'initiate']);
-        Route::post('confirm', [BookingController::class, 'confirm']); 
+        Route::post('confirm', [BookingController::class, 'confirm']);
     });
     Route::get('trips/{id}/stops', [TripController::class, 'getTripStops']);
 
-  
+
 
     // Nhóm các route chỉ dành cho ADMIN
     Route::group(['middleware' => 'role:admin', 'prefix' => 'admin'], function() {
-        
+
         Route::get('/test', function () {
             return response()->json(['message' => 'Chào mừng Admin!']);
         });
@@ -91,7 +90,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
         Route::get('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'show']);
         Route::put('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'update']);
-        Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']); 
+        Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']);
 
         Route::post('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'store']);
 
