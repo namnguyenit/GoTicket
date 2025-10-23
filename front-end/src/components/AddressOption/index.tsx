@@ -8,7 +8,8 @@ import {
   MapPin,
   CalendarCheck,
   ArrowRightLeft,
-} from "lucide-react";
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -45,7 +46,7 @@ interface schedule {
   } | null;
   date: Date | undefined;
   vehicle: string;
-}
+}
 
 function AddressOption() {
   const navigate = useNavigate();
@@ -59,11 +60,12 @@ function AddressOption() {
 
   const [schedule, setSchedule] = useState<schedule>(initSchedule);
   const [toggleAddress, setToggleAddress] = useState(false);
-  const [indexNav, setIndexNav] = useState(0);
+  const [indexNav, setIndexNav] = useState(0);
+
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const isSearchDisabled =
-    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
+    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
 
   const location = useLocation();
   useEffect(() => {
@@ -74,7 +76,7 @@ function AddressOption() {
 
   return (
     <>
-      <div className="grid size-full grid-rows-[50px]">
+      <div className="grid h-[245px] w-full grid-rows-[50px]">
         {}
         <div className="relative overflow-hidden rounded-t-2xl bg-[#5B2642]">
           {}
@@ -334,7 +336,7 @@ function AddressOption() {
                         captionLayout="dropdown"
                         onSelect={(date) => {
                           setDate(date);
-                          setOpen(false);
+                          setOpen(false);
 
                           setSchedule((prev) => ({
                             ...prev,
