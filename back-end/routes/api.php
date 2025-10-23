@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\Vendor\DashboardController;
 use App\Http\Controllers\Api\Vendor\ManagerVehicleController;
 use App\Http\Controllers\Api\Vendor\StopController;
+use \App\Http\Controllers\Api\Vendor\TicketController;
 
 Route::controller(TripController::class)->group(function () {
     Route::get('trips/search', 'search');
@@ -81,7 +82,7 @@ Route::middleware('auth:api')->group(function()  {
             Route::delete('/{trip}', 'destroy')->whereNumber('trip');
         });
 
-        Route::post('tickets', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'store']);
-        Route::delete('tickets/{trip}', [\App\Http\Controllers\Api\Vendor\TicketController::class, 'destroy'])->whereNumber('trip');
+        Route::post('tickets', [TicketController::class, 'store']);
+        Route::delete('tickets/{trip}', [TicketController::class, 'destroy'])->whereNumber('trip');
     });
 });
