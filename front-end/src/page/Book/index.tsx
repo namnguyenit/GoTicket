@@ -416,7 +416,7 @@ function Ticket({ data }: Ticket) {
     book && get(`/api/trips/${data.id}`);
   }, [book]);
 
-  const [initTrip, setInitTrip] = useState<initTrip>({
+  const [initTrip, setInitTrip] =useState<initTrip>({
     tripID: data.id,
     seats: [],
     from: "",
@@ -593,7 +593,9 @@ function Ticket({ data }: Ticket) {
                         <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                           Tầng 1
                         </div>
-                        <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                        {/* SỬA ĐỔI TẠI ĐÂY: Đã xóa 'grid-flow-col' 
+                        */}
+                        <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
                           <div className="col-start-2 row-start-7"></div>
                           {initTrip.seats
                             .slice(0, initTrip.seats.length / 2)
@@ -635,7 +637,9 @@ function Ticket({ data }: Ticket) {
                         <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
                           Tầng 2
                         </div>
-                        <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                        {/* SỬA ĐỔI TẠI ĐÂY: Đã xóa 'grid-flow-col' 
+                        */}
+                        <div className="grid w-full grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
                           <div className="col-start-2 row-start-7"></div>
                           {initTrip.seats
                             .slice(initTrip.seats.length / 2)
