@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import AddressOption from "../../components/AddressOption";
 import {
   Sunrise,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { URL } from "@/config";
+import { LogOutContext } from "@/context/LogoutProvider";
 import { useFetch } from "@/hooks/useFetch";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -394,10 +395,22 @@ interface initTrip {
 
 function Ticket({ data }: Ticket) {
   const navigate = useNavigate();
+  const { logout } = useContext(LogOutContext);
+
 
   const [book, setBook] = useState<boolean>(false);
 
   const { data: seatDatas, loading: seatLoading, error, get } = useFetch(URL);
+
+  const isTrain = (data.vendorType || '').toLowerCase() === 'train';
+  const [coaches, setCoaches] = useState<any[]>([]);
+  const [selectedCoach, setSelectedCoach] = useState<number>(-1); // -1 means choose coach screen
+  const coachTypeLabel = (t?: string) => {
+    if (!t) return 'Toa';
+    if (t === 'seat_soft') return 'Ghế mềm điều hòa';
+    if (t === 'seat_VIP' || t === 'seat_Vip') return 'Ghế VIP';
+    return t;
+  };
 
   useEffect(() => {
     book && get(`/api/trips/${data.id}`);
@@ -412,9 +425,12 @@ function Ticket({ data }: Ticket) {
   });
 
   useEffect(() => {
+    const list = Array.isArray(seatDatas?.data?.coaches) ? seatDatas?.data?.coaches : [];
+    setCoaches(list);
+    setSelectedCoach(list.length ? -1 : -1); // start at coach selection if there are coaches
     setInitTrip((prev) => ({
       ...prev,
-      seats: seatDatas?.data.coaches[0].seats || [],
+      seats: list[0]?.seats || [],
       totalPrice: 0,
     }));
   }, [seatDatas]);
@@ -487,6 +503,12 @@ function Ticket({ data }: Ticket) {
             <div
               className="flex h-2/10 w-1/2 items-center justify-center rounded-2xl bg-[#F7AC3D] font-bold text-white transition-colors duration-500 hover:bg-[#6a314b]"
               onClick={() => {
+                const token = localStorage.getItem('Authorisation');
+                const isLoggedIn = !!token && logout === false;
+                if (!isLoggedIn) {
+                  navigate('/sign-in', { replace: true });
+                  return;
+                }
                 setBook(!book);
               }}
             >
@@ -505,114 +527,155 @@ function Ticket({ data }: Ticket) {
             {}
             <div className="flex w-[80%] justify-between">
               {!seatLoading && seatDatas && !error ? (
-                <>
-                  {}
-                  <div className="flex w-[40%] flex-col items-center justify-evenly">
-                    <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
-                      Tầng 1
+                isTrain && selectedCoach === -1 ? (
+                  <div className="w-full">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="text-xl font-semibold text-[#6a314b]">Chọn toa tàu</div>
+                      <div className="flex gap-2">
+                        <button className="rounded-full border px-2 py-1 text-[#6a314b]">
+                          <ChevronLeft size={16} />
+                        </button>
+                        <button className="rounded-full border px-2 py-1 text-[#6a314b]">
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
                     </div>
-                    <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                      {}
-                      <div className="col-start-2 row-start-7"></div>
-                      {}
-                      {initTrip.seats
-                        .slice(0, initTrip.seats.length / 2)
-                        .map((item, index) => (
-                          <div
-                            className={clsx(
-                              "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
-                              item.status == "available" && "bg-green-500",
-                              item.status == "temp" && "bg-gray-300",
-                              item.status == "booked" && "bg-red-500",
-                            )}
-                            key={index}
+                    <div className="grid grid-cols-2 gap-6">
+                      {coaches.map((c: any, i: number) => {
+                        const seats = Array.isArray(c.seats) ? c.seats : [];
+                        const total = seats.length || c.total_seats || 0;
+                        const available = seats.filter((s: any) => s.status === 'available').length;
+                        const minPrice = seats.reduce((m: number, s: any) => {
+                          const p = parseInt(s.price || '0');
+                          return Number.isFinite(p) && p > 0 ? Math.min(m, p) : m;
+                        }, Number.MAX_SAFE_INTEGER);
+                        return (
+                          <button
+                            key={i}
+                            className="rounded-2xl border border-gray-200 p-4 text-left hover:shadow-md"
                             onClick={() => {
-                              setInitTrip((prev) => {
-                                const findSeat = prev.seats.findIndex(
-                                  (seat) => seat.id == item.id,
-                                );
-
-                                const updateSeats = [...prev.seats].map((item) => ({
-                                  ...item,
-                                }));
-                                if (updateSeats[findSeat].status == "available") {
-                                  updateSeats[findSeat].status = "temp";
-                                } else if (updateSeats[findSeat].status == "temp") {
-                                  updateSeats[findSeat].status = "available";
-                                }
-
-                                return {
-                                  ...prev,
-                                  seats: updateSeats,
-                                  totalPrice: updateSeats.reduce((acc, cur) => {
-                                    if (cur.status == "temp") {
-                                      acc += parseInt(cur.price);
-                                    }
-                                    return acc;
-                                  }, 0),
-                                };
-                              });
+                              setSelectedCoach(i);
+                              setInitTrip((prev) => ({ ...prev, seats: seats, totalPrice: 0 }));
                             }}
                           >
-                            {item.seat_number}
-                          </div>
-                        ))}
+                            <div className="flex items-start justify-between">
+                              <div className="text-lg font-semibold text-[#57112f]">Toa {c.identifier || i + 1}</div>
+                              <div className="rounded-full border px-2 text-xs text-gray-600">{available}/{total}</div>
+                            </div>
+                            <div className="mt-2 inline-block rounded-full border px-3 py-1 text-xs text-gray-700">
+                              {coachTypeLabel(c.coach_type)}
+                            </div>
+                            <div className="mt-3 text-sm text-red-500">
+                              Từ {minPrice === Number.MAX_SAFE_INTEGER ? '-' : minPrice.toLocaleString('vi-VN')} VND
+                              <span className="ml-1 text-gray-600">Còn {available} chỗ</span>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  {}
-                  <div className="flex w-[40%] flex-col items-center justify-evenly">
-                    <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
-                      Tầng 2
+                ) : (
+                  <div className="w-full">
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="text-xl font-semibold text-[#6a314b]">
+                        Sơ đồ chỗ ngồi {isTrain ? ` - Toa ${coaches[selectedCoach]?.identifier || selectedCoach + 1}` : ''}
+                      </div>
+                      {isTrain && (
+                        <div className="flex items-center gap-2">
+                          <div className="rounded-full bg-[#eef2f7] px-3 py-1 text-sm text-[#6a314b]">
+                            {coachTypeLabel(coaches[selectedCoach]?.coach_type)}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
-                      {}
-                      <div className="col-start-2 row-start-7"></div>
-                      {}
-                      {initTrip.seats
-                        .slice(initTrip.seats.length / 2)
-                        .map((item, index) => (
-                          <div
-                            className={clsx(
-                              "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
-                              item.status == "available" && "bg-green-500",
-                              item.status == "temp" && "bg-gray-300",
-                              item.status == "booked" && "bg-red-500",
-                            )}
-                            key={index}
-                            onClick={() => {
-                              setInitTrip((prev) => {
-                                const findSeat = prev.seats.findIndex(
-                                  (seat) => seat.id == item.id,
-                                );
-
-                                const updateSeats = [...prev.seats].map((item) => ({
-                                  ...item,
-                                }));
-                                if (updateSeats[findSeat].status == "available") {
-                                  updateSeats[findSeat].status = "temp";
-                                } else if (updateSeats[findSeat].status == "temp") {
-                                  updateSeats[findSeat].status = "available";
-                                }
-
-                                return {
-                                  ...prev,
-                                  seats: updateSeats,
-                                  totalPrice: updateSeats.reduce((acc, cur) => {
-                                    if (cur.status == "temp") {
-                                      acc += parseInt(cur.price);
+                    <div className="flex w-full justify-between">
+                      <div className="flex w-[40%] flex-col items-center justify-evenly">
+                        <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                          Tầng 1
+                        </div>
+                        <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                          <div className="col-start-2 row-start-7"></div>
+                          {initTrip.seats
+                            .slice(0, initTrip.seats.length / 2)
+                            .map((item, index) => (
+                              <div
+                                className={clsx(
+                                  "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
+                                  item.status == "available" && "bg-white text-[#57112f] border border-[#b497a5]",
+                                  item.status == "temp" && "bg-[#f6a83a] text-white",
+                                  item.status == "booked" && "bg-gray-300 text-gray-500",
+                                )}
+                                key={index}
+                                onClick={() => {
+                                  setInitTrip((prev) => {
+                                    const findSeat = prev.seats.findIndex((seat) => seat.id == item.id);
+                                    const updateSeats = [...prev.seats].map((it) => ({ ...it }));
+                                    if (updateSeats[findSeat].status == "available") {
+                                      updateSeats[findSeat].status = "temp";
+                                    } else if (updateSeats[findSeat].status == "temp") {
+                                      updateSeats[findSeat].status = "available";
                                     }
-                                    return acc;
-                                  }, 0),
-                                };
-                              });
-                            }}
-                          >
-                            {item.seat_number}
-                          </div>
-                        ))}
+                                    return {
+                                      ...prev,
+                                      seats: updateSeats,
+                                      totalPrice: updateSeats.reduce((acc, cur) => {
+                                        if (cur.status == "temp") acc += parseInt(cur.price);
+                                        return acc;
+                                      }, 0),
+                                    };
+                                  });
+                                }}
+                              >
+                                {item.seat_number}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                      <div className="flex w-[40%] flex-col items-center justify-evenly">
+                        <div className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#6a314b] text-white">
+                          Tầng 2
+                        </div>
+                        <div className="grid w-full grid-flow-col grid-cols-[50px_50px_50px] grid-rows-[repeat(7,30px)] justify-between gap-[6px]">
+                          <div className="col-start-2 row-start-7"></div>
+                          {initTrip.seats
+                            .slice(initTrip.seats.length / 2)
+                            .map((item, index) => (
+                              <div
+                                className={clsx(
+                                  "flex h-[30px] items-center justify-center rounded-full text-sm hover:outline-2 hover:outline-[#6a314b7d]",
+                                  item.status == "available" && "bg-white text-[#57112f] border border-[#b497a5]",
+                                  item.status == "temp" && "bg-[#f6a83a] text-white",
+                                  item.status == "booked" && "bg-gray-300 text-gray-500",
+                                )}
+                                key={index}
+                                onClick={() => {
+                                  setInitTrip((prev) => {
+                                    const findSeat = prev.seats.findIndex((seat) => seat.id == item.id);
+                                    const updateSeats = [...prev.seats].map((it) => ({ ...it }));
+                                    if (updateSeats[findSeat].status == "available") {
+                                      updateSeats[findSeat].status = "temp";
+                                    } else if (updateSeats[findSeat].status == "temp") {
+                                      updateSeats[findSeat].status = "available";
+                                    }
+                                    return {
+                                      ...prev,
+                                      seats: updateSeats,
+                                      totalPrice: updateSeats.reduce((acc, cur) => {
+                                        if (cur.status == "temp") acc += parseInt(cur.price);
+                                        return acc;
+                                      }, 0),
+                                    };
+                                  });
+                                }}
+                              >
+                                {item.seat_number}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </>
+                )
               ) : seatLoading ? (
                 <div className="flex size-full flex-col items-center justify-center text-gray-400">
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-[#6a314b]" />
@@ -638,55 +701,62 @@ function Ticket({ data }: Ticket) {
             </div>
 
             {}
-            <div className="flex w-[85%] gap-5">
-              <div className="flex items-center gap-1">
-                <div className="h-[15px] w-[25px] bg-green-500"></div>
-                <div className="text-xs text-[#555]">Trống</div>
+            <div className="flex w-[85%] items-center justify-between">
+              <div className="flex gap-5">
+                <div className="flex items-center gap-1">
+                  <div className="h-[15px] w-[25px] rounded bg-white border border-[#b497a5]"></div>
+                  <div className="text-xs text-[#555]">Trống</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-[15px] w-[25px] rounded bg-gray-300"></div>
+                  <div className="text-xs text-[#555]">Đã đặt</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-[15px] w-[25px] rounded bg-[#f6a83a]"></div>
+                  <div className="text-xs text-[#555]">Đang chọn</div>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="h-[15px] w-[25px] bg-yellow-400"></div>
-                <div className="text-xs text-[#555]">Giữ</div>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="h-[15px] w-[25px] bg-red-500"></div>
-                <div className="text-xs text-[#555]">Bán</div>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="h-[15px] w-[25px] bg-gray-300"></div>
-                <div className="text-xs text-[#555]">Chọn</div>
-              </div>
+              {isTrain && selectedCoach !== -1 && (
+                <button className="rounded-full border px-3 py-1 text-sm text-[#6a314b]" onClick={() => setSelectedCoach(-1)}>
+                  ← Đổi toa
+                </button>
+              )}
             </div>
             {}
             <div className="flex w-[80%] items-center justify-between">
               <div className="text-xs">
                 <div className="flex items-center gap-2">
                   <div className="text-[#555]">Ghế đã chọn: </div>
-                  <div className="">
-                    {initTrip.seats
-                      .reduce((acc, cur) => {
-                        if (cur.status == "temp") {
-                          acc += cur.seat_number + ",";
-                        }
-                        return acc;
-                      }, "")
-                      .slice(0, -1)}
+                  <div>
+                    {initTrip.seats.filter(s=>s.status==="temp").map(s=>s.seat_number).join(', ')}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-[#555]">Tổng tiền</div>
-                  <div className="">
-                    {initTrip.totalPrice.toLocaleString()}
-                    <span>đ</span>
+                <div className="mt-1 flex items-center gap-2">
+                  <div className="text-[#555]">Tổng tiền:</div>
+                  <div className="font-semibold text-[#6a314b]">
+                    {initTrip.totalPrice.toLocaleString('vi-VN')}<span>đ</span>
                   </div>
                 </div>
               </div>
-              <div
-                className="flex h-[40px] w-[120px] items-center justify-center rounded-full bg-[#F7AC3D] font-bold transition-colors duration-500 hover:bg-[#6a314b] hover:text-white"
-                onClick={() => {
-                  navigate("/check-out", { state: initTrip });
-                }}
-              >
-                Chọn
+              <div className="flex items-center gap-3">
+                {isTrain && selectedCoach === -1 ? (
+                  <button className="rounded-full bg-[#F7AC3D] px-5 py-2 font-bold text-white hover:bg-[#6a314b]" onClick={() => setSelectedCoach(0)}>
+                    Tiếp tục
+                  </button>
+                ) : (
+                  <>
+                    <button className="rounded-full bg-gray-200 px-5 py-2 font-bold text-[#6a314b] hover:bg-gray-300" onClick={() => setSelectedCoach(-1)}>
+                      Hủy
+                    </button>
+                    <button
+                      className={clsx("rounded-full px-5 py-2 font-bold text-white", initTrip.seats.some(s=>s.status==='temp') ? 'bg-[#F7AC3D] hover:bg-[#6a314b]' : 'bg-gray-300 cursor-not-allowed')}
+                      disabled={!initTrip.seats.some(s=>s.status==='temp')}
+                      onClick={() => navigate('/check-out', { state: initTrip })}
+                    >
+                      Chọn
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
