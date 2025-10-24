@@ -50,7 +50,22 @@ class TripController extends Controller
         $trips->appends($request->query());
 
         $resource = TripResource::collection($trips);
-        return $this->success($resource, ApiSuccess::GET_DATA_SUCCESS);
+        $data = [
+            'data' => $resource,
+            'links' => [
+                'first' => $trips->url(1),
+                'last'  => $trips->url($trips->lastPage()),
+                'prev'  => $trips->previousPageUrl(),
+                'next'  => $trips->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $trips->currentPage(),
+                'last_page'    => $trips->lastPage(),
+                'per_page'     => $trips->perPage(),
+                'total'        => $trips->total(),
+            ],
+        ];
+        return $this->success($data, ApiSuccess::GET_DATA_SUCCESS);
 
     }
 

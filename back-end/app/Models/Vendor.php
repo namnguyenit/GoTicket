@@ -17,6 +17,7 @@ class Vendor extends Model
         'company_name',
         'address',
         'status',
+        'logo_url',
     ];
 
 

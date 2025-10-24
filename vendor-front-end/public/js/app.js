@@ -57,6 +57,10 @@
         if(info && (info.company_name || (info.owner && info.owner.name))){
           vendorNameEl.textContent = info.company_name || info.owner.name;
         }
+        const avatar = document.getElementById('vendorAvatar');
+        if(avatar && info && info.logo_url){
+          avatar.innerHTML = `<img src="${info.logo_url}" alt="logo"/>`;
+        }
       });
     }
   }

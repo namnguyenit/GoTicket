@@ -31,19 +31,49 @@ class TripResource extends JsonResource
                 return optional($this->vendorRoute->vendor->user)->name;
             }),
 
-            'vendorType' => $this->whenLoaded('coaches', function () {
-                $vehicle = optional($this->coaches->first())->vehicle;
-                return $vehicle->vehicle_type ?? null;
-            }),
+'vendorType' => $this->whenLoaded('coaches', function () {
+                 $vehicle = optional($this->coaches->first())->vehicle;
+                 return $vehicle->vehicle_type ?? null;
+             }),
 
-            'price' => $this->base_price,
+             'coaches' => $this->when(
+                 optional(optional($this->coaches->first())->vehicle)->vehicle_type === 'train' && $this->relationLoaded('coaches'),
+                 function () {
+                     return $this->coaches->map(function ($coach) {
+                         return [
+                             'id' => $coach->id,
+                             'identifier' => $coach->identifier,
+                             'coach_type' => $coach->coach_type,
+                             'total_seats' => (int) $coach->total_seats,
+                             'seats' => $coach->relationLoaded('seats')
+                                 ? $coach->seats->map(fn($s) => [
+                                     'id' => $s->id,
+                                     'seat_number' => $s->seat_number,
+                                 ])
+                                 : null,
+                         ];
+                     });
+                 }
+             ),
+
+             'price' => $this->base_price,
         ];
     }
 
     protected function resolveImageUrl(): ?string
     {
-
-        return null;
+        $vendor = optional($this->vendorRoute)->vendor;
+        $url = $vendor?->logo_url;
+        if(!$url){ return null; }
+        $url = (string) $url;
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            $path = parse_url($url, PHP_URL_PATH) ?? $url;
+        } else {
+            $path = '/'.ltrim($url, '/');
+        }
+        $path = str_replace('/storage/', '/files/public/', $path);
+        $base = rtrim(request()->getSchemeAndHttpHost(), '/');
+        return $base . $path;
     }
 
     protected function resolvePickTake(): ?string

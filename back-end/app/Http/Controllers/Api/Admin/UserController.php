@@ -73,6 +73,7 @@ class UserController extends Controller
 
             'company_name' => 'nullable|string|max:255', 
             'address' => 'nullable|string|max:255',
+            'logo_url' => 'nullable|url|max:2048',
         ]);
 
 

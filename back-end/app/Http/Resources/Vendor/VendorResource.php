@@ -14,6 +14,15 @@ class VendorResource extends JsonResource
             'company_name' => $this->company_name,
             'address' => $this->address,
             'status' => $this->status,
+            'logo_url' => $this->when(isset($this->logo_url), function() use ($request){
+                $url = (string) $this->logo_url;
+                if(!$url){ return null; }
+                if(str_starts_with($url,'http://') || str_starts_with($url,'https://')) return $url;
+                $url = '/'.ltrim($url,'/');
+                $url = str_replace('/storage/','/files/public/',$url);
+                $base = rtrim($request->getSchemeAndHttpHost(),'/');
+                return $base.$url;
+            }), 
             'owner' => [
                 'id' => $this->whenLoaded('user', fn() => $this->user?->id),
                 'name' => $this->whenLoaded('user', fn() => $this->user?->name),

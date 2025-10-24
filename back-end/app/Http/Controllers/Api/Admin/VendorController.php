@@ -71,7 +71,7 @@ class VendorController extends Controller
             'user_name' => 'required|string|max:255',
             'phone_number' => 'required|string|digits:10',
             'status' => ['required', 'string', Rule::in(['active', 'pending', 'suspended'])],
-            
+            'logo_url' => 'nullable|url|max:2048',
             'role' => ['required', 'string', Rule::in(['customer', 'vendor', 'admin'])], 
         ]);
 
@@ -80,6 +80,7 @@ class VendorController extends Controller
             'company_name' => $validated['company_name'],
             'address' => $validated['address'],
             'status' => $validated['status'],
+            'logo_url' => $validated['logo_url'] ?? $vendor->logo_url,
         ]);
 
        

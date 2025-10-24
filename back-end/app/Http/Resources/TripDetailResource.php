@@ -19,6 +19,14 @@ class TripDetailResource extends JsonResource
                 ? $this->arrival_datetime->copy()->utc()->format('Y-m-d\TH:i:s.u\Z')
                 : null,
             'vendor_name' => $this->vendorRoute->vendor->user->name,
+            'imageLink' => (function(){
+                $url = optional($this->vendorRoute->vendor)->logo_url;
+                if(!$url) return null;
+                $url = (string) $url;
+                if(str_starts_with($url,'http://') || str_starts_with($url,'https://')) return $url;
+                $url = '/'.ltrim($url,'/');
+                return str_replace('/storage/','/files/public/',$url);
+            })(), 
             'coaches' => $this->whenLoaded('coaches', function () use ($tripSeatStatusMap) {
 
                 return $this->coaches->map(function ($coach) use ($tripSeatStatusMap) {

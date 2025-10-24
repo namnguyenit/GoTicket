@@ -91,6 +91,8 @@ class UserService{
         $vendorData = [
             'company_name' => $data['company_name'],
             'address' => $data['address'],
+            'logo_url' => $data['logo_url'] ?? null, 
+            'logo_url' => $data['logo_url'] ?? null, 
         ];
 
         return $this->userRepository->createVendor($userData, $vendorData);

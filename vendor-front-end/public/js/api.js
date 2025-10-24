@@ -57,6 +57,23 @@ const API = (() => {
     setBaseUrl(url){ baseURL = url; if(typeof window !== 'undefined'){ window.API_BASE_URL = url; localStorage.setItem('API_BASE_URL', url);} },
     setToken(token){ if(typeof window !== 'undefined'){ window.API_TOKEN = token; localStorage.setItem('API_TOKEN', token);} },
 
+    async uploadVendorLogo(file){
+      try {
+        baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : baseURL;
+        const url = baseURL.replace(/\/$/, '') + '/vendor/dashboard/logo';
+        const fd = new FormData();
+        fd.append('logo', file);
+        const headers = {};
+        const token = getToken();
+        if(token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(url, { method: 'POST', headers, body: fd });
+        const data = await res.json().catch(()=>({}));
+        if(!res.ok){ throw new Error(data?.message || `HTTP ${res.status}`); }
+        const payload = (data && Object.prototype.hasOwnProperty.call(data,'data')) ? data.data : data;
+        return { ok: true, data: payload };
+      } catch(e){ return { ok:false, error: e.message }; }
+    },
+
     async getDashboard(){
       try {
         const payload = await request('/vendor/dashboard/stats', { headers: authHeaders(false) });
