@@ -49,11 +49,12 @@ class DashboardController extends Controller
         }
         $path = $request->file('logo')->store('vendor-logos', 'public');
         // Build absolute URL using current request host:port (ignore APP_URL in multi-port dev)
-        $relative = '/storage/' . ltrim($path, '/');
+        // Prefer route-served URL to avoid 403 from static /storage when symlink is blocked
+        $relative = '/files/public/' . ltrim($path, '/');
         $base = rtrim($request->getSchemeAndHttpHost(), '/');
-        $absolute = $base . $relative;
-        $vendor->logo_url = $absolute;
+        $url = $base . $relative;
+        $vendor->logo_url = $url;
         $vendor->save();
-        return $this->success(['logo_url' => $absolute], ApiSuccess::ACTION_SUCCESS);
+        return $this->success(['logo_url' => $url], ApiSuccess::ACTION_SUCCESS);
     }
 }

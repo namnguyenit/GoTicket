@@ -21,6 +21,7 @@ class SearchRequest extends ApiRequest
             'price_min' => 'nullable|numeric|min:0',
             'price_max' => 'nullable|numeric|gt:price_min',
             'time_of_day' => 'nullable|string|in:sang,chieu,toi',
+            'per_page' => 'nullable|integer|min:1|max:50',
         ];
     }
 }

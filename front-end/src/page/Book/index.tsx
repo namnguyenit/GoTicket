@@ -15,6 +15,7 @@ import {
 import clsx from "clsx";
 import { URL } from "@/config";
 import { useFetch } from "@/hooks/useFetch";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function Book() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function Book() {
   const { data, loading, error, get } = useFetch(URL);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(12);
 
   useEffect(() => {
     const date = json?.date
@@ -38,9 +40,9 @@ function Book() {
     if (query) {
       setSearchQuery(query);
       setPage(1);
-      get(`/api/trips/search?${query}&page=1`);
+      get(`/api/trips/search?${query}&per_page=${perPage}&page=1`);
     }
-  }, [location]);
+  }, [location, perPage]);
 
   const payload = data?.data;
   const items = useMemo(() => {
@@ -71,22 +73,27 @@ function Book() {
     if (!searchQuery) return;
     if (p < 1 || (lastPage && p > lastPage)) return;
     setPage(p);
-    get(`/api/trips/search?${searchQuery}&page=${p}`);
+    get(`/api/trips/search?${searchQuery}&per_page=${perPage}&page=${p}`);
     try {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {}
   };
 
-  const pageWindow = useMemo(() => {
+  const pageNumbers = useMemo(() => {
     const lp = Number(lastPage || 1);
     const cp = Number(currentPage || 1);
-    const start = Math.max(1, cp - 2);
-    const end = Math.min(lp, cp + 2);
-    const pages: number[] = [];
-    if (start > 1) pages.push(1);
-    for (let i = start; i <= end; i++) pages.push(i);
-    if (end < lp) pages.push(lp);
-    return Array.from(new Set(pages));
+    const windowSize = 10;
+    if (lp <= windowSize) {
+      return Array.from({ length: lp }, (_, i) => i + 1);
+    }
+    let start = cp - Math.floor(windowSize / 2);
+    if (start < 1) start = 1;
+    let end = start + windowSize - 1;
+    if (end > lp) {
+      end = lp;
+      start = lp - windowSize + 1;
+    }
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }, [currentPage, lastPage]);
 
   return (
@@ -160,7 +167,7 @@ function Book() {
                 <button
                   className="ml-3 rounded-md bg-[#F7AC3D] px-3 py-1 text-white hover:bg-[#6a314b]"
                   onClick={() =>
-                    searchQuery && get(`/api/trips/search?${searchQuery}&page=${page}`)
+                    searchQuery && get(`/api/trips/search?${searchQuery}&per_page=${perPage}&page=${page}`)
                   }
                 >
                   Thử lại
@@ -204,6 +211,44 @@ function Book() {
               </div>
             )}
 
+            {!loading && !error && lastPage > 1 && (
+              <div className="mb-4 flex items-center justify-center gap-2">
+                <button
+                  className={clsx(
+                    "mr-2 rounded px-2 py-1 text-sm",
+                    currentPage === 1 ? "cursor-not-allowed text-gray-400" : "text-blue-600 hover:underline"
+                  )}
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  Trước
+                </button>
+                {pageNumbers.map((p) => (
+                  <button
+                    key={`p-top-${p}`}
+                    className={clsx(
+                      "rounded px-2 py-1 text-sm",
+                      p === currentPage ? "text-black font-semibold" : "text-blue-600 hover:underline"
+                    )}
+                    onClick={() => handlePageChange(p)}
+                    aria-current={p === currentPage ? "page" : undefined}
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  className={clsx(
+                    "ml-2 rounded px-2 py-1 text-sm",
+                    currentPage === lastPage ? "cursor-not-allowed text-gray-400" : "text-blue-600 hover:underline"
+                  )}
+                  disabled={currentPage === lastPage}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Tiếp
+                </button>
+              </div>
+            )}
+
             {!loading && !error && items && items.length > 0 && (
               <>
                 {items.map((item: any, index: any) => (
@@ -218,47 +263,65 @@ function Book() {
               </div>
             )}
 
+            {!loading && !error && (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                <div className="text-sm text-[#57112f]">
+                  {meta?.total ? (
+                    <>
+                      Hiển thị {items.length > 0 ? (currentPage - 1) * (meta?.per_page ?? perPage) + 1 : 0}
+                      -{(currentPage - 1) * (meta?.per_page ?? perPage) + items.length} trong tổng {meta?.total} kết quả
+                    </>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="text-sm">Mỗi trang</div>
+                    <PerPageSelect value={String(perPage)} onChange={(v)=>{ setPerPage(Number(v)); setPage(1); }} />
+                  </div>
+                  {lastPage > 1 && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm">Trang</div>
+                      <PageSelect value={String(currentPage)} count={lastPage} onChange={(v)=> handlePageChange(Number(v))} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {!loading && !error && lastPage > 1 && (
               <div className="mt-6 flex items-center justify-center gap-2">
                 <button
                   className={clsx(
-                    "flex items-center gap-1 rounded-md px-3 py-1 text-sm",
-                    currentPage === 1
-                      ? "cursor-not-allowed bg-gray-100 text-gray-400"
-                      : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                    "mr-2 rounded px-2 py-1 text-sm",
+                    currentPage === 1 ? "cursor-not-allowed text-gray-400" : "text-blue-600 hover:underline"
                   )}
                   disabled={currentPage === 1}
                   onClick={() => handlePageChange(currentPage - 1)}
                 >
-                  <ChevronLeft size={16} /> Trước
+                  Trước
                 </button>
-
-                {pageWindow.map((p, idx) => (
+                {pageNumbers.map((p) => (
                   <button
-                    key={`${p}-${idx}`}
+                    key={`p-${p}`}
                     className={clsx(
-                      "min-w-8 rounded-md px-3 py-1 text-sm",
-                      p === currentPage
-                        ? "bg-[#57112f] text-white"
-                        : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                      "rounded px-2 py-1 text-sm",
+                      p === currentPage ? "text-black font-semibold" : "text-blue-600 hover:underline"
                     )}
                     onClick={() => handlePageChange(p)}
+                    aria-current={p === currentPage ? "page" : undefined}
                   >
                     {p}
                   </button>
                 ))}
-
                 <button
                   className={clsx(
-                    "flex items-center gap-1 rounded-md px-3 py-1 text-sm",
-                    currentPage === lastPage
-                      ? "cursor-not-allowed bg-gray-100 text-gray-400"
-                      : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                    "ml-2 rounded px-2 py-1 text-sm",
+                    currentPage === lastPage ? "cursor-not-allowed text-gray-400" : "text-blue-600 hover:underline"
                   )}
                   disabled={currentPage === lastPage}
                   onClick={() => handlePageChange(currentPage + 1)}
                 >
-                  Sau <ChevronRight size={16} />
+                  Tiếp
                 </button>
               </div>
             )}
@@ -266,6 +329,43 @@ function Book() {
         </div>
       </div>
     </>
+  );
+}
+
+function PerPageSelect({ value, onChange }: { value: string; onChange: (v: string)=>void }){
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="min-w-20">
+        <SelectValue placeholder="12" />
+      </SelectTrigger>
+      <SelectContent align="end">
+        <SelectGroup>
+          <SelectLabel>Per page</SelectLabel>
+          {[6,12,24,36,48].map((n)=> (
+            <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function PageSelect({ value, count, onChange }: { value: string; count: number; onChange: (v: string)=>void }){
+  const pages = Array.from({ length: count }, (_, i) => String(i+1));
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="min-w-24">
+        <SelectValue placeholder="1" />
+      </SelectTrigger>
+      <SelectContent align="end">
+        <SelectGroup>
+          <SelectLabel>Chọn trang</SelectLabel>
+          {pages.map((p)=> (
+            <SelectItem key={p} value={p}>Trang {p}</SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }
 

@@ -77,6 +77,6 @@ class TripRepository implements TripRepositoryInterface
                         },
                     ])
                     ->orderBy('departure_datetime')
-                    ->paginate(12); 
+                    ->paginate($criteria['per_page'] ?? 12); 
     }
 }
