@@ -14,6 +14,7 @@ class VendorResource extends JsonResource
             'company_name' => $this->company_name,
             'address' => $this->address,
             'status' => $this->status,
+            'logo_url' => $this->logo_url, 
             'owner' => [
                 'id' => $this->whenLoaded('user', fn() => $this->user?->id),
                 'name' => $this->whenLoaded('user', fn() => $this->user?->name),

@@ -18,6 +18,7 @@ class VendorDetailResource extends JsonResource
                 'company_name' => $this->company_name,
                 'address' => $this->address,
                 'status' => $this->status,
+                'logo_url' => $this->logo_url, 
                 
                 'total_trips' => $this->vendorRoutes->count(),
                 'rating' => 4.8, 

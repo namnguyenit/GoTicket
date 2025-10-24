@@ -271,6 +271,9 @@ Dashboard
       }
     }
 - GET /api/vendor/dashboard/info — returns `VendorResource`
+- POST /api/vendor/dashboard/logo — multipart/form-data upload vendor logo
+  - Body: form-data field `logo` (image/jpeg|png|webp, max 2MB)
+  - Sample 200: { success:true, status:200, message:"Thao tác thành công", data: { logo_url: "http://.../storage/vendor-logos/...png" } }
 
 Vehicles
 - POST /api/vendor/vehicles

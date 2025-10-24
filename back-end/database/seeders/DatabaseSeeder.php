@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             LocationsSeeder::class, // 2. Tạo Locations
             RoutesSeeder::class,    // 3. Tạo Routes
             TestDataSeeder::class,  // 4. Tạo dữ liệu phức tạp (quan trọng nhất)
+            BulkVendorTripsSeeder::class, // 5. Bơm thêm >=100 chuyến mỗi nhà xe để test phân trang
+            HNToNAOct30Seeder::class, // 6. Thêm đúng 100 chuyến ngày 30/10/2025 từ Hà Nội -> Nghệ An
         ]);
     }
 }

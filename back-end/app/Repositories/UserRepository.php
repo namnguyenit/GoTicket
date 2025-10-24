@@ -108,6 +108,7 @@ class UserRepository implements UserRepositoryInterface
                 'company_name' => $vendorData['company_name'],
                 'status' => 'pending', 
                 'address' => $vendorData['address'],
+                'logo_url' => $vendorData['logo_url'] ?? null, 
             ]);
 
             return $user;

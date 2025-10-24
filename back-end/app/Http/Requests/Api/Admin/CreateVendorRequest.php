@@ -24,6 +24,8 @@ class CreateVendorRequest extends ApiRequest
 
             'company_name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
+            'logo_url' => 'nullable|url|max:2048',
+            'logo_url' => 'nullable|url|max:2048',
         ];
     }
 }

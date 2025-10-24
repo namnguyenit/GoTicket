@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AddressOption from "../../components/AddressOption";
 import {
   Sunrise,
@@ -9,6 +9,8 @@ import {
   MapPin,
   Clock,
   BusFront,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import clsx from "clsx";
 import { URL } from "@/config";
@@ -21,22 +23,71 @@ function Book() {
 
   const { data, loading, error, get } = useFetch(URL);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const date = json?.date
       ? new Date(json.date).toLocaleDateString("en-CA", {
           timeZone: "Asia/Ho_Chi_Minh",
         })
-      : null;
+      : null;
 
     const query = json?.region
       ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
       : null;
     if (query) {
       setSearchQuery(query);
-      get(`/api/trips/search?${query}`); // gọi API khi component mount
+      setPage(1);
+      get(`/api/trips/search?${query}&page=1`);
     }
   }, [location]);
+
+  const payload = data?.data;
+  const items = useMemo(() => {
+    if (!payload) return [] as any[];
+    if (Array.isArray(payload)) return payload as any[];
+    if (Array.isArray(payload?.data)) return payload.data as any[];
+    return [] as any[];
+  }, [payload]);
+
+  const meta = useMemo(() => {
+    if (!payload) return null as any;
+    if (payload?.meta) return payload.meta as any;
+    const keys = ["current_page", "last_page", "per_page", "total"]; // vendor-like shape fallback
+    const hasBasic = keys.every((k) => Object.prototype.hasOwnProperty.call(payload, k));
+    return hasBasic ? (payload as any) : null;
+  }, [payload]);
+
+  const currentPage = meta?.current_page ?? page ?? 1;
+  const lastPage = meta?.last_page ?? 1;
+
+  useEffect(() => {
+    if (meta?.current_page && meta.current_page !== page) {
+      setPage(meta.current_page);
+    }
+  }, [meta]);
+
+  const handlePageChange = (p: number) => {
+    if (!searchQuery) return;
+    if (p < 1 || (lastPage && p > lastPage)) return;
+    setPage(p);
+    get(`/api/trips/search?${searchQuery}&page=${p}`);
+    try {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {}
+  };
+
+  const pageWindow = useMemo(() => {
+    const lp = Number(lastPage || 1);
+    const cp = Number(currentPage || 1);
+    const start = Math.max(1, cp - 2);
+    const end = Math.min(lp, cp + 2);
+    const pages: number[] = [];
+    if (start > 1) pages.push(1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (end < lp) pages.push(lp);
+    return Array.from(new Set(pages));
+  }, [currentPage, lastPage]);
 
   return (
     <>
@@ -74,33 +125,25 @@ function Book() {
                   <div className="h-6 w-6">
                     <Sunrise color="#57112f" />
                   </div>
-                  <div className="ml-1 font-bold text-[#57112f]">
-                    00:00 - 5:59
-                  </div>
+                  <div className="ml-1 font-bold text-[#57112f]">00:00 - 5:59</div>
                 </div>
                 <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
                   <div className="h-6 w-6">
                     <Sun color="#57112f" />
                   </div>
-                  <div className="ml-1 font-bold text-[#57112f]">
-                    06:00 - 11:59
-                  </div>
+                  <div className="ml-1 font-bold text-[#57112f]">06:00 - 11:59</div>
                 </div>
                 <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
                   <div className="h-6 w-6">
                     <Sunset color="#57112f" />
                   </div>
-                  <div className="ml-1 font-bold text-[#57112f]">
-                    12:00 - 17:59
-                  </div>
+                  <div className="ml-1 font-bold text-[#57112f]">12:00 - 17:59</div>
                 </div>
                 <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
                   <div className="flex h-6 w-6 justify-center">
                     <MoonStar color="#57112f" />
                   </div>
-                  <div className="ml-1 font-bold text-[#57112f]">
-                    18:00 - 23:59
-                  </div>
+                  <div className="ml-1 font-bold text-[#57112f]">18:00 - 23:59</div>
                 </div>
               </div>
             </div>
@@ -117,7 +160,7 @@ function Book() {
                 <button
                   className="ml-3 rounded-md bg-[#F7AC3D] px-3 py-1 text-white hover:bg-[#6a314b]"
                   onClick={() =>
-                    searchQuery && get(`/api/trips/search?${searchQuery}`)
+                    searchQuery && get(`/api/trips/search?${searchQuery}&page=${page}`)
                   }
                 >
                   Thử lại
@@ -161,25 +204,64 @@ function Book() {
               </div>
             )}
 
-            {!loading &&
-              !error &&
-              data &&
-              data.data &&
-              data.data.length > 0 && (
-                <>
-                  {data.data.map((item: any, index: any) => (
-                    <Ticket data={item} key={index} />
-                  ))}
-                </>
-              )}
+            {!loading && !error && items && items.length > 0 && (
+              <>
+                {items.map((item: any, index: any) => (
+                  <Ticket data={item} key={index} />
+                ))}
+              </>
+            )}
 
-            {!loading &&
-              !error &&
-              (!data || !data.data || data.data.length === 0) && (
-                <div className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-                  Không có chuyến phù hợp với tiêu chí tìm kiếm.
-                </div>
-              )}
+            {!loading && !error && (!items || items.length === 0) && (
+              <div className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+                Không có chuyến phù hợp với tiêu chí tìm kiếm.
+              </div>
+            )}
+
+            {!loading && !error && lastPage > 1 && (
+              <div className="mt-6 flex items-center justify-center gap-2">
+                <button
+                  className={clsx(
+                    "flex items-center gap-1 rounded-md px-3 py-1 text-sm",
+                    currentPage === 1
+                      ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                      : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                  )}
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                >
+                  <ChevronLeft size={16} /> Trước
+                </button>
+
+                {pageWindow.map((p, idx) => (
+                  <button
+                    key={`${p}-${idx}`}
+                    className={clsx(
+                      "min-w-8 rounded-md px-3 py-1 text-sm",
+                      p === currentPage
+                        ? "bg-[#57112f] text-white"
+                        : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                    )}
+                    onClick={() => handlePageChange(p)}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                <button
+                  className={clsx(
+                    "flex items-center gap-1 rounded-md px-3 py-1 text-sm",
+                    currentPage === lastPage
+                      ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                      : "bg-white text-[#57112f] hover:bg-[#f5eef2]",
+                  )}
+                  disabled={currentPage === lastPage}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                >
+                  Sau <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -191,15 +273,15 @@ export default Book;
 
 interface Ticket {
   data: {
-    id: number; // 43
-    trip: string; // Tuyến Hà Nội - TP. Hồ Chí Minh
-    imageLink: string; // dhgkdbgkbkcxbkk
-    pickTake: string; // Điểm đón trả
-    departureDate: Date; // Ngày suất phát
-    emptyNumber: number; // số ghế còn trống
-    vendorName: string; // Tên xe
-    vendorType: string; // Loại xe Bus | Train
-    price: number; // 34455666734
+    id: number;
+    trip: string;
+    imageLink: string;
+    pickTake: string;
+    departureDate: Date;
+    emptyNumber: number;
+    vendorName: string;
+    vendorType: string;
+    price: number;
   };
 }
 interface initTrip {
@@ -218,7 +300,7 @@ function Ticket({ data }: Ticket) {
   const { data: seatDatas, loading: seatLoading, error, get } = useFetch(URL);
 
   useEffect(() => {
-    book && get(`/api/trips/${data.id}`);
+    book && get(`/api/trips/${data.id}`);
   }, [book]);
 
   const [initTrip, setInitTrip] = useState<initTrip>({
@@ -235,7 +317,7 @@ function Ticket({ data }: Ticket) {
       seats: seatDatas?.data.coaches[0].seats || [],
       totalPrice: 0,
     }));
-  }, [seatDatas]);
+  }, [seatDatas]);
 
   return (
     <>
@@ -256,14 +338,10 @@ function Ticket({ data }: Ticket) {
           {}
           <div className="grid grid-rows-[40%_40%] content-evenly">
             <div className="flex flex-col justify-evenly">
-              <div className="text-lg font-bold text-[#6a314b]">
-                {data.trip}
-              </div>
+              <div className="text-lg font-bold text-[#6a314b]">{data.trip}</div>
               <div className="flex">
                 <MapPin className="mr-2" color="#aaa" />
-                <div className="text-[#aaa]">
-                  {data.pickTake || "Điểm đón - trả"}
-                </div>
+                <div className="text-[#aaa]">{data.pickTake || "Điểm đón - trả"}</div>
               </div>
             </div>
             <div className="grid grid-cols-[45%_45%] justify-between">
@@ -272,12 +350,9 @@ function Ticket({ data }: Ticket) {
                   <Clock color="#6a314b" className="mr-2" />
                   <div className="text-lg font-bold text-[#6a314b]">
                     {data.departureDate
-                      ? new Date(data.departureDate).toLocaleTimeString(
-                          "en-GB",
-                          {
-                            timeZone: "Asia/Ho_Chi_Minh",
-                          },
-                        )
+                      ? new Date(data.departureDate).toLocaleTimeString("en-GB", {
+                          timeZone: "Asia/Ho_Chi_Minh",
+                        })
                       : undefined}
                   </div>
                 </div>
@@ -357,18 +432,12 @@ function Ticket({ data }: Ticket) {
                                   (seat) => seat.id == item.id,
                                 );
 
-                                const updateSeats = [...prev.seats].map(
-                                  (item) => ({
-                                    ...item,
-                                  }),
-                                );
-                                if (
-                                  updateSeats[findSeat].status == "available"
-                                ) {
+                                const updateSeats = [...prev.seats].map((item) => ({
+                                  ...item,
+                                }));
+                                if (updateSeats[findSeat].status == "available") {
                                   updateSeats[findSeat].status = "temp";
-                                } else if (
-                                  updateSeats[findSeat].status == "temp"
-                                ) {
+                                } else if (updateSeats[findSeat].status == "temp") {
                                   updateSeats[findSeat].status = "available";
                                 }
 
@@ -416,18 +485,12 @@ function Ticket({ data }: Ticket) {
                                   (seat) => seat.id == item.id,
                                 );
 
-                                const updateSeats = [...prev.seats].map(
-                                  (item) => ({
-                                    ...item,
-                                  }),
-                                );
-                                if (
-                                  updateSeats[findSeat].status == "available"
-                                ) {
+                                const updateSeats = [...prev.seats].map((item) => ({
+                                  ...item,
+                                }));
+                                if (updateSeats[findSeat].status == "available") {
                                   updateSeats[findSeat].status = "temp";
-                                } else if (
-                                  updateSeats[findSeat].status == "temp"
-                                ) {
+                                } else if (updateSeats[findSeat].status == "temp") {
                                   updateSeats[findSeat].status = "available";
                                 }
 
@@ -453,9 +516,7 @@ function Ticket({ data }: Ticket) {
               ) : seatLoading ? (
                 <div className="flex size-full flex-col items-center justify-center text-gray-400">
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-[#6a314b]" />
-                  <div className="mt-2 text-sm text-[#6a314b]">
-                    Đang tải sơ đồ ghế...
-                  </div>
+                  <div className="mt-2 text-sm text-[#6a314b]">Đang tải sơ đồ ghế...</div>
                 </div>
               ) : error ? (
                 <div className="flex size-full flex-col items-center justify-center">

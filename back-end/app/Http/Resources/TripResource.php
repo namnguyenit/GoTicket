@@ -42,8 +42,8 @@ class TripResource extends JsonResource
 
     protected function resolveImageUrl(): ?string
     {
-
-        return null;
+        $vendor = optional($this->vendorRoute)->vendor;
+        return $vendor?->logo_url ? (string) $vendor->logo_url : null;
     }
 
     protected function resolvePickTake(): ?string

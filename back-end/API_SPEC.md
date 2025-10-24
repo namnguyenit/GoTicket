@@ -141,7 +141,7 @@ Sample success response (200): Paginator with items shaped by TripResource
 ```
 
 Notes:
-- imageLink, pickTake are placeholders for now.
+- imageLink maps to vendor.logo_url (nếu có).
 - emptyNumber depends on trip_seats.status = 'available'.
 
 ### GET /api/routes/location
