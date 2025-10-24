@@ -2,16 +2,20 @@ const path = require('path');
 const express = require('express');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
+
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json());
+
 app.use((req, res, next) => {
 	res.locals.currentPath = req.path;
 	next();
-});
+});
+
 app.get('/', (req, res) => {
 	res.render('dashboard', { title: 'Tổng quát', requireAuth: true });
 });
@@ -38,8 +42,10 @@ app.get('/settings', (req, res) => {
 
 app.get('/login', (req, res) => {
 	res.render('login', { title: 'Đăng nhập', requireAuth: false });
-});
-app.get('/health', (_req, res) => res.json({ ok: true }));
+});
+
+app.get('/health', (_req, res) => res.json({ ok: true }));
+
 app.use((req, res) => {
 	res.status(404).render('settings', { title: 'Không tìm thấy trang' });
 });
