@@ -31,12 +31,32 @@ class TripResource extends JsonResource
                 return optional($this->vendorRoute->vendor->user)->name;
             }),
 
-            'vendorType' => $this->whenLoaded('coaches', function () {
-                $vehicle = optional($this->coaches->first())->vehicle;
-                return $vehicle->vehicle_type ?? null;
-            }),
+'vendorType' => $this->whenLoaded('coaches', function () {
+                 $vehicle = optional($this->coaches->first())->vehicle;
+                 return $vehicle->vehicle_type ?? null;
+             }),
 
-            'price' => $this->base_price,
+             'coaches' => $this->when(
+                 optional(optional($this->coaches->first())->vehicle)->vehicle_type === 'train' && $this->relationLoaded('coaches'),
+                 function () {
+                     return $this->coaches->map(function ($coach) {
+                         return [
+                             'id' => $coach->id,
+                             'identifier' => $coach->identifier,
+                             'coach_type' => $coach->coach_type,
+                             'total_seats' => (int) $coach->total_seats,
+                             'seats' => $coach->relationLoaded('seats')
+                                 ? $coach->seats->map(fn($s) => [
+                                     'id' => $s->id,
+                                     'seat_number' => $s->seat_number,
+                                 ])
+                                 : null,
+                         ];
+                     });
+                 }
+             ),
+
+             'price' => $this->base_price,
         ];
     }
 

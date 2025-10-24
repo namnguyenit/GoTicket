@@ -61,18 +61,19 @@ class TripRepository implements TripRepositoryInterface
 
         return $query
                     ->with([
-
                         'vendorRoute.vendor.user:id,name',
-
                         'vendorRoute.route.origin',
                         'vendorRoute.route.destination',
-
                         'coaches.vehicle',
                     ])
-
+                    ->when(($criteria['vehicle_type'] ?? null) === 'train', function ($q) {
+                        return $q->with([
+                            'coaches:id,vehicle_id,identifier,coach_type,total_seats',
+                            'coaches.seats:id,coach_id,seat_number',
+                        ]);
+                    })
                     ->withCount([
                         'seats as empty_number' => function ($q) {
-
                             $q->where('trip_seats.status', 'available');
                         },
                     ])

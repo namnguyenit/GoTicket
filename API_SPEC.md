@@ -12,6 +12,11 @@ Date/times use ISO 8601 in UTC with microseconds, e.g. `2025-10-09T12:48:07.0000
 
 Auth for protected endpoints: `Authorization: Bearer <JWT>` with guard `auth:api` and, where required, role middleware `role:admin` or `role:vendor`.
 
+Pagination standard: when listing, the `data` field contains an object
+- `data`: array of resources
+- `links`: `{ first, last, prev, next }`
+- `meta`: `{ current_page, last_page, per_page, total }`
+
 ---
 
 ## Auth
@@ -44,18 +49,13 @@ POST /api/auth/register
 
 POST /api/auth/login
 - Body (JSON):
-  {
-    "email": "a@example.com",
-    "password": "secret123"
-  }
+  { "email": "a@example.com", "password": "secret123" }
 - Sample 200:
   {
     "success": true,
     "status": 200,
     "message": "Thao tác thành công",
-    "data": {
-      "authorisation": { "token": "<JWT>", "type": "bearer" }
-    }
+    "data": { "authorisation": { "token": "<JWT>", "type": "bearer" } }
   }
 
 GET /api/auth/myinfo (auth:api)
@@ -77,17 +77,11 @@ GET /api/auth/myinfo (auth:api)
 
 PUT /api/auth/myinfo (auth:api)
 - Body (JSON):
-  {
-    "name": "Tên mới",
-    "phone_number": "0912345678",
-    "current_password": "123456",
-    "password": "123456",
-    "password_confirmation": "123456"
-  }
+  { "name": "Tên mới", "phone_number": "0912345678", "current_password": "123456", "password": "123456", "password_confirmation": "123456" }
 - Sample 200: same envelope, `data` as updated user resource
 
 POST /api/auth/logout (auth:api)
-- Sample 200: standard envelope with `success=true`, `message` indicates logout
+- Sample 200: standard envelope with `success=true`, message indicates logout
 
 ---
 
@@ -102,8 +96,12 @@ GET /api/trips/search
   - `price_min`: number (optional)
   - `price_max`: number (optional; > price_min)
   - `time_of_day`: `sang|chieu|toi` (optional)
-  - `page`: number (optional)
-- Sample 200 (paginator of TripResource):
+  - `per_page`: integer [1..50] (optional; default 12)
+  - `page`: number (optional; default 1)
+- Notes:
+  - Always returns a paginator object in `data` containing `data`, `links`, `meta`.
+  - When `vehicle_type=train`, each trip includes `coaches` with per-coach seats (seat list is preloaded in search results).
+- Sample 200 (bus):
   {
     "success": true,
     "status": 200,
@@ -112,14 +110,41 @@ GET /api/trips/search
       "data": [
         {
           "id": 123,
-          "trip": "Hà Nội - TP. Hồ Chí Minh",
+          "trip": "Hà Nội - Nghệ An",
           "imageLink": null,
           "pickTake": null,
-          "departureDate": "2025-10-06T08:00:00.000000Z",
+          "departureDate": "2025-10-30T01:00:00.000000Z",
           "emptyNumber": 12,
           "vendorName": "Nhà xe ABC",
           "vendorType": "bus",
           "price": 300000
+        }
+      ],
+      "links": { "first": "...", "last": "...", "prev": null, "next": "..." },
+      "meta": { "current_page": 1, "last_page": 5, "per_page": 12, "total": 60 }
+    }
+  }
+- Sample 200 (train with coaches):
+  {
+    "success": true,
+    "status": 200,
+    "message": "Lấy dữ liệu thành công",
+    "data": {
+      "data": [
+        {
+          "id": 456,
+          "trip": "Hà Nội - Nghệ An",
+          "imageLink": null,
+          "pickTake": null,
+          "departureDate": "2025-10-30T03:30:00.000000Z",
+          "emptyNumber": 40,
+          "vendorName": "Đường sắt XYZ",
+          "vendorType": "train",
+          "coaches": [
+            { "id": 10, "identifier": "VIP", "coach_type": "seat_VIP", "total_seats": 24, "seats": [ { "id": 101, "seat_number": "V1" } ] },
+            { "id": 11, "identifier": "SOFT", "coach_type": "seat_soft", "total_seats": 40, "seats": [ { "id": 201, "seat_number": "S1" } ] }
+          ],
+          "price": 420000
         }
       ],
       "links": { "first": "...", "last": "...", "prev": null, "next": "..." },
@@ -160,7 +185,7 @@ GET /api/trips/{id}
   }
 
 GET /api/trips/{id}/stops
-- Notes: also exposed inside auth group; returns available pickup/dropoff points
+- Notes: also exposed inside auth group; returns available pickup/dropoff points (falls back to vendor route template when needed)
 - Sample 200:
   {
     "success": true,
@@ -177,11 +202,7 @@ GET /api/trips/{id}/stops
 ## Bookings (auth:api)
 
 POST /api/bookings/initiate
-- Body (JSON):
-  {
-    "trip_id": 123,
-    "seat_ids": [101, 102]
-  }
+- Body (JSON): { "trip_id": 123, "seat_ids": [101, 102] }
 - Sample 200:
   {
     "success": true,
@@ -198,20 +219,8 @@ POST /api/bookings/initiate
   }
 
 POST /api/bookings/confirm
-- Body (JSON):
-  {
-    "trip_id": 123,
-    "seat_ids": [101, 102],
-    "pickup_stop_id": 5,
-    "dropoff_stop_id": 12
-  }
-- Sample 201:
-  {
-    "success": true,
-    "status": 201,
-    "message": "Tạo mới thành công",
-    "data": { "booking_code": "BK20251009123456", "message": "Đặt vé thành công!" }
-  }
+- Body (JSON): { "trip_id": 123, "seat_ids": [101, 102], "pickup_stop_id": 5, "dropoff_stop_id": 12 }
+- Sample 201: { "success": true, "status": 201, "message": "Tạo mới thành công", "data": { "booking_code": "BK20251009123456", "message": "Đặt vé thành công!" } }
 
 ---
 
@@ -260,94 +269,41 @@ Vendor management
 
 Dashboard
 - GET /api/vendor/dashboard/stats — statistics object
-  - Sample 200:
-    {
-      "success": true,
-      "status": 200,
-      "message": "Lấy dữ liệu thành công",
-      "data": {
-        "weekly_revenue_by_day": { "Mon": 0, "Tue": 0, "Wed": 0, "Thu": 0, "Fri": 0, "Sat": 0, "Sun": 0 },
-        "yearly_revenue_by_month": { "Jan": 0, "Feb": 0, "Mar": 0, "Apr": 0, "May": 0, "Jun": 0, "Jul": 0, "Aug": 0, "Sep": 0, "Oct": 0, "Nov": 0, "Dec": 0 }
-      }
-    }
 - GET /api/vendor/dashboard/info — returns `VendorResource`
 - POST /api/vendor/dashboard/logo — multipart/form-data upload vendor logo
-  - Body: form-data field `logo` (image/jpeg|png|webp, max 2MB)
-  - Sample 200: { success:true, status:200, message:"Thao tác thành công", data: { logo_url: "http://.../storage/vendor-logos/...png" } }
 
 Vehicles
-- POST /api/vendor/vehicles
-  - Body examples
-    - Bus:
-      { "name": "Xe ABC", "vehicle_type": "bus", "license_plate": "51A-123.45", "coach": { "coach_type": "sleeper_vip", "total_seats": 34 } }
-    - Train:
-      { "name": "Tàu SE01", "vehicle_type": "train", "license_plate": null, "coaches": [ { "coach_type": "seat_soft", "total_seats": 56, "quantity": 2 }, { "coach_type": "seat_VIP", "total_seats": 40, "quantity": 1 } ] }
-  - Sample 201:
-    { "success": true, "status": 201, "message": "Tạo mới thành công", "data": { "id": 7, "name": "Xe ABC", "license_plate": "51A-123.45", "vehicle_type": "bus", "capacity": 34, "created_at": "2025-10-22T07:15:00.000000Z" } }
-- GET /api/vendor/vehicles
-  - Query: `page` (default 1)
-  - Sample 200 (paginator):
-    { "success": true, "status": 200, "message": "Lấy dữ liệu thành công", "data": { "data": [ { "id": 7, "name": "Xe ABC", "license_plate": "51A-123.45", "vehicle_type": "bus", "capacity": 34, "created_at": "2025-10-22T07:15:00.000000Z" } ], "links": { ... }, "meta": { "current_page": 1, "last_page": 1, "per_page": 10, "total": 1 } } }
-- GET /api/vendor/vehicles/{vehicle}
-  - Sample 200: `VehicleResource` in `data` (with `coaches` loaded)
-- PUT /api/vendor/vehicles/{vehicle}
-  - Body: per `UpdateVehicleRequest` (e.g., { name, vehicle_type, license_plate })
-  - Sample 200: updated `VehicleResource`
+- POST /api/vendor/vehicles — create a vehicle (bus/train)
+- GET /api/vendor/vehicles — paginator (query: `page`, optional `per_page` default 10)
+- GET /api/vendor/vehicles/{vehicle} — `VehicleResource` (with `coaches` when present)
+- PUT /api/vendor/vehicles/{vehicle} — update fields
 - DELETE /api/vendor/vehicles/{vehicle}
-  - Sample 200: success envelope
-- POST /api/vendor/vehicles/{vehicle}/coaches
-  - Body: per `AddCoachesRequest` (array of coach specs)
-  - Sample 200: { data: { created: <number> } }
+- POST /api/vendor/vehicles/{vehicle}/coaches — add coaches (train)
 - DELETE /api/vendor/vehicles/{vehicle}/coaches/{coach}
-  - Sample 200: success envelope
 
 Stops
-- POST /api/vendor/stops
-  - Body:
-    { "name": "Bến xe Miền Đông", "address": "292 Đinh Bộ Lĩnh, Bình Thạnh, TP.HCM", "location_id": 1 }
-  - Sample 201: `StopResource`
-- GET /api/vendor/stops
-  - Query (optional): `page`, `per_page` (default 10), `keyword`
-  - Sample 200 (paginator):
-    { "success": true, "status": 200, "message": "Lấy dữ liệu thành công", "data": { "data": [ { ...StopResource } ], "meta": { "current_page": 1, "last_page": 1, "per_page": 10, "total": 1 } } }
-- GET /api/vendor/stops/by-location
-  - Returns grouped stops by location (optionally filtered by `keyword`)
-- GET /api/vendor/stops/location/{location}
-  - Returns all stops for a specific location id (optionally `keyword`)
+- POST /api/vendor/stops — create stop
+- GET /api/vendor/stops — paginator (query: `page`, optional `per_page` default 10, `keyword`)
+- GET /api/vendor/stops/by-location — grouped by location (optional `keyword`)
+- GET /api/vendor/stops/location/{location} — list stops for a location
 - GET /api/vendor/stops/{stop}
-  - Sample 200: `StopResource`
 - PUT /api/vendor/stops/{stop}
-  - Body: partial or full update (name/address/location_id)
-  - Sample 200: updated `StopResource`
 - DELETE /api/vendor/stops/{stop}
-  - Sample 200: success envelope
 
 Trips
-- POST /api/vendor/trips
-  - Body:
-    { "vendor_route_id": 5, "departure_datetime": "2025-11-01T08:00:00Z", "arrival_datetime": "2025-11-01T14:00:00Z", "base_price": 350000, "status": "scheduled", "stops": [ { "stop_id": 10, "stop_type": "pickup", "scheduled_time": "2025-11-01T07:30:00Z" }, { "stop_id": 12, "stop_type": "dropoff", "scheduled_time": "2025-11-01T14:15:00Z" } ] }
-  - Sample 201: `TripResource`
-- GET /api/vendor/trips
-  - Query: `per_page` (default 10)
-  - Sample 200 (paginator): data/meta as in controller
+- POST /api/vendor/trips — create trip with stops
+- GET /api/vendor/trips — paginator (query: `per_page` default 10)
 - GET /api/vendor/trips/{trip}
-  - Sample 200: `TripResource` with `stops`
 - PUT /api/vendor/trips/{trip}
-  - Body (partial): e.g., { "departure_datetime": "2025-11-01T09:00:00Z", "base_price": 380000, "stops": [ ... ] }
-  - Sample 200: updated `TripResource`
 - DELETE /api/vendor/trips/{trip}
-  - Query optional: `hard=true` for hard delete
-  - Sample 200: success envelope (trip cancelled/deleted)
 
 Tickets
-- POST /api/vendor/tickets — create tickets for a trip per `CreateTicketRequest`
-- DELETE /api/vendor/tickets/{trip} — hard delete trip and its tickets
-- Samples: success envelope or `TripResource` as applicable
+- POST /api/vendor/tickets — create tickets for a trip
+- DELETE /api/vendor/tickets/{trip} — hard delete trip and tickets
 
 Vendor Bookings
-- GET /api/vendor/bookings
-- GET /api/vendor/bookings/{booking}
-- Samples: standard envelope with list/detail
+- GET /api/vendor/bookings — paginator
+- GET /api/vendor/bookings/{booking} — booking detail
 
 ---
 
@@ -397,7 +353,8 @@ Server error (500):
 ---
 
 ## Notes
-- Pagination responses commonly include `{ data: [...], meta: { current_page, last_page, per_page, total } }` and may include `links`.
-- Some admin user endpoints exist in both email-based and id-based forms; both are registered in routing and may coexist depending on usage.
-- Several vendor endpoints validate ownership (e.g., vehicles, stops, trips) and return `FORBIDDEN` if the resource does not belong to the authenticated vendor.
+- Public search now accepts `per_page` and always returns paginator object in `data`.
+- When `vehicle_type=train`, search includes `coaches` and per-coach `seats` in each trip item.
+- Pagination responses commonly include `{ data: [...], meta: { current_page, last_page, per_page, total }, links: {...} }`.
+- Several vendor endpoints validate ownership and return `FORBIDDEN` if the resource does not belong to the authenticated vendor.
 - All examples reflect current implementation and may evolve with services/resources.
