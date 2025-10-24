@@ -43,7 +43,17 @@ class TripResource extends JsonResource
     protected function resolveImageUrl(): ?string
     {
         $vendor = optional($this->vendorRoute)->vendor;
-        return $vendor?->logo_url ? (string) $vendor->logo_url : null;
+        $url = $vendor?->logo_url;
+        if(!$url){ return null; }
+        $url = (string) $url;
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            $path = parse_url($url, PHP_URL_PATH) ?? $url;
+        } else {
+            $path = '/'.ltrim($url, '/');
+        }
+        $path = str_replace('/storage/', '/files/public/', $path);
+        $base = rtrim(request()->getSchemeAndHttpHost(), '/');
+        return $base . $path;
     }
 
     protected function resolvePickTake(): ?string
