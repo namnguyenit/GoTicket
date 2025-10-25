@@ -8,6 +8,7 @@ const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/users', label: 'Quản lý Người dùng', icon: Users },
     { to: '/vendors', label: 'Quản lý Nhà xe', icon: Bus },
+    { to: '/blogs', label: 'Quản lý Blog', icon: FileText },
     // Có thể thêm sau: { to: '/bookings', label: 'Quản lý Đặt vé', icon: Package },
 ];
 
