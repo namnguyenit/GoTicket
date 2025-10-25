@@ -45,7 +45,8 @@ class StopController extends Controller
         try {
             $perPage = (int) $request->query('per_page', 10);
             $keyword = $request->query('keyword');
-            $paginator = $this->stopService->listStopsByVendor($perPage, $keyword);
+            $transportType = $request->query('transport_type');
+            $paginator = $this->stopService->listStopsByVendor($perPage, $keyword, $transportType);
 
             $data = [
                 'data' => StopResource::collection($paginator->items()),
@@ -107,7 +108,8 @@ class StopController extends Controller
     {
         try {
             $keyword = $request->query('keyword');
-            $grouped = $this->stopService->listAllStopsGroupedByLocation($keyword);
+            $transportType = $request->query('transport_type');
+            $grouped = $this->stopService->listAllStopsGroupedByLocation($keyword, $transportType);
             return $this->success($grouped, ApiSuccess::GET_DATA_SUCCESS);
         } catch (\Throwable $e) {
             report($e);

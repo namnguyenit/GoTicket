@@ -305,6 +305,8 @@
 
   const transferGroups = document.getElementById('transferGroups');
   if(transferGroups){
+    const typeSel = document.getElementById('transferTypeFilter');
+    const summary = document.getElementById('transferSummary');
     function renderGroups(groups){
       const html = (Array.isArray(groups) ? groups : []).map(g => {
         const stops = (g.stops || []);
@@ -326,26 +328,30 @@
           </div>`;
       }).join('');
       transferGroups.innerHTML = html || '<div class="muted">Chưa có dữ liệu trung chuyển.</div>';
+      const total = (Array.isArray(groups) ? groups : []).reduce((sum,g)=> sum + ((g.stops||[]).length), 0);
+      if(summary){ summary.textContent = `${total} điểm (${(typeSel?.value||'bus')==='train'?'tàu hoả':'xe khách'})`; }
     }
 
     async function reload(){
-      const groups = await API.getTransfers();
+      const t = typeSel?.value || 'bus';
+      const groups = await API.getTransfers(t);
       renderGroups(groups);
     }
 
-    Promise.all([API.getTransfers(), API.getCities()]).then(([groups, cities]) => {
+    Promise.all([API.getTransfers('bus'), API.getCities()]).then(([groups, cities]) => {
       const mapByCity = new Map((groups||[]).map(g => [String(g.city).toLowerCase(), g]));
       const merged = (cities||[]).map(c => {
         const key = String(c).toLowerCase();
         return mapByCity.get(key) || { city: c, stops: [] };
       });
-      renderGroups(merged);
+      renderGroups(merged);
       const form = document.getElementById('transferForm');
       const citySel = form.querySelector('select[name="city"]');
       citySel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = Object.fromEntries(new FormData(form).entries());
+        payload.transport_type = typeSel?.value || 'bus';
         const res = await API.createTransfer(payload);
         if(res && res.ok){
           document.getElementById('transferModal').setAttribute('aria-hidden','true');
@@ -353,7 +359,7 @@
         } else {
           alert(res && res.error || 'Tạo thất bại');
         }
-      });
+      });
       const editForm = document.getElementById('editStopForm');
       document.addEventListener('click', async (e) => {
         const del = e.target.closest('.delete-stop');
@@ -367,7 +373,7 @@
           }
         } else if(edit){
           const id = edit.getAttribute('data-id');
-          editForm.id.value = id;
+          editForm.id.value = id;
           const chip = edit.closest('.chip');
           const nameText = chip?.querySelector('span')?.textContent || '';
           editForm.name.value = nameText;
@@ -395,9 +401,12 @@
           alert(rs && rs.error || 'Cập nhật thất bại');
         }
       });
+
+      typeSel?.addEventListener('change', reload);
     });
 
-  }
+  }
+
   const vehicleTable = document.getElementById('vehicleTable');
   if(vehicleTable){
     function renderVehicles(list){

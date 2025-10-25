@@ -163,9 +163,11 @@ const API = (() => {
       }
     },
 
-    async getTransfers(){
+     async getTransfers(transport_type){
       try {
-        const grouped = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
+        const path = transport_type && (transport_type==='bus' || transport_type==='train') ? `/vendor/stops/by-location?transport_type=${transport_type}` : '/vendor/stops/by-location';
+        const grouped = await request(path, { headers: authHeaders(false) });
+
         if(Array.isArray(grouped)){
           return grouped.map(g => ({ location_id: g.location_id || g.id, city: g.location_name || g.city || 'Không rõ', stops: Array.isArray(g.stops) ? g.stops : [] }));
         }
