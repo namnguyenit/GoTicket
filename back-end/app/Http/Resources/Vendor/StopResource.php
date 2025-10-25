@@ -14,6 +14,7 @@ class StopResource extends JsonResource
             'id'          => $this->id,
             'name'        => $this->name,
             'address'     => $this->address,
+            'transport_type' => $this->transport_type, 
             'location_id' => $this->location_id,
             'vendor_id'   => $this->vendor_id,
         ];

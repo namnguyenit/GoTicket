@@ -14,9 +14,12 @@ class StopRepository implements StopRepositoryInterface
         return Stops::create($data);
     }
 
-    public function paginateByVendor(int $vendorId, int $perPage = 10, ?string $keyword = null)
+    public function paginateByVendor(int $vendorId, int $perPage = 10, ?string $keyword = null, ?string $transportType = null)
     {
         $query = Stops::query()->where('vendor_id', $vendorId);
+        if($transportType && in_array($transportType, ['bus','train'], true)){
+            $query->where('transport_type', $transportType);
+        }
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
@@ -39,7 +42,7 @@ class StopRepository implements StopRepositoryInterface
         return $stop->delete();
     }
 
-    public function listByVendorWithLocation(int $vendorId, ?string $keyword = null)
+    public function listByVendorWithLocation(int $vendorId, ?string $keyword = null, ?string $transportType = null)
     {
         $query = Stops::query()
             ->leftJoin('locations', 'locations.id', '=', 'stops.location_id')
@@ -47,6 +50,9 @@ class StopRepository implements StopRepositoryInterface
             ->select('stops.*', 'locations.name as location_name')
             ->orderBy('locations.name')
             ->orderBy('stops.name');
+        if($transportType && in_array($transportType, ['bus','train'], true)){
+            $query->where('stops.transport_type', $transportType);
+        }
 
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {

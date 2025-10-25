@@ -17,10 +17,10 @@ class StopService
         return $this->stopRepository->create($data);
     }
 
-    public function listStopsByVendor(int $perPage = 10, ?string $keyword = null)
+    public function listStopsByVendor(int $perPage = 10, ?string $keyword = null, ?string $transportType = null)
     {
         $vendorId = Auth::user()->vendor->id;
-        return $this->stopRepository->paginateByVendor($vendorId, $perPage, $keyword);
+        return $this->stopRepository->paginateByVendor($vendorId, $perPage, $keyword, $transportType);
     }
 
     public function updateStop(Stops $stop, array $data): Stops
@@ -33,10 +33,10 @@ class StopService
         return (bool) $this->stopRepository->delete($stop);
     }
 
-    public function listAllStopsGroupedByLocation(?string $keyword = null): array
+    public function listAllStopsGroupedByLocation(?string $keyword = null, ?string $transportType = null): array
     {
         $vendorId = Auth::user()->vendor->id;
-        $rows = $this->stopRepository->listByVendorWithLocation($vendorId, $keyword);
+        $rows = $this->stopRepository->listByVendorWithLocation($vendorId, $keyword, $transportType);
 
         $grouped = [];
         foreach ($rows as $row) {

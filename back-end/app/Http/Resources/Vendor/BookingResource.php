@@ -26,6 +26,11 @@ class BookingResource extends JsonResource
                 'route' => $origin && $dest ? ($origin.' - '.$dest) : null,
                 'departure_datetime' => $this->trip?->departure_datetime,
                 'arrival_datetime' => $this->trip?->arrival_datetime,
+                'vehicle' => ($veh = optional(optional($this->trip)->coaches)->first()?->vehicle) ? [
+                    'name' => $veh->name,
+                    'vehicle_type' => $veh->vehicle_type,
+                    'license_plate' => $veh->license_plate,
+                ] : null,
             ],
             'seat_count' => $this->seat_count ?? ($this->whenCounted('details')),
             'total_price' => $this->total_price,
@@ -35,6 +40,26 @@ class BookingResource extends JsonResource
                 'pickup' => optional($this->details->first())->pickupStop?->name,
                 'dropoff' => optional($this->details->first())->dropoffStop?->name,
             ],
+            'seats' => $this->whenLoaded('details', function(){
+                return $this->details->map(function($d){
+                    return [
+                        'id' => $d->seat_id,
+                        'seat_number' => optional($d->seat)->seat_number,
+                    ];
+                });
+            }),
+            'seat_map' => $this->whenLoaded('trip', function(){
+                if(!$this->trip || !$this->trip->relationLoaded('seats')){ return null; }
+                return $this->trip->seats->map(function($seat){
+                    return [
+                        'id' => $seat->id,
+                        'seat_number' => $seat->seat_number,
+                        'coach_type' => optional($seat->coach)->coach_type,
+                        'status' => $seat->pivot->status ?? null,
+                        'price' => $seat->pivot->price ?? null,
+                    ];
+                });
+            }),
         ];
     }
 }

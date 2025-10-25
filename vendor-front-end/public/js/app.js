@@ -16,15 +16,21 @@
           <td>${b.contact}</td>
           <td>${b.route}</td>
           <td>${fmt(b.depAt)}</td>
-          <td>${b.seats}</td>
+          <td>${b.vehicle}</td>
+          <td>${b.plate}</td>
+          <td>${(b.seatList && b.seatList.length) ? b.seatList.join(', ') : b.seats}</td>
           <td>${vnd(b.total)}</td>
           <td>${renderStatus(b.status)}</td>
+          <td>
+            <button class="icon-btn edit-booking" title="Sửa vé"><i class="ri-pencil-line"></i></button>
+            <button class="icon-btn delete-booking" title="Huỷ vé"><i class="ri-forbid-2-line"></i></button>
+          </td>
         </tr>
-      `).join('') || '<tr><td colspan="8" class="muted">Chưa có vé nào</td></tr>';
+      `).join('') || '<tr><td colspan="11" class="muted">Chưa có vé nào</td></tr>';
     })();
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const openBtn = e.target.closest('[data-open-modal]');
     if(openBtn){
       const sel = openBtn.getAttribute('data-open-modal');
@@ -35,7 +41,95 @@
       const modal = e.target.closest('.modal');
       if(modal){ modal.setAttribute('aria-hidden','true'); }
     }
-  });
+    const delBookingBtn = e.target.closest('.delete-booking');
+    const editBookingBtn = e.target.closest('.edit-booking');
+    if(delBookingBtn){
+      const tr = delBookingBtn.closest('tr');
+      const id = tr?.getAttribute('data-id');
+      if(id && confirm('Huỷ vé này?')){
+        const rs = await API.deleteBooking(id);
+        if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Huỷ vé thất bại'); }
+      }
+    } else if(editBookingBtn){
+      const tr = editBookingBtn.closest('tr');
+      const id = tr?.getAttribute('data-id');
+      const modal = document.getElementById('editBookingModal');
+      const form = document.getElementById('editBookingForm');
+      form.id.value = id;
+      // fetch booking detail to build seat grid
+      try {
+        const detail = await API.request ? API.request(`/vendor/bookings/${id}`, { headers: {} }) : null;
+      } catch {}
+      // fetch stops
+      const stops = await API.getAllStops();
+      const pickupSel = document.getElementById('pickupStopSel');
+      const dropoffSel = document.getElementById('dropoffStopSel');
+      const options = ['<option value="">-- Chọn --</option>'].concat((stops||[]).map(s => `<option value="${s.id}">${s.name}</option>`)).join('');
+      if(pickupSel) pickupSel.innerHTML = options;
+      if(dropoffSel) dropoffSel.innerHTML = options;
+      // Build seat grid from seat_map if available via hidden cache on row (fallback to API if needed)
+      try {
+        const res = await fetch((window.API_BASE_URL||'http://127.0.0.1:8000/api').replace(/\/$/,'')+`/vendor/bookings/${id}`, { headers: { 'Authorization': 'Bearer '+(localStorage.getItem('API_TOKEN')||'') } });
+        const json = await res.json();
+        const payload = json && (json.data ?? json);
+        const grid = document.getElementById('seatGrid');
+        if(grid && payload && Array.isArray(payload.seat_map)){
+          const taken = new Set((payload.seats||[]).map(s => s.id));
+          grid.innerHTML = payload.seat_map.map(seat => {
+            const st = (seat.status||'').toLowerCase();
+            const booked = st !== 'available' && !taken.has(seat.id);
+            const cls = booked ? 'seat booked' : 'seat available';
+            const checked = taken.has(seat.id) ? 'checked' : '';
+            const disabled = booked ? 'disabled' : '';
+            return `<label class="${cls}"><input type="checkbox" name="seat_ids[]" value="${seat.id}" ${checked} ${disabled} />${seat.seat_number}</label>`;
+          }).join('');
+        }
+      } catch {}
+      modal.setAttribute('aria-hidden','false');
+    }
+  });
+  const editBookingForm = document.getElementById('editBookingForm');
+  editBookingForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(editBookingForm);
+    const id = fd.get('id');
+    const payload = {};
+    const status = fd.get('status');
+    const pickup = fd.get('pickup_stop_id');
+    const dropoff = fd.get('dropoff_stop_id');
+    if(status) payload.status = status;
+    if(pickup) payload.pickup_stop_id = Number(pickup);
+    if(dropoff) payload.dropoff_stop_id = Number(dropoff);
+    const rs = await API.updateBooking(id, payload);
+    if(rs && rs.ok){
+      document.getElementById('editBookingModal')?.setAttribute('aria-hidden','true');
+      const tbody = document.querySelector('#bookingTable tbody');
+      const list = await API.getVendorBookings(1, 50);
+      function fmt(dt){ try{ return dt ? new Date(dt).toLocaleString('vi-VN') : '—'; }catch{ return '—'; } }
+      function vnd(n){ return (Number(n)||0).toLocaleString('vi-VN',{style:'currency',currency:'VND'}); }
+      tbody.innerHTML = (list||[]).map(b => `
+        <tr data-id="${b.id}">
+          <td>${b.code}</td>
+          <td>${b.customer}</td>
+          <td>${b.contact}</td>
+          <td>${b.route}</td>
+          <td>${fmt(b.depAt)}</td>
+          <td>${b.vehicle}</td>
+          <td>${b.plate}</td>
+          <td>${(b.seatList && b.seatList.length) ? b.seatList.join(', ') : b.seats}</td>
+          <td>${vnd(b.total)}</td>
+          <td>${renderStatus(b.status)}</td>
+          <td>
+            <button class="icon-btn edit-booking" title="Sửa vé"><i class="ri-pencil-line"></i></button>
+            <button class="icon-btn delete-booking" title="Huỷ vé"><i class="ri-forbid-2-line"></i></button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="11" class="muted">Chưa có vé nào</td></tr>';
+    } else {
+      alert(rs && rs.error || 'Cập nhật vé thất bại');
+    }
+  });
+
   if(document.getElementById('yearHistoryChart')){
     API.getDashboard().then(d => {
       Charts.yearHistory(document.getElementById('yearHistoryChart'), d.yearHistory);
@@ -66,15 +160,24 @@
   }
   const ticketTable = document.getElementById('ticketTable');
   if(ticketTable){
-    Promise.all([API.getTickets(), API.getVehicles(), API.getCities()]).then(([tickets, vehicles, cities]) => {
+    (async () => {
+      const form = document.getElementById('ticketForm');
       const tbody = ticketTable.querySelector('tbody');
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      const pageInfo = document.getElementById('pageInfo');
+      const perPageSel = document.getElementById('perPageSel');
+      const vehicleTypeFilter = document.getElementById('vehicleTypeFilter');
+
+      let state = { page: 1, perPage: Number(perPageSel?.value || 20), filter: { vehicle_type: '' } };
+
       function renderTickets(list){
         tbody.innerHTML = (list||[]).map(t => `
           <tr data-trip-id="${t.id}">
             <td>${t.vehicle}</td>
             <td>${t.type}</td>
             <td>${t.plate}</td>
-            <td>${t.seats}</td>
+            <td>${(Number.isFinite(t.available)?t.available:'—')}/${(Number.isFinite(t.capacity)?t.capacity:'—')}</td>
             <td>${t.time}</td>
             <td>${t.date}</td>
             <td>${t.route}</td>
@@ -85,15 +188,33 @@
               <button class="icon-btn delete-trip" title="Huỷ chuyến"><i class="ri-forbid-2-line"></i></button>
               <button class="icon-btn hard-delete-trip" title="Xoá vé"><i class="ri-delete-bin-6-line"></i></button>
             </td>
-          </tr>`).join('');
+          </tr>`).join('') || '<tr><td colspan="10" class="muted">Chưa có dữ liệu</td></tr>';
       }
-      renderTickets(tickets);
-      const form = document.getElementById('ticketForm');
+
+      function renderPager(meta){
+        if(!pageInfo || !prevBtn || !nextBtn) return;
+        const cur = Number(meta?.current_page || state.page);
+        const last = Number(meta?.last_page || cur);
+        pageInfo.textContent = `Trang ${cur}/${last}`;
+        prevBtn.disabled = cur <= 1;
+        nextBtn.disabled = cur >= last;
+      }
+
+      async function loadTickets(){
+        const { items, meta } = await API.getTickets(state.page, state.perPage, state.filter);
+        renderTickets(items);
+        renderPager(meta);
+      }
+
+      const [vehicles, cities] = await Promise.all([API.getVehicles(), API.getCities()]);
+      await loadTickets();
+
       const vehicleSel = form.querySelector('select[name="vehicleId"]');
       vehicleSel.innerHTML = vehicles.map(v => `<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
       const fromSel = form.querySelector('select[name="fromCity"]');
       const toSel = form.querySelector('select[name="toCity"]');
-      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
+      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
+
       function syncTicketPriceFields(){
         const opt = vehicleSel.options[vehicleSel.selectedIndex];
         const type = (opt && opt.getAttribute('data-type')) || '';
@@ -102,11 +223,30 @@
         document.getElementById('basePriceField').style.display = showTrain ? 'none' : '';
       }
       vehicleSel.addEventListener('change', syncTicketPriceFields);
-      syncTicketPriceFields();
+      syncTicketPriceFields();
+
+      perPageSel?.addEventListener('change', async () => {
+        state.perPage = Number(perPageSel.value || 20);
+        state.page = 1;
+        await loadTickets();
+      });
+      prevBtn?.addEventListener('click', async () => {
+        if(state.page > 1){ state.page -= 1; await loadTickets(); }
+      });
+       nextBtn?.addEventListener('click', async () => {
+         state.page += 1; await loadTickets();
+       });
+
+       vehicleTypeFilter?.addEventListener('change', async () => {
+         state.filter.vehicle_type = vehicleTypeFilter.value || '';
+         state.page = 1;
+         await loadTickets();
+       });
+
+
       ticketTable.addEventListener('click', async (e) => {
         const delBtn = e.target.closest('.delete-trip');
         const hardBtn = e.target.closest('.hard-delete-trip');
-        const deleteTicketBtn = e.target.closest('.delete-ticket');
         const editBtn = e.target.closest('.edit-trip');
         const tr = e.target.closest('tr');
         const id = tr && tr.getAttribute('data-trip-id');
@@ -121,9 +261,9 @@
         } else if(hardBtn && id){
           if(confirm('Xoá vé này khỏi DB?')){
             const rs = await API.deleteTicket(id);
-            if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
+            if(rs && rs.ok){ await loadTickets(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
           }
-        } else if(editBtn && id){
+        } else if(editBtn && id){
           const row = {
             time: tr.children[4]?.textContent || '',
             date: tr.children[5]?.textContent || '',
@@ -131,38 +271,42 @@
           };
           const editModal = document.getElementById('editTicketModal');
           const editForm = document.getElementById('editTicketForm');
-          editForm.id.value = id;
+          editForm.id.value = id;
           const isTrain = String(row.type).toLowerCase()==='train';
           document.getElementById('editTrainPrices').style.display = isTrain ? '' : 'none';
           document.getElementById('editBasePrice').style.display = isTrain ? 'none' : '';
           editModal.setAttribute('aria-hidden','false');
         }
-      });
+      });
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(form);
-        const payload = Object.fromEntries(fd.entries());
+        const payload = Object.fromEntries(fd.entries());
         const dep = payload.depTime || '';
         const arr = payload.arrTime || '';
         if(dep && arr){ payload.startTime = `${dep}-${arr}`; }
-        delete payload.depTime; delete payload.arrTime;
+        delete payload.depTime; delete payload.arrTime;
         if(payload.price !== undefined && payload.price !== ''){ payload.price = Number(payload.price); } else { delete payload.price; }
         if(payload.regular_price !== undefined && payload.regular_price !== ''){ payload.regular_price = Number(payload.regular_price); }
         if(payload.vip_price !== undefined && payload.vip_price !== ''){ payload.vip_price = Number(payload.vip_price); }
         const res = await API.createTicket(payload);
         if(res && res.ok){
           alert('Tạo vé thành công');
-          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
-          const fresh = await API.getTickets();
-          renderTickets(fresh);
+          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
+          state.page = 1; // quay lại trang đầu để thấy vé mới
+          await loadTickets();
         } else {
           alert(res && res.error ? res.error : 'Tạo vé chưa được hỗ trợ trong phiên bản này.');
         }
       });
-    });
-  }
+    })();
+  }
+
   const transferGroups = document.getElementById('transferGroups');
   if(transferGroups){
+    const typeSel = document.getElementById('transferTypeFilter');
+    const summary = document.getElementById('transferSummary');
     function renderGroups(groups){
       const html = (Array.isArray(groups) ? groups : []).map(g => {
         const stops = (g.stops || []);
@@ -184,26 +328,30 @@
           </div>`;
       }).join('');
       transferGroups.innerHTML = html || '<div class="muted">Chưa có dữ liệu trung chuyển.</div>';
+      const total = (Array.isArray(groups) ? groups : []).reduce((sum,g)=> sum + ((g.stops||[]).length), 0);
+      if(summary){ summary.textContent = `${total} điểm (${(typeSel?.value||'bus')==='train'?'tàu hoả':'xe khách'})`; }
     }
 
     async function reload(){
-      const groups = await API.getTransfers();
+      const t = typeSel?.value || 'bus';
+      const groups = await API.getTransfers(t);
       renderGroups(groups);
     }
 
-    Promise.all([API.getTransfers(), API.getCities()]).then(([groups, cities]) => {
+    Promise.all([API.getTransfers('bus'), API.getCities()]).then(([groups, cities]) => {
       const mapByCity = new Map((groups||[]).map(g => [String(g.city).toLowerCase(), g]));
       const merged = (cities||[]).map(c => {
         const key = String(c).toLowerCase();
         return mapByCity.get(key) || { city: c, stops: [] };
       });
-      renderGroups(merged);
+      renderGroups(merged);
       const form = document.getElementById('transferForm');
       const citySel = form.querySelector('select[name="city"]');
       citySel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = Object.fromEntries(new FormData(form).entries());
+        payload.transport_type = typeSel?.value || 'bus';
         const res = await API.createTransfer(payload);
         if(res && res.ok){
           document.getElementById('transferModal').setAttribute('aria-hidden','true');
@@ -211,7 +359,7 @@
         } else {
           alert(res && res.error || 'Tạo thất bại');
         }
-      });
+      });
       const editForm = document.getElementById('editStopForm');
       document.addEventListener('click', async (e) => {
         const del = e.target.closest('.delete-stop');
@@ -225,7 +373,7 @@
           }
         } else if(edit){
           const id = edit.getAttribute('data-id');
-          editForm.id.value = id;
+          editForm.id.value = id;
           const chip = edit.closest('.chip');
           const nameText = chip?.querySelector('span')?.textContent || '';
           editForm.name.value = nameText;
@@ -253,9 +401,12 @@
           alert(rs && rs.error || 'Cập nhật thất bại');
         }
       });
+
+      typeSel?.addEventListener('change', reload);
     });
 
-  }
+  }
+
   const vehicleTable = document.getElementById('vehicleTable');
   if(vehicleTable){
     function renderVehicles(list){

@@ -25,6 +25,7 @@ class CreateStopRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:500'],
+            'transport_type' => ['required','in:bus,train'],
             'location_id' => ['required', 'integer', 'exists:locations,id'],
 
             'vendor_id' => ['required', 'integer', 'exists:vendors,id'],

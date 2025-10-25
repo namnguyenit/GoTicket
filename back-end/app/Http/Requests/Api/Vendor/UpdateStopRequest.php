@@ -23,6 +23,7 @@ class UpdateStopRequest extends FormRequest
             'name' => ['sometimes','string','max:255'],
             'address' => ['sometimes','string','max:500'],
             'location_id' => ['sometimes','integer','exists:locations,id'],
+            'transport_type' => ['sometimes','in:bus,train'],
         ];
     }
 

@@ -146,5 +146,7 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         // Vendor bookings management
         Route::get('bookings', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'index']);
         Route::get('bookings/{booking}', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'show'])->whereNumber('booking');
+        Route::put('bookings/{booking}', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'update'])->whereNumber('booking');
+        Route::delete('bookings/{booking}', [\App\Http\Controllers\Api\Vendor\BookingController::class, 'destroy'])->whereNumber('booking');
     });
 });

@@ -33,6 +33,7 @@ class TicketController extends Controller
                 'VEHICLE_NOT_FOUND' => $this->error(ApiError::VEHICLE_NOT_FOUND),
                 'ROUTE_NOT_FOUND' => $this->error(ApiError::NOT_FOUND, ['route' => 'Không tìm thấy tuyến cho cặp thành phố.']),
                 'VENDOR_ROUTE_NOT_FOUND' => $this->error(ApiError::VENDOR_ROUTE_NOT_FOUND),
+                'TRIP_TIME_CONFLICT' => $this->error(ApiError::TRIP_TIME_CONFLICT),
                 default => $this->error(ApiError::SERVER_ERROR, config('app.debug') ? $e->getMessage() : null),
             };
         } catch (\Throwable $e) {

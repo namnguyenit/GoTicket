@@ -29,6 +29,10 @@ class BookingDetails extends Model
             ->where('trip_id', $this->trip_id);
     }
 
+    public function seat(){
+        return $this->belongsTo(Seats::class, 'seat_id');
+    }
+
     public function pickupStop(){
         return $this->belongsTo(Stops::class, 'pickup_stop_id');
     }

@@ -94,38 +94,47 @@ const API = (() => {
       }
     },
 
-    async getTickets(){
-    
+    async getTickets(page=1, perPage=20, filter={}){
       try {
-        const resp = await request('/vendor/trips?per_page=20', { headers: authHeaders(false) });
-        const items = Array.isArray(resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
-        return items.map(t => {
+        const params = new URLSearchParams({ per_page: String(perPage), page: String(page) });
+        if(filter && filter.vehicle_type && (filter.vehicle_type==='bus' || filter.vehicle_type==='train')){
+          params.set('vehicle_type', filter.vehicle_type);
+        }
+        const resp = await request(`/vendor/trips?${params.toString()}`, { headers: authHeaders(false) });
+        const list = Array.isArray(resp?.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+        const mapped = list.map(t => {
           const dep = t.departure_datetime ? new Date(t.departure_datetime) : null;
           const arr = t.arrival_datetime ? new Date(t.arrival_datetime) : null;
           const time = (dep && arr) ? `${dep.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}-${arr.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}` : '—';
           const date = dep ? dep.toLocaleDateString('vi-VN') : '—';
           const vehicle = t.vehicle || {};
-          const route = (t.route && (t.route.label || ((t.route.origin && t.route.destination) ? `${t.route.origin} - ${t.route.destination}` : ''))) || '—';
-          const seats = Number.isFinite(t.capacity) ? t.capacity : (Array.isArray(t.coaches) ? t.coaches.reduce((sum,c)=>sum+(Number(c.total_seats)||0),0) : null);
-          const isTrain = (vehicle.vehicle_type || '').toLowerCase() === 'train';
-          const regular = t.train_prices?.regular ?? null;
-          const vip = t.train_prices?.vip ?? null;
-          return {
-            id: t.id,
-            vehicle: vehicle.name || '—',
-            type: vehicle.vehicle_type || '—',
-            plate: vehicle.license_plate || '—',
-            seats: (seats ?? '—'),
-            time,
-            date,
-            route,
-            price: isTrain ? { regular, vip } : (t.base_price || 0),
-            status: t.status || '—'
-          };
+           const route = (t.route && (t.route.label || ((t.route.origin && t.route.destination) ? `${t.route.origin} - ${t.route.destination}` : ''))) || '—';
+           const computedCapacity = Array.isArray(t.coaches) ? t.coaches.reduce((sum,c)=>sum+(Number(c.total_seats)||0),0) : null;
+           const capacity = Number.isFinite(t.capacity) ? t.capacity : computedCapacity;
+           const available = Number.isFinite(t.empty_number) ? t.empty_number : null;
+           const isTrain = (vehicle.vehicle_type || '').toLowerCase() === 'train';
+           const regular = t.train_prices?.regular ?? null;
+           const vip = t.train_prices?.vip ?? null;
+           return {
+             id: t.id,
+             vehicle: vehicle.name || '—',
+             type: vehicle.vehicle_type || '—',
+             plate: vehicle.license_plate || '—',
+             seats: (capacity ?? '—'),
+             capacity: capacity ?? null,
+             available: available,
+             time,
+             date,
+             route,
+             price: isTrain ? { regular, vip } : (t.base_price || 0),
+             status: t.status || '—'
+           };
         });
+        const meta = resp?.meta || { current_page: page, last_page: page, per_page: perPage, total: mapped.length };
+        return { items: mapped, meta };
       } catch (e){
         console.warn('Trips API fallback:', e.message);
-        return [];
+        return { items: [], meta: { current_page: 1, last_page: 1, per_page: perPage, total: 0 } };
       }
     },
 
@@ -154,9 +163,11 @@ const API = (() => {
       }
     },
 
-    async getTransfers(){
+     async getTransfers(transport_type){
       try {
-        const grouped = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
+        const path = transport_type && (transport_type==='bus' || transport_type==='train') ? `/vendor/stops/by-location?transport_type=${transport_type}` : '/vendor/stops/by-location';
+        const grouped = await request(path, { headers: authHeaders(false) });
+
         if(Array.isArray(grouped)){
           return grouped.map(g => ({ location_id: g.location_id || g.id, city: g.location_name || g.city || 'Không rõ', stops: Array.isArray(g.stops) ? g.stops : [] }));
         }
@@ -349,12 +360,49 @@ const API = (() => {
           contact: b.user?.email || b.user?.phone_number || '—',
           route: b.trip?.route || '—',
           depAt: b.trip?.departure_datetime || null,
-          seats: b.seat_count || 0,
+          vehicle: b.trip?.vehicle?.name || '—',
+          plate: b.trip?.vehicle?.license_plate || '—',
+          seatList: Array.isArray(b.seats) ? b.seats.map(s => s.seat_number).filter(Boolean) : [],
+          seats: b.seat_count || (Array.isArray(b.seats) ? b.seats.length : 0),
           total: b.total_price || 0,
           status: b.status || '—'
         }));
       } catch(e){
         console.warn('Vendor bookings fallback:', e.message);
+        return [];
+      }
+    },
+
+    async updateBooking(id, payload){
+      try {
+        const data = await request(`/vendor/bookings/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteBooking(id){
+      try {
+        await request(`/vendor/bookings/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getAllStops(){
+      try {
+        const groups = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
+        const arr = [];
+        if(Array.isArray(groups)){
+          groups.forEach(g => (g.stops||[]).forEach(s => arr.push(s)));
+        } else if(groups && typeof groups === 'object'){
+          Object.values(groups).forEach(stops => (Array.isArray(stops)?stops:[]).forEach(s => arr.push(s)));
+        }
+        return arr.map(s => ({ id: s.id, name: s.name || s.address || ('#'+s.id) }));
+      } catch(e){
+        console.warn('Stops fetch failed:', e.message);
         return [];
       }
     }
