@@ -16,11 +16,13 @@
           <td>${b.contact}</td>
           <td>${b.route}</td>
           <td>${fmt(b.depAt)}</td>
-          <td>${b.seats}</td>
+          <td>${b.vehicle}</td>
+          <td>${b.plate}</td>
+          <td>${(b.seatList && b.seatList.length) ? b.seatList.join(', ') : b.seats}</td>
           <td>${vnd(b.total)}</td>
           <td>${renderStatus(b.status)}</td>
         </tr>
-      `).join('') || '<tr><td colspan="8" class="muted">Chưa có vé nào</td></tr>';
+      `).join('') || '<tr><td colspan="10" class="muted">Chưa có vé nào</td></tr>';
     })();
   }
 
@@ -66,15 +68,24 @@
   }
   const ticketTable = document.getElementById('ticketTable');
   if(ticketTable){
-    Promise.all([API.getTickets(), API.getVehicles(), API.getCities()]).then(([tickets, vehicles, cities]) => {
+    (async () => {
+      const form = document.getElementById('ticketForm');
       const tbody = ticketTable.querySelector('tbody');
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      const pageInfo = document.getElementById('pageInfo');
+      const perPageSel = document.getElementById('perPageSel');
+      const vehicleTypeFilter = document.getElementById('vehicleTypeFilter');
+
+      let state = { page: 1, perPage: Number(perPageSel?.value || 20), filter: { vehicle_type: '' } };
+
       function renderTickets(list){
         tbody.innerHTML = (list||[]).map(t => `
           <tr data-trip-id="${t.id}">
             <td>${t.vehicle}</td>
             <td>${t.type}</td>
             <td>${t.plate}</td>
-            <td>${t.seats}</td>
+            <td>${(Number.isFinite(t.available)?t.available:'—')}/${(Number.isFinite(t.capacity)?t.capacity:'—')}</td>
             <td>${t.time}</td>
             <td>${t.date}</td>
             <td>${t.route}</td>
@@ -85,15 +96,33 @@
               <button class="icon-btn delete-trip" title="Huỷ chuyến"><i class="ri-forbid-2-line"></i></button>
               <button class="icon-btn hard-delete-trip" title="Xoá vé"><i class="ri-delete-bin-6-line"></i></button>
             </td>
-          </tr>`).join('');
+          </tr>`).join('') || '<tr><td colspan="10" class="muted">Chưa có dữ liệu</td></tr>';
       }
-      renderTickets(tickets);
-      const form = document.getElementById('ticketForm');
+
+      function renderPager(meta){
+        if(!pageInfo || !prevBtn || !nextBtn) return;
+        const cur = Number(meta?.current_page || state.page);
+        const last = Number(meta?.last_page || cur);
+        pageInfo.textContent = `Trang ${cur}/${last}`;
+        prevBtn.disabled = cur <= 1;
+        nextBtn.disabled = cur >= last;
+      }
+
+      async function loadTickets(){
+        const { items, meta } = await API.getTickets(state.page, state.perPage, state.filter);
+        renderTickets(items);
+        renderPager(meta);
+      }
+
+      const [vehicles, cities] = await Promise.all([API.getVehicles(), API.getCities()]);
+      await loadTickets();
+
       const vehicleSel = form.querySelector('select[name="vehicleId"]');
       vehicleSel.innerHTML = vehicles.map(v => `<option value="${v.id}" data-type="${v.type}">${v.name}</option>`).join('');
       const fromSel = form.querySelector('select[name="fromCity"]');
       const toSel = form.querySelector('select[name="toCity"]');
-      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
+      fromSel.innerHTML = toSel.innerHTML = cities.map(c => `<option>${c}</option>`).join('');
+
       function syncTicketPriceFields(){
         const opt = vehicleSel.options[vehicleSel.selectedIndex];
         const type = (opt && opt.getAttribute('data-type')) || '';
@@ -102,11 +131,30 @@
         document.getElementById('basePriceField').style.display = showTrain ? 'none' : '';
       }
       vehicleSel.addEventListener('change', syncTicketPriceFields);
-      syncTicketPriceFields();
+      syncTicketPriceFields();
+
+      perPageSel?.addEventListener('change', async () => {
+        state.perPage = Number(perPageSel.value || 20);
+        state.page = 1;
+        await loadTickets();
+      });
+      prevBtn?.addEventListener('click', async () => {
+        if(state.page > 1){ state.page -= 1; await loadTickets(); }
+      });
+       nextBtn?.addEventListener('click', async () => {
+         state.page += 1; await loadTickets();
+       });
+
+       vehicleTypeFilter?.addEventListener('change', async () => {
+         state.filter.vehicle_type = vehicleTypeFilter.value || '';
+         state.page = 1;
+         await loadTickets();
+       });
+
+
       ticketTable.addEventListener('click', async (e) => {
         const delBtn = e.target.closest('.delete-trip');
         const hardBtn = e.target.closest('.hard-delete-trip');
-        const deleteTicketBtn = e.target.closest('.delete-ticket');
         const editBtn = e.target.closest('.edit-trip');
         const tr = e.target.closest('tr');
         const id = tr && tr.getAttribute('data-trip-id');
@@ -121,9 +169,9 @@
         } else if(hardBtn && id){
           if(confirm('Xoá vé này khỏi DB?')){
             const rs = await API.deleteTicket(id);
-            if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
+            if(rs && rs.ok){ await loadTickets(); } else { alert(rs && rs.error || 'Xoá vé thất bại'); }
           }
-        } else if(editBtn && id){
+        } else if(editBtn && id){
           const row = {
             time: tr.children[4]?.textContent || '',
             date: tr.children[5]?.textContent || '',
@@ -131,36 +179,38 @@
           };
           const editModal = document.getElementById('editTicketModal');
           const editForm = document.getElementById('editTicketForm');
-          editForm.id.value = id;
+          editForm.id.value = id;
           const isTrain = String(row.type).toLowerCase()==='train';
           document.getElementById('editTrainPrices').style.display = isTrain ? '' : 'none';
           document.getElementById('editBasePrice').style.display = isTrain ? 'none' : '';
           editModal.setAttribute('aria-hidden','false');
         }
-      });
+      });
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(form);
-        const payload = Object.fromEntries(fd.entries());
+        const payload = Object.fromEntries(fd.entries());
         const dep = payload.depTime || '';
         const arr = payload.arrTime || '';
         if(dep && arr){ payload.startTime = `${dep}-${arr}`; }
-        delete payload.depTime; delete payload.arrTime;
+        delete payload.depTime; delete payload.arrTime;
         if(payload.price !== undefined && payload.price !== ''){ payload.price = Number(payload.price); } else { delete payload.price; }
         if(payload.regular_price !== undefined && payload.regular_price !== ''){ payload.regular_price = Number(payload.regular_price); }
         if(payload.vip_price !== undefined && payload.vip_price !== ''){ payload.vip_price = Number(payload.vip_price); }
         const res = await API.createTicket(payload);
         if(res && res.ok){
           alert('Tạo vé thành công');
-          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
-          const fresh = await API.getTickets();
-          renderTickets(fresh);
+          document.getElementById('ticketModal').setAttribute('aria-hidden','true');
+          state.page = 1; // quay lại trang đầu để thấy vé mới
+          await loadTickets();
         } else {
           alert(res && res.error ? res.error : 'Tạo vé chưa được hỗ trợ trong phiên bản này.');
         }
       });
-    });
-  }
+    })();
+  }
+
   const transferGroups = document.getElementById('transferGroups');
   if(transferGroups){
     function renderGroups(groups){

@@ -8,27 +8,50 @@
       <span>Danh sách các vé</span>
       <button class="btn btn-primary" data-open-modal="#ticketModal"><i class="ri-add-circle-line"></i> Tạo</button>
     </div>
-    <div class="table-wrap">
-      <table class="table" id="ticketTable">
-        <thead>
-          <tr>
-            <th>Tên phương tiện</th>
-            <th>Loại xe</th>
-            <th>Biển số</th>
-            <th>Số ghế</th>
-            <th>Giờ xuất hành</th>
-            <th>Ngày khởi hành</th>
-            <th>Tuyến đường</th>
-            <th>Giá</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-      </table>
-    </div>
+      <div class="table-wrap">
+        <table class="table" id="ticketTable">
+          <thead>
+            <tr>
+              <th>Tên phương tiện</th>
+              <th>Loại xe</th>
+              <th>Biển số</th>
+              <th>Ghế (trống/tổng)</th>
+              <th>Giờ xuất hành</th>
+              <th>Ngày khởi hành</th>
+              <th>Tuyến đường</th>
+              <th>Giá</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </div>
+      <div class="row-between" id="ticketPagination" style="margin-top:12px;">
+        <div>
+          <label for="perPageSel" class="muted" style="margin-right:6px;">Mỗi trang:</label>
+          <select id="perPageSel">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+         <div class="row" style="gap:8px; align-items:center;">
+           <label class="muted">Lọc:</label>
+           <select id="vehicleTypeFilter">
+             <option value="">Tất cả</option>
+             <option value="bus">Bus</option>
+             <option value="train">Train</option>
+           </select>
+         </div>
+         <div class="pager">
+           <button class="btn" id="prevPage">Trước</button>
+           <span id="pageInfo" class="muted" style="margin:0 8px;">Trang 1/1</span>
+           <button class="btn" id="nextPage">Sau</button>
+         </div>
+      </div>
   </section>
 
   

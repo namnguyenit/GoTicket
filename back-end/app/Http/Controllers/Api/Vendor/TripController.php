@@ -25,7 +25,8 @@ class TripController extends Controller
     {
         try {
             $perPage = (int) $request->query('per_page', 10);
-            $paginator = $this->tripService->listTripsByVendor($perPage);
+            $vehicleType = $request->query('vehicle_type');
+            $paginator = $this->tripService->listTripsByVendor($perPage, $vehicleType);
             $data = [
                 'data' => TripResource::collection($paginator->items()),
                 'meta' => [

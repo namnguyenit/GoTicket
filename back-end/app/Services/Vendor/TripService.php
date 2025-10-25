@@ -11,10 +11,10 @@ use Carbon\Carbon;
 
 class TripService
 {
-    public function listTripsByVendor(int $perPage = 10)
+    public function listTripsByVendor(int $perPage = 10, ?string $vehicleType = null)
     {
         $vendorId = Auth::user()->vendor->id;
-        return Trips::query()
+        $query = Trips::query()
             ->whereHas('vendorRoute', function ($q) use ($vendorId) {
                 $q->where('vendor_id', $vendorId);
             })
@@ -29,8 +29,15 @@ class TripService
             ->withCount(['seats as empty_number' => function($q){
                 $q->where('trip_seats.status', 'available');
             }])
-            ->orderByDesc('departure_datetime')
-            ->paginate($perPage);
+            ->orderByDesc('departure_datetime');
+
+        if ($vehicleType && in_array($vehicleType, ['bus', 'train'], true)) {
+            $query->whereHas('coaches.vehicle', function($q) use ($vehicleType){
+                $q->where('vehicle_type', $vehicleType);
+            });
+        }
+
+        return $query->paginate($perPage);
 
     }
 

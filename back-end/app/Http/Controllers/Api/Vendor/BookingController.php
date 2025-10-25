@@ -19,7 +19,10 @@ class BookingController extends Controller
     {
         try {
             $perPage = (int) $request->query('per_page', 10);
-            $vendorId = Auth::user()->vendor->id;
+            $vendorId = optional(Auth::user()->vendor)->id;
+            if(!$vendorId){
+                return $this->error(ApiError::FORBIDDEN);
+            }
 
             $paginator = Bookings::query()
                 ->whereHas('trip.vendorRoute', function($q) use ($vendorId){
@@ -29,6 +32,8 @@ class BookingController extends Controller
                     'user:id,name,email,phone_number',
                     'trip.vendorRoute.route.origin:id,name',
                     'trip.vendorRoute.route.destination:id,name',
+                    'trip.coaches.vehicle',
+                    'details.seat:id,seat_number,coach_id',
                 ])
                 ->withCount(['details as seat_count'])
                 ->orderByDesc('id')
@@ -53,7 +58,10 @@ class BookingController extends Controller
     public function show(Bookings $booking)
     {
         try {
-            $vendorId = Auth::user()->vendor->id;
+            $vendorId = optional(Auth::user()->vendor)->id;
+            if(!$vendorId){
+                return $this->error(ApiError::FORBIDDEN);
+            }
             $owns = $booking->trip && $booking->trip->vendorRoute && $booking->trip->vendorRoute->vendor_id === $vendorId;
             if(!$owns){
                 return $this->error(ApiError::FORBIDDEN);
