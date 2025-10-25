@@ -16,7 +16,8 @@ use \App\Http\Controllers\Api\Vendor\TicketController;
 use App\Http\Controllers\Api\Admin\DashboardAdminController;
 use App\Http\Controllers\Api\Admin\VendorController;
 
-
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\Admin\BlogController as AdminBlogController;
 
 
 Route::get('/login', function () {
@@ -47,7 +48,7 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 });
 
 
-
+Route::get('/blogs', [BlogController::class, 'getLatest']);
 
 
 
@@ -91,6 +92,12 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
         Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']);
 
         Route::post('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'store']);
+
+        Route::get('/blogs', [AdminBlogController::class, 'index']);
+        Route::post('/blogs', [AdminBlogController::class, 'store']);
+        Route::get('/blogs/{id}', [AdminBlogController::class, 'show']);
+        Route::post('/blogs/{id}', [AdminBlogController::class, 'update']); // Dùng POST cho dễ update file
+        Route::delete('/blogs/{id}', [AdminBlogController::class, 'destroy']);
 
 
     });

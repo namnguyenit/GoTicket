@@ -51,7 +51,8 @@ use App\Repositories\Vendor\CoachRepositoryInterface;
 use App\Repositories\Vendor\SeatRepository;
 use App\Repositories\Vendor\SeatRepositoryInterface;
 
-
+use App\Repositories\Admin\BlogRepository;
+use App\Repositories\Admin\BlogRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -89,6 +90,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CoachRepositoryInterface::class, CoachRepository::class);
 
         $this->app->bind(SeatRepositoryInterface::class, SeatRepository::class);
+
+
+        $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);
 
     }
 
