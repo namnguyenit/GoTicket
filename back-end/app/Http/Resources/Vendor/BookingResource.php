@@ -43,7 +43,20 @@ class BookingResource extends JsonResource
             'seats' => $this->whenLoaded('details', function(){
                 return $this->details->map(function($d){
                     return [
+                        'id' => $d->seat_id,
                         'seat_number' => optional($d->seat)->seat_number,
+                    ];
+                });
+            }),
+            'seat_map' => $this->whenLoaded('trip', function(){
+                if(!$this->trip || !$this->trip->relationLoaded('seats')){ return null; }
+                return $this->trip->seats->map(function($seat){
+                    return [
+                        'id' => $seat->id,
+                        'seat_number' => $seat->seat_number,
+                        'coach_type' => optional($seat->coach)->coach_type,
+                        'status' => $seat->pivot->status ?? null,
+                        'price' => $seat->pivot->price ?? null,
                     ];
                 });
             }),

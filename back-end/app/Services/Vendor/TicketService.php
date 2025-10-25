@@ -65,6 +65,21 @@ class TicketService
                 $arrAt = $arrAt->addDay(); // overnight case
             }
 
+            // Check vehicle availability: overlap with existing trips using this vehicle (any coach)
+            $hasOverlap = DB::table('trips as t')
+                ->join('trip_coaches as tc', 'tc.trip_id', '=', 't.id')
+                ->join('coaches as c', 'c.id', '=', 'tc.coach_id')
+                ->where('c.vehicle_id', $vehicle->id)
+                ->where('t.status', '!=', 'cancelled')
+                ->where(function($q) use ($depAt, $arrAt) {
+                    $q->where('t.departure_datetime', '<', $arrAt)
+                      ->where('t.arrival_datetime', '>', $depAt);
+                })
+                ->exists();
+            if($hasOverlap){
+                throw new RuntimeException('TRIP_TIME_CONFLICT');
+            }
+
             $isTrain = ($vehicle->vehicle_type === 'train');
             $regularPrice = $isTrain ? (float)$data['regular_price'] : (float)($data['price'] ?? 0);
             $vipPrice     = $isTrain ? (float)$data['vip_price'] : (float)($data['price'] ?? 0);

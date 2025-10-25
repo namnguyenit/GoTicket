@@ -21,12 +21,16 @@
           <td>${(b.seatList && b.seatList.length) ? b.seatList.join(', ') : b.seats}</td>
           <td>${vnd(b.total)}</td>
           <td>${renderStatus(b.status)}</td>
+          <td>
+            <button class="icon-btn edit-booking" title="Sửa vé"><i class="ri-pencil-line"></i></button>
+            <button class="icon-btn delete-booking" title="Huỷ vé"><i class="ri-forbid-2-line"></i></button>
+          </td>
         </tr>
-      `).join('') || '<tr><td colspan="10" class="muted">Chưa có vé nào</td></tr>';
+      `).join('') || '<tr><td colspan="11" class="muted">Chưa có vé nào</td></tr>';
     })();
   }
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const openBtn = e.target.closest('[data-open-modal]');
     if(openBtn){
       const sel = openBtn.getAttribute('data-open-modal');
@@ -37,7 +41,95 @@
       const modal = e.target.closest('.modal');
       if(modal){ modal.setAttribute('aria-hidden','true'); }
     }
-  });
+    const delBookingBtn = e.target.closest('.delete-booking');
+    const editBookingBtn = e.target.closest('.edit-booking');
+    if(delBookingBtn){
+      const tr = delBookingBtn.closest('tr');
+      const id = tr?.getAttribute('data-id');
+      if(id && confirm('Huỷ vé này?')){
+        const rs = await API.deleteBooking(id);
+        if(rs && rs.ok){ tr.remove(); } else { alert(rs && rs.error || 'Huỷ vé thất bại'); }
+      }
+    } else if(editBookingBtn){
+      const tr = editBookingBtn.closest('tr');
+      const id = tr?.getAttribute('data-id');
+      const modal = document.getElementById('editBookingModal');
+      const form = document.getElementById('editBookingForm');
+      form.id.value = id;
+      // fetch booking detail to build seat grid
+      try {
+        const detail = await API.request ? API.request(`/vendor/bookings/${id}`, { headers: {} }) : null;
+      } catch {}
+      // fetch stops
+      const stops = await API.getAllStops();
+      const pickupSel = document.getElementById('pickupStopSel');
+      const dropoffSel = document.getElementById('dropoffStopSel');
+      const options = ['<option value="">-- Chọn --</option>'].concat((stops||[]).map(s => `<option value="${s.id}">${s.name}</option>`)).join('');
+      if(pickupSel) pickupSel.innerHTML = options;
+      if(dropoffSel) dropoffSel.innerHTML = options;
+      // Build seat grid from seat_map if available via hidden cache on row (fallback to API if needed)
+      try {
+        const res = await fetch((window.API_BASE_URL||'http://127.0.0.1:8000/api').replace(/\/$/,'')+`/vendor/bookings/${id}`, { headers: { 'Authorization': 'Bearer '+(localStorage.getItem('API_TOKEN')||'') } });
+        const json = await res.json();
+        const payload = json && (json.data ?? json);
+        const grid = document.getElementById('seatGrid');
+        if(grid && payload && Array.isArray(payload.seat_map)){
+          const taken = new Set((payload.seats||[]).map(s => s.id));
+          grid.innerHTML = payload.seat_map.map(seat => {
+            const st = (seat.status||'').toLowerCase();
+            const booked = st !== 'available' && !taken.has(seat.id);
+            const cls = booked ? 'seat booked' : 'seat available';
+            const checked = taken.has(seat.id) ? 'checked' : '';
+            const disabled = booked ? 'disabled' : '';
+            return `<label class="${cls}"><input type="checkbox" name="seat_ids[]" value="${seat.id}" ${checked} ${disabled} />${seat.seat_number}</label>`;
+          }).join('');
+        }
+      } catch {}
+      modal.setAttribute('aria-hidden','false');
+    }
+  });
+  const editBookingForm = document.getElementById('editBookingForm');
+  editBookingForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(editBookingForm);
+    const id = fd.get('id');
+    const payload = {};
+    const status = fd.get('status');
+    const pickup = fd.get('pickup_stop_id');
+    const dropoff = fd.get('dropoff_stop_id');
+    if(status) payload.status = status;
+    if(pickup) payload.pickup_stop_id = Number(pickup);
+    if(dropoff) payload.dropoff_stop_id = Number(dropoff);
+    const rs = await API.updateBooking(id, payload);
+    if(rs && rs.ok){
+      document.getElementById('editBookingModal')?.setAttribute('aria-hidden','true');
+      const tbody = document.querySelector('#bookingTable tbody');
+      const list = await API.getVendorBookings(1, 50);
+      function fmt(dt){ try{ return dt ? new Date(dt).toLocaleString('vi-VN') : '—'; }catch{ return '—'; } }
+      function vnd(n){ return (Number(n)||0).toLocaleString('vi-VN',{style:'currency',currency:'VND'}); }
+      tbody.innerHTML = (list||[]).map(b => `
+        <tr data-id="${b.id}">
+          <td>${b.code}</td>
+          <td>${b.customer}</td>
+          <td>${b.contact}</td>
+          <td>${b.route}</td>
+          <td>${fmt(b.depAt)}</td>
+          <td>${b.vehicle}</td>
+          <td>${b.plate}</td>
+          <td>${(b.seatList && b.seatList.length) ? b.seatList.join(', ') : b.seats}</td>
+          <td>${vnd(b.total)}</td>
+          <td>${renderStatus(b.status)}</td>
+          <td>
+            <button class="icon-btn edit-booking" title="Sửa vé"><i class="ri-pencil-line"></i></button>
+            <button class="icon-btn delete-booking" title="Huỷ vé"><i class="ri-forbid-2-line"></i></button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="11" class="muted">Chưa có vé nào</td></tr>';
+    } else {
+      alert(rs && rs.error || 'Cập nhật vé thất bại');
+    }
+  });
+
   if(document.getElementById('yearHistoryChart')){
     API.getDashboard().then(d => {
       Charts.yearHistory(document.getElementById('yearHistoryChart'), d.yearHistory);

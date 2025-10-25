@@ -369,6 +369,40 @@ const API = (() => {
         console.warn('Vendor bookings fallback:', e.message);
         return [];
       }
+    },
+
+    async updateBooking(id, payload){
+      try {
+        const data = await request(`/vendor/bookings/${id}`, { method: 'PUT', headers: authHeaders(true), body: JSON.stringify(payload) });
+        return { ok:true, data };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async deleteBooking(id){
+      try {
+        await request(`/vendor/bookings/${id}`, { method: 'DELETE', headers: authHeaders(false) });
+        return { ok:true };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    },
+
+    async getAllStops(){
+      try {
+        const groups = await request('/vendor/stops/by-location', { headers: authHeaders(false) });
+        const arr = [];
+        if(Array.isArray(groups)){
+          groups.forEach(g => (g.stops||[]).forEach(s => arr.push(s)));
+        } else if(groups && typeof groups === 'object'){
+          Object.values(groups).forEach(stops => (Array.isArray(stops)?stops:[]).forEach(s => arr.push(s)));
+        }
+        return arr.map(s => ({ id: s.id, name: s.name || s.address || ('#'+s.id) }));
+      } catch(e){
+        console.warn('Stops fetch failed:', e.message);
+        return [];
+      }
     }
   };
 })();
