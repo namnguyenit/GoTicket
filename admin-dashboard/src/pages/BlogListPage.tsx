@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlusCircle, Edit, Trash2, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { getBlogs, deleteBlog } from '../services/api';
-import { Blog } from '../types/index'; // Import interface Blog
+import type { Blog } from '../types/index'; // Import interface Blog
 import BlogCreateModal from '../components/BlogCreateModal';
 import BlogEditModal from '../components/BlogEditModal';
 
@@ -27,8 +27,14 @@ function BlogListPage() {
         setError('');
         try {
             const response = await getBlogs();
-            // API của bạn có thể trả về trong response.data.data
-            setBlogs(response.data.data || response.data); 
+            // Chuẩn hóa dữ liệu trả về thành mảng Blog[]
+            const raw = response?.data;
+            let list: any[] = [];
+            if (Array.isArray(raw)) list = raw;
+            else if (Array.isArray(raw?.data?.data)) list = raw.data.data; // envelope+pagination
+            else if (Array.isArray(raw?.data)) list = raw.data; // envelope (không phân trang)
+            else if (Array.isArray(raw?.items)) list = raw.items; // fallback
+            setBlogs(list as any); 
         } catch (err: any) {
             console.error("Lỗi khi tải Blogs:", err);
             setError(err.response?.data?.message || 'Không thể tải danh sách bài viết.');
@@ -86,7 +92,7 @@ function BlogListPage() {
                          <AlertCircle className="h-8 w-8 mb-2" />
                         <p className='font-semibold'>Lỗi: {error}</p>
                     </div>
-                ) : blogs.length === 0 ? (
+                ) : !Array.isArray(blogs) || blogs.length === 0 ? (
                     <div className="text-center py-10 text-gray-500">
                         <FileText className="h-10 w-10 mx-auto mb-2" />
                         Không tìm thấy bài viết nào.
@@ -102,7 +108,7 @@ function BlogListPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {blogs.map((blog) => (
+                            {Array.isArray(blogs) && blogs.map((blog) => (
                                 <tr key={blog.id} className="border-b border-gray-100 hover:bg-blue-50/50 transition">
                                     <td className="p-2">
                                         <img 

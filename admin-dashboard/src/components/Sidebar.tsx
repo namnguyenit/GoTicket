@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Bus, LogOut, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Bus, LogOut, Package, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '../context/AuthContext';
 

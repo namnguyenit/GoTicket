@@ -4,7 +4,7 @@ export interface Blog {
   id: number;
   title: string;
   content: string;
-  image: string; // Đây sẽ là URL của ảnh
+  image: string; // Lưu path tương đối trong storage
   created_at: string;
   updated_at: string;
   author_id?: number; // Thêm author_id dựa trên migration

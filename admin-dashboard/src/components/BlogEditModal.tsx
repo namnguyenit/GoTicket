@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Loader2, Image as ImageIcon, Type, FileText } from 'lucide-react';
 import { getBlogDetail, updateBlog } from '../services/api';
-import { Blog } from '../types';
+import type { Blog } from '../types';
 
 interface BlogEditModalProps {
     blogId: number;
