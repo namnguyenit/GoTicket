@@ -41,11 +41,17 @@ function Book() {
       ? new Date(json.date).toLocaleDateString("en-CA", {
           timeZone: "Asia/Ho_Chi_Minh",
         })
-      : null;
+      : undefined;
 
-    const query = json?.region
-      ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
-      : null;
+    const params: Record<string, string> = {};
+    if (json?.region?.from && json?.region?.to) {
+      params.origin_location = json.region.from.name;
+      params.destination_location = json.region.to.name;
+    }
+    if (date) params.date = date;
+    if (json?.vehicle) params.vehicle_type = json.vehicle;
+
+    const query = new URLSearchParams(params).toString();
     if (query) {
       setSearchQuery(query);
       setPage(1);

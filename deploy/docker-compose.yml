@@ -55,7 +55,7 @@ services:
       - node.name=es-coord-1
       - cluster.name=goticket-es
       - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
-      - node.roles=[]
+      - node.roles=remote_cluster_client
       - xpack.security.enabled=false
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
@@ -71,7 +71,7 @@ services:
       - node.name=es-coord-2
       - cluster.name=goticket-es
       - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
-      - node.roles=[]
+      - node.roles=remote_cluster_client
       - xpack.security.enabled=false
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms256m -Xmx256m
@@ -102,6 +102,18 @@ services:
     ports:
       - "5601:5601"
     networks: [esnet]
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.14.0
+    user: root
+    depends_on:
+      - es-coord-1
+      - es-coord-2
+      - kibana
+    networks: [esnet]
+    volumes:
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    command: ["-e"]
 
 networks:
   esnet:
