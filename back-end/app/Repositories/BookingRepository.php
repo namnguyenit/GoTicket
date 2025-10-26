@@ -44,6 +44,11 @@ class BookingRepository implements BookingRepositoryInterface
                 ->whereIn('seat_id', $seatIds)
                 ->update(['status' => 'booked']);
 
+            // notify ES aggregator after commit
+            \Illuminate\Support\Facades\DB::afterCommit(function() use ($tripId){
+                app(\App\Services\Elasticsearch\SeatAvailabilityAggregator::class)->push((int)$tripId);
+            });
+
             return $booking;
         });
     }

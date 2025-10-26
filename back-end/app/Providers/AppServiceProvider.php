@@ -51,7 +51,8 @@ use App\Repositories\Vendor\CoachRepositoryInterface;
 use App\Repositories\Vendor\SeatRepository;
 use App\Repositories\Vendor\SeatRepositoryInterface;
 
-
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -66,7 +67,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RouteRepositoryInterface::class, RouteRepository::class);
         $this->app->bind(RouteService::class);
         $this->app->bind(VendorRoutesRepositoryInterface::class, VendorRoutesRepository::class);
-        $this->app->bind(TripRepositoryInterface::class, TripRepository::class);
+        $this->app->bind(TripRepositoryInterface::class, function(){
+            $driver = env('SEARCH_DRIVER', 'db');
+            if ($driver === 'elasticsearch') {
+                return app(\App\Repositories\TripSearchRepository::class);
+            }
+            return app(\App\Repositories\TripRepository::class);
+        });
         $this->app->bind(VehiclesRepositoryInterface::class, VehiclesRepository::class);
         $this->app->bind(TripService::class);
         $this->app->bind(BookingRepositoryInterface::class, BookingRepository::class);
@@ -90,11 +97,27 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(SeatRepositoryInterface::class, SeatRepository::class);
 
+        // Elasticsearch client binding
+        $this->app->singleton(Client::class, function () {
+            $hosts = array_map('trim', explode(',', env('ELASTICSEARCH_HOSTS', 'http://localhost:9200')));
+            return ClientBuilder::create()
+                ->setHosts($hosts)
+                ->setRetries((int) env('ES_RETRIES', 2))
+                ->build();
+        });
+
     }
 
     
     public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Console\Commands\InitElasticsearch::class,
+                \App\Console\Commands\SyncTripsToElasticsearch::class,
+                \App\Console\Commands\EsReindexTrips::class,
+            ]);
 
+        }
     }
 }

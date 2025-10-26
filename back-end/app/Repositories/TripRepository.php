@@ -28,15 +28,22 @@ class TripRepository implements TripRepositoryInterface
 
         $query = Trips::query();
 
-        $query->where('status', 'scheduled')
-              ->whereDate('departure_datetime', $criteria['date'])
-              ->whereHas('vendorRoute.route', function ($q) use ($criteria) {
-                  $q->where('origin_location_id', $criteria['origin_id'])
-                    ->where('destination_location_id', $criteria['destination_id']);
-              })
-              ->whereHas('coaches.vehicle', function ($q) use ($criteria) {
-                  $q->where('vehicle_type', $criteria['vehicle_type']);
-              });
+        $query->where('status', 'scheduled');
+
+        if (!empty($criteria['date'])) {
+            $query->whereDate('departure_datetime', $criteria['date']);
+        }
+        if (!empty($criteria['origin_id']) && !empty($criteria['destination_id'])) {
+            $query->whereHas('vendorRoute.route', function ($q) use ($criteria) {
+                $q->where('origin_location_id', $criteria['origin_id'])
+                  ->where('destination_location_id', $criteria['destination_id']);
+            });
+        }
+        if (!empty($criteria['vehicle_type'])) {
+            $query->whereHas('coaches.vehicle', function ($q) use ($criteria) {
+                $q->where('vehicle_type', $criteria['vehicle_type']);
+            });
+        }
 
 
         $query->when($criteria['price_min'] ?? null, function (Builder $q, $priceMin) {
