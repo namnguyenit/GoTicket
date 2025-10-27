@@ -49,12 +49,11 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
 
 
 Route::get('/blogs', [BlogController::class, 'getLatest']);
-
-
-
-
-
+Route::get('/blogs/{id}', [BlogController::class, 'show'])->whereNumber('id');
+Route::get('/blogs/{id}/trips', [BlogController::class, 'trips'])->whereNumber('id');
+ 
 Route::group(['middleware' => ['api', 'auth:api']], function()  {
+
 
 
     Route::group(['prefix' => 'auth'], function() {
@@ -87,17 +86,25 @@ Route::group(['middleware' => ['api', 'auth:api']], function()  {
 
         Route::get('/dashboard/stats', [DashboardAdminController::class, 'getOverallStats']);
 
+        Route::get('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'index']);
         Route::get('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'show']);
+        Route::get('vendors/{vendor}/trips', [App\Http\Controllers\Api\Admin\VendorController::class, 'trips'])->whereNumber('vendor');
         Route::put('vendors/{vendor:user_id}', [App\Http\Controllers\Api\Admin\VendorController::class, 'update']);
         Route::put('vendors/{vendor:user_id}/status', [App\Http\Controllers\Api\Admin\VendorController::class, 'updateStatus']);
-
+ 
         Route::post('vendors', [App\Http\Controllers\Api\Admin\VendorController::class, 'store']);
+
 
         Route::get('/blogs', [AdminBlogController::class, 'index']);
         Route::post('/blogs', [AdminBlogController::class, 'store']);
         Route::get('/blogs/{id}', [AdminBlogController::class, 'show']);
         Route::post('/blogs/{id}', [AdminBlogController::class, 'update']); // Dùng POST cho dễ update file
         Route::delete('/blogs/{id}', [AdminBlogController::class, 'destroy']);
+
+        // Gắn/Quản lý trips cho blog
+        Route::get('/blogs/{id}/trips', [AdminBlogController::class, 'trips']);
+        Route::post('/blogs/{id}/trips', [AdminBlogController::class, 'attachTrips']);
+        Route::delete('/blogs/{id}/trips/{trip}', [AdminBlogController::class, 'detachTrip'])->whereNumber('trip');
 
 
     });

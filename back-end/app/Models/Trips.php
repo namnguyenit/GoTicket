@@ -43,4 +43,8 @@ class Trips extends Model
         return $this->belongsToMany(Stops::class, 'trip_stops', 'trip_id', 'stop_id')
             ->withPivot(['stop_type', 'scheduled_time']);
     }
+
+    public function blogs(){
+        return $this->belongsToMany(Blogs::class, 'blog_trip', 'trip_id', 'blog_id');
+    }
 }

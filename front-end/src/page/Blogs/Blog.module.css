@@ -1,0 +1,118 @@
+
+.blogContainer {
+  display: flex;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+
+.mainContent {
+  flex: 3; /* Chiếm 3/4 không gian */
+}
+
+.mainContent h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.blogList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.blogPostCard {
+  display: flex;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.postImage {
+  width: 300px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.postContent {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.postContent h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  flex-grow: 1; /* Đẩy nút xuống dưới */
+}
+
+.readMoreBtn {
+  background-color: #007bff; /* Màu xanh dương */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  align-self: flex-start; /* Nút chỉ chiếm độ rộng cần thiết */
+  transition: background-color 0.2s;
+}
+
+.readMoreBtn:hover {
+  background-color: #0056b3;
+}
+
+/* Sidebar */
+.sidebar {
+  flex: 1; /* Chiếm 1/4 không gian */
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.sidebarSection {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.sidebarSection h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 8px;
+}
+
+.latestPostsList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.latestPostItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.latestPostItem:hover {
+  color: #007bff;
+}
+
+.latestPostImage {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}

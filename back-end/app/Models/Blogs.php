@@ -47,4 +47,9 @@ class Blogs extends Model
     {
         return $this->hasMany(BlogTrip::class, 'blog_id');
     }
+
+    public function trips()
+    {
+        return $this->belongsToMany(Trips::class, 'blog_trip', 'blog_id', 'trip_id');
+    }
 }

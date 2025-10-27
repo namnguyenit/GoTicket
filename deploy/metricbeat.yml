@@ -1,0 +1,31 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.kibana:
+  host: "http://kibana:5601"
+
+output.elasticsearch:
+  hosts: ["http://es-coord-1:9200","http://es-coord-2:9200"]
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+# Elasticsearch module (collect node and index metrics)
+metricbeat.modules:
+  - module: elasticsearch
+    xpack.enabled: true
+    period: 10s
+    hosts:
+      - "http://es-master-1:9200"
+      - "http://es-data-1:9200"
+      - "http://es-data-2:9200"
+      - "http://es-coord-1:9200"
+      - "http://es-coord-2:9200"
+
+  - module: kibana
+    xpack.enabled: true
+    period: 10s
+    hosts: ["http://kibana:5601"]

@@ -36,16 +36,69 @@ function Book() {
   const [page, setPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(12);
 
+  const PRICE_MIN_CAP = 0;
+  const PRICE_MAX_CAP = 2000000;
+  const [priceMin, setPriceMin] = useState<number>(PRICE_MIN_CAP);
+  const [priceMax, setPriceMax] = useState<number>(PRICE_MAX_CAP);
+  const TIME_OPTIONS = [
+    { label: "00:00 - 05:59", value: "00:00-05:59" },
+    { label: "06:00 - 11:59", value: "06:00-11:59" },
+    { label: "12:00 - 17:59", value: "12:00-17:59" },
+    { label: "18:00 - 23:59", value: "18:00-23:59" },
+  ];
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const isTrainTab = (json?.vehicle || '').toLowerCase() === 'train';
+  const COACH_OPTIONS = [
+    { label: 'Ghế mềm', value: 'seat_soft' },
+    { label: 'Ghế VIP', value: 'seat_VIP' },
+    { label: 'Giường nằm', value: 'sleeper' },
+  ];
+  const [coachTypes, setCoachTypes] = useState<string[]>([]);
+
+  const applyFilters = (opts?: { timeSlots?: string[]; priceMin?: number; priceMax?: number; coachTypes?: string[] }) => {
+    const date = json?.date
+      ? new Date(json.date).toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" })
+      : undefined;
+    const params = new URLSearchParams();
+    if (json?.region?.from && json?.region?.to) {
+      params.set('origin_location', json.region.from.name);
+      params.set('destination_location', json.region.to.name);
+    }
+    if (date) params.set('date', date);
+    if (json?.vehicle) params.set('vehicle_type', json.vehicle);
+    const pmin = opts?.priceMin ?? priceMin;
+    const pmax = opts?.priceMax ?? priceMax;
+    if (pmin > PRICE_MIN_CAP) params.set('price_min', String(pmin));
+    if (pmax < PRICE_MAX_CAP) params.set('price_max', String(pmax));
+    const ts = opts?.timeSlots ?? timeSlots;
+    ts.forEach((v) => params.append('time_slots[]', v));
+    const cts = opts?.coachTypes ?? coachTypes;
+    if (!isTrainTab) cts.forEach(ct => params.append('coach_types[]', ct));
+
+    const q = params.toString();
+    if (q) {
+      setSearchQuery(q);
+      setPage(1);
+      get(`/api/trips/search?${q}&per_page=${perPage}&page=1`);
+    }
+  };
+
   useEffect(() => {
     const date = json?.date
       ? new Date(json.date).toLocaleDateString("en-CA", {
           timeZone: "Asia/Ho_Chi_Minh",
         })
-      : null;
+      : undefined;
 
-    const query = json?.region
-      ? `origin_location=${json.region.from.name}&destination_location=${json.region.to.name}&date=${date}&vehicle_type=${json.vehicle}`
-      : null;
+    const params: Record<string, string> = {};
+    if (json?.region?.from && json?.region?.to) {
+      params.origin_location = json.region.from.name;
+      params.destination_location = json.region.to.name;
+    }
+    if (date) params.date = date;
+    if (json?.vehicle) params.vehicle_type = json.vehicle;
+
+    const query = new URLSearchParams(params).toString();
     if (query) {
       setSearchQuery(query);
       setPage(1);
@@ -128,41 +181,83 @@ function Book() {
             {}
             <div className="dash-bottom grid h-52 grid-rows-[30%_50%] content-evenly bg-white">
               <div className="dash-bottom flex h-4/5 w-4/5 items-center self-center justify-self-center text-xl font-bold text-[#57112f]">
-                Giá vé
+                Khoảng giá
               </div>
-              <div className="self-center justify-self-center">Giá?</div>
+              <div className="self-center justify-self-center w-4/5">
+                <input
+                  type="range"
+                  min={PRICE_MIN_CAP}
+                  max={PRICE_MAX_CAP}
+                  step={10000}
+                  value={priceMin}
+                  onChange={(e)=> {
+                    const v = Number(e.target.value);
+                    const nextMin = v > priceMax ? priceMax : v;
+                    setPriceMin(nextMin);
+                    applyFilters({ priceMin: nextMin });
+                  }}
+                  className="w-full"
+                />
+                <input
+                  type="range"
+                  min={PRICE_MIN_CAP}
+                  max={PRICE_MAX_CAP}
+                  step={10000}
+                  value={priceMax}
+                  onChange={(e)=> {
+                    const v = Number(e.target.value);
+                    const nextMax = v < priceMin ? priceMin : v;
+                    setPriceMax(nextMax);
+                    applyFilters({ priceMax: nextMax });
+                  }}
+                  className="w-full mt-2"
+                />
+                <div className="mt-2 text-sm text-[#57112f]">
+                  Giá: {priceMin.toLocaleString('vi-VN')}đ - {priceMax.toLocaleString('vi-VN')}đ
+                </div>
+                <button className="mt-3 rounded-md bg-[#F7AC3D] px-3 py-1 text-white hover:bg-[#6a314b]" onClick={()=>applyFilters()}>Tìm kiếm</button>
+              </div>
             </div>
-            <div className="dash-bottom grid h-[400px] grid-rows-[15%_60%] content-evenly bg-white">
-              <div className="dash-bottom flex h-4/5 w-4/5 items-center self-center justify-self-center text-xl font-bold text-[#57112f]">
-                Thời gian
+            <div className="dash-bottom grid content-evenly bg-white" style={{height: isTrainTab ? '260px' : '380px'}}>
+              <div className="dash-bottom flex h-14 w-4/5 items-center self-center justify-self-center text-xl font-bold text-[#57112f]">
+                Thời Gian Khởi Hành
               </div>
-              <div className="grid w-4/5 grid-rows-4 justify-self-center">
-                <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
-                  <div className="h-6 w-6">
-                    <Sunrise color="#57112f" />
-                  </div>
-                  <div className="ml-1 font-bold text-[#57112f]">00:00 - 5:59</div>
-                </div>
-                <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
-                  <div className="h-6 w-6">
-                    <Sun color="#57112f" />
-                  </div>
-                  <div className="ml-1 font-bold text-[#57112f]">06:00 - 11:59</div>
-                </div>
-                <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
-                  <div className="h-6 w-6">
-                    <Sunset color="#57112f" />
-                  </div>
-                  <div className="ml-1 font-bold text-[#57112f]">12:00 - 17:59</div>
-                </div>
-                <div className="hover-scale grid h-12 w-full grid-cols-[24px_60%] items-center justify-center gap-6 bg-[#ebebee]">
-                  <div className="flex h-6 w-6 justify-center">
-                    <MoonStar color="#57112f" />
-                  </div>
-                  <div className="ml-1 font-bold text-[#57112f]">18:00 - 23:59</div>
-                </div>
+              <div className="grid w-4/5 gap-3 justify-self-center">
+                {TIME_OPTIONS.map((t, idx)=> (
+                  <label key={t.value} className="hover-scale grid h-12 w-full grid-cols-[24px_1fr] items-center gap-3 bg-[#ebebee] px-3 rounded">
+                    <input type="checkbox" checked={timeSlots.includes(t.value)} onChange={(e)=> {
+                      setTimeSlots(prev => {
+                        const next = e.target.checked ? [...prev, t.value] : prev.filter(v=>v!==t.value);
+                        applyFilters({ timeSlots: next });
+                        return next;
+                      });
+                    }} />
+                    <div className="ml-1 font-bold text-[#57112f]">{t.label}</div>
+                  </label>
+                ))}
               </div>
             </div>
+            {!isTrainTab && (
+              <div className="dash-bottom grid h-[260px] content-evenly bg-white">
+                <div className="dash-bottom flex h-14 w-4/5 items-center self-center justify-self-center text-xl font-bold text-[#57112f]">
+                  Loại ghế
+                </div>
+                <div className="grid w-4/5 gap-3 justify-self-center">
+                  {COACH_OPTIONS.map(opt => (
+                    <label key={opt.value} className="flex items-center gap-3">
+                      <input type="checkbox" checked={coachTypes.includes(opt.value)} onChange={(e)=> {
+                        setCoachTypes(prev => {
+                          const next = e.target.checked ? [...prev, opt.value] : prev.filter(v=>v!==opt.value);
+                          applyFilters({ coachTypes: next });
+                          return next;
+                        });
+                      }} />
+                      <span className="text-[#57112f]">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           {}
           <div>

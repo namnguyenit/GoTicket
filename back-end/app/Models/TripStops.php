@@ -12,6 +12,9 @@ class TripStops extends Model
     protected $primaryKey = null; // composite
 
     protected $fillable = [
-        'trip_id', 'stop_id', 'stop_type', 'scheduled_time'
+        'trip_id', 
+        'stop_id', 
+        'stop_type', 
+        'scheduled_time'
     ];
 }

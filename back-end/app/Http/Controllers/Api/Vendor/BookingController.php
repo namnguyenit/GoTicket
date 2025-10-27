@@ -140,6 +140,9 @@ class BookingController extends Controller
                     }
                     TripSeats::where('trip_id', $tripId)->whereIn('seat_id', $newSeatIds)->update(['status' => 'booked']);
                 });
+                \Illuminate\Support\Facades\DB::afterCommit(function() use ($booking){
+                    app(\App\Services\Elasticsearch\SeatAvailabilityAggregator::class)->push((int)$booking->trip_id);
+                });
             }
 
             $booking->load([
@@ -176,6 +179,10 @@ class BookingController extends Controller
                     ->whereIn('seat_id', $seatIds)
                     ->update(['status' => 'available']);
             }
+
+            \Illuminate\Support\Facades\DB::afterCommit(function() use ($booking){
+                app(\App\Services\Elasticsearch\SeatAvailabilityAggregator::class)->push((int)$booking->trip_id);
+            });
 
             return $this->success(null, ApiSuccess::BOOKING_CANCELLED);
         } catch (\Throwable $e) {
