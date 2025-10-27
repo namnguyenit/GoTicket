@@ -1,0 +1,290 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: goticket
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-front
+  namespace: goticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: nginx-front }
+  template:
+    metadata:
+      labels: { app: nginx-front }
+    spec:
+      containers:
+        - name: nginx-front
+          image: nginx:1.27
+          ports: [{ containerPort: 80 }]
+          volumeMounts:
+            - name: front-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+          livenessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: front-conf
+          configMap:
+            name: nginx-front-conf
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-front-conf
+  namespace: goticket
+data:
+  default.conf: |
+    upstream user_fe_pool {
+      server user-fe-1:80;
+      server user-fe-2:80;
+      server user-fe-3:80;
+      keepalive 64;
+    }
+    upstream admin_fe_pool { server admin-fe:80; keepalive 16; }
+    upstream vendor_fe_pool { server vendor-fe:3000; keepalive 16; }
+    server { listen 80; server_name _;
+      location / { proxy_pass http://user_fe_pool; }
+      location /admin/ { proxy_pass http://admin_fe_pool/; }
+      location /vendor/ { proxy_pass http://vendor_fe_pool/; }
+      location /api/ { proxy_pass http://nginx-back/; }
+      location = /nginx_health { return 200 'ok'; add_header Content-Type text/plain; }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-back
+  namespace: goticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: nginx-back }
+  template:
+    metadata:
+      labels: { app: nginx-back }
+    spec:
+      containers:
+        - name: nginx-back
+          image: nginx:1.27
+          ports: [{ containerPort: 80 }]
+          volumeMounts:
+            - name: back-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+          livenessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: back-conf
+          configMap:
+            name: nginx-back-conf
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-back-conf
+  namespace: goticket
+data:
+  default.conf: |
+    upstream back_pool { server back-end-1:80; server back-end-2:80; server back-end-3:80; keepalive 64; }
+    server { listen 80; server_name _; client_max_body_size 50m; location / { proxy_pass http://back_pool; } location = /nginx_health { return 200 'ok'; add_header Content-Type text/plain; } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-end
+  namespace: goticket
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: back-end }
+  template:
+    metadata:
+      labels: { app: back-end }
+    spec:
+      containers:
+        - name: back
+          image: ghcr.io/you/goticket-back:latest
+          ports: [{ containerPort: 80 }]
+          env:
+            - name: APP_ENV
+              value: production
+            - name: APP_DEBUG
+              value: "false"
+            - name: DB_CONNECTION
+              value: mysql
+            - name: DB_HOST
+              valueFrom: { secretKeyRef: { name: mysql-conn, key: host } }
+            - name: DB_PORT
+              valueFrom: { secretKeyRef: { name: mysql-conn, key: port } }
+            - name: DB_DATABASE
+              valueFrom: { secretKeyRef: { name: mysql-conn, key: database } }
+            - name: DB_USERNAME
+              valueFrom: { secretKeyRef: { name: mysql-conn, key: username } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: mysql-conn, key: password } }
+            - name: ELASTICSEARCH_HOSTS
+              value: http://es-coord-1:9200,http://es-coord-2:9200
+            - name: SEARCH_DRIVER
+              value: elasticsearch
+          livenessProbe:
+            httpGet: { path: /up, port: 80 }
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /up, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-fe
+  namespace: goticket
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: user-fe }
+  template:
+    metadata:
+      labels: { app: user-fe }
+    spec:
+      containers:
+        - name: user-fe
+          image: ghcr.io/you/goticket-user-fe:latest
+          ports: [{ containerPort: 80 }]
+          livenessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-fe
+  namespace: goticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: admin-fe }
+  template:
+    metadata:
+      labels: { app: admin-fe }
+    spec:
+      containers:
+        - name: admin-fe
+          image: ghcr.io/you/goticket-admin-fe:latest
+          ports: [{ containerPort: 80 }]
+          livenessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /nginx_health, port: 80 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vendor-fe
+  namespace: goticket
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: vendor-fe }
+  template:
+    metadata:
+      labels: { app: vendor-fe }
+    spec:
+      containers:
+        - name: vendor-fe
+          image: ghcr.io/you/goticket-vendor-fe:latest
+          ports: [{ containerPort: 3000 }]
+          livenessProbe:
+            httpGet: { path: /health, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /health, port: 3000 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-front
+  namespace: goticket
+spec:
+  selector: { app: nginx-front }
+  ports: [{ name: http, port: 80, targetPort: 80 }]
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-back
+  namespace: goticket
+spec:
+  selector: { app: nginx-back }
+  ports: [{ name: http, port: 80, targetPort: 80 }]
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-fe
+  namespace: goticket
+spec:
+  selector: { app: user-fe }
+  ports: [{ name: http, port: 80, targetPort: 80 }]
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-fe
+  namespace: goticket
+spec:
+  selector: { app: admin-fe }
+  ports: [{ name: http, port: 80, targetPort: 80 }]
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vendor-fe
+  namespace: goticket
+spec:
+  selector: { app: vendor-fe }
+  ports: [{ name: http, port: 3000, targetPort: 3000 }]
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-end
+  namespace: goticket
+spec:
+  selector: { app: back-end }
+  ports: [{ name: http, port: 80, targetPort: 80 }]
+  type: ClusterIP

@@ -8,6 +8,12 @@ setup.kibana:
 output.elasticsearch:
   hosts: ["http://es-coord-1:9200","http://es-coord-2:9200"]
 
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+
 processors:
   - add_host_metadata: ~
   - add_cloud_metadata: ~

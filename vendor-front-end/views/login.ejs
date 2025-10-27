@@ -24,7 +24,7 @@
   </style>
   <script>
     (function(){
-      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || 'http://127.0.0.1:8000/api';
+      window.API_BASE_URL = localStorage.getItem('API_BASE_URL') || '/api';
       window.API_TOKEN = localStorage.getItem('API_TOKEN') || '';
     })();
   </script>
@@ -33,11 +33,11 @@
   <div class="login-wrap">
     <div class="login-card">
       <h2>Đăng nhập Vendor</h2>
-      <p class="hint">Nhập API Base URL nếu khác (mặc định dùng http://127.0.0.1:8000/api)</p>
+       <p class="hint">Nhập API Base URL nếu khác (mặc định dùng /api)</p>
       <form id="loginForm">
         <div class="form-group">
           <label>API Base URL</label>
-          <input type="text" name="baseUrl" placeholder="http://127.0.0.1:8000/api" />
+           <input type="text" name="baseUrl" placeholder="/api" />
         </div>
         <div class="form-group">
           <label>Email</label>

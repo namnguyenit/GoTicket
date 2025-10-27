@@ -1,7 +1,7 @@
 
 
 const API = (() => {
-  let baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : 'http://127.0.0.1:8000/api';
+  let baseURL = (typeof window !== 'undefined' && window.API_BASE_URL) ? window.API_BASE_URL : '/api';
   const getToken = () => (typeof window !== 'undefined' && window.API_TOKEN) ? window.API_TOKEN : (localStorage.getItem('API_TOKEN') || '');
   let locationCache = [];
 
