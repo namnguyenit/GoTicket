@@ -1,0 +1,125 @@
+version: "3.9"
+services:
+  es-master-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    environment:
+      - node.name=es-master-1
+      - cluster.name=goticket-es
+      - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
+      - cluster.initial_master_nodes=es-master-1
+      - node.roles=master
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - es-master-1-data:/usr/share/elasticsearch/data
+    networks: [esnet]
+
+  es-data-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    environment:
+      - node.name=es-data-1
+      - cluster.name=goticket-es
+      - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
+      - node.roles=data,ingest
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - es-data-1-data:/usr/share/elasticsearch/data
+    networks: [esnet]
+
+  es-data-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    environment:
+      - node.name=es-data-2
+      - cluster.name=goticket-es
+      - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
+      - node.roles=data,ingest
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    volumes:
+      - es-data-2-data:/usr/share/elasticsearch/data
+    networks: [esnet]
+
+  es-coord-1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    environment:
+      - node.name=es-coord-1
+      - cluster.name=goticket-es
+      - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
+      - node.roles=remote_cluster_client
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    networks: [esnet]
+    ports:
+      - "9201:9200"
+
+  es-coord-2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.0
+    environment:
+      - node.name=es-coord-2
+      - cluster.name=goticket-es
+      - discovery.seed_hosts=es-master-1,es-data-1,es-data-2,es-coord-1,es-coord-2
+      - node.roles=remote_cluster_client
+      - xpack.security.enabled=false
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    networks: [esnet]
+    ports:
+      - "9202:9200"
+
+  nginx-es:
+    image: nginx:1.27
+    depends_on: [es-coord-1, es-coord-2]
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./nginx/es.conf:/etc/nginx/conf.d/es.conf:ro
+    networks: [esnet]
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.0
+    environment:
+      - ELASTICSEARCH_HOSTS=["http://es-coord-1:9200","http://es-coord-2:9200"]
+      - SERVER_PUBLICBASEURL=http://localhost:5601
+      - XPACK_SECURITY_ENABLED=false
+    depends_on:
+      - es-coord-1
+      - es-coord-2
+    ports:
+      - "5601:5601"
+    networks: [esnet]
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:8.14.0
+    user: root
+    depends_on:
+      - es-coord-1
+      - es-coord-2
+      - kibana
+    networks: [esnet]
+    volumes:
+      - ./metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    command: ["-e"]
+
+networks:
+  esnet:
+    driver: bridge
+
+volumes:
+  es-master-1-data:
+  es-data-1-data:
+  es-data-2-data:

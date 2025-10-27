@@ -28,15 +28,22 @@ class TripRepository implements TripRepositoryInterface
 
         $query = Trips::query();
 
-        $query->where('status', 'scheduled')
-              ->whereDate('departure_datetime', $criteria['date'])
-              ->whereHas('vendorRoute.route', function ($q) use ($criteria) {
-                  $q->where('origin_location_id', $criteria['origin_id'])
-                    ->where('destination_location_id', $criteria['destination_id']);
-              })
-              ->whereHas('coaches.vehicle', function ($q) use ($criteria) {
-                  $q->where('vehicle_type', $criteria['vehicle_type']);
-              });
+        $query->where('status', 'scheduled');
+
+        if (!empty($criteria['date'])) {
+            $query->whereDate('departure_datetime', $criteria['date']);
+        }
+        if (!empty($criteria['origin_id']) && !empty($criteria['destination_id'])) {
+            $query->whereHas('vendorRoute.route', function ($q) use ($criteria) {
+                $q->where('origin_location_id', $criteria['origin_id'])
+                  ->where('destination_location_id', $criteria['destination_id']);
+            });
+        }
+        if (!empty($criteria['vehicle_type'])) {
+            $query->whereHas('coaches.vehicle', function ($q) use ($criteria) {
+                $q->where('vehicle_type', $criteria['vehicle_type']);
+            });
+        }
 
 
         $query->when($criteria['price_min'] ?? null, function (Builder $q, $priceMin) {
@@ -58,6 +65,26 @@ class TripRepository implements TripRepositoryInterface
                 return $q->whereTime('departure_datetime', '>=', '18:00:00')->whereTime('departure_datetime', '<=', '23:59:59');
             }
         });
+
+        if (!empty($criteria['time_slots']) && is_array($criteria['time_slots'])) {
+            $query->where(function (Builder $q) use ($criteria) {
+                foreach ($criteria['time_slots'] as $slot) {
+                    if (preg_match('/^(\d{2}:\d{2})-(\d{2}:\d{2})$/', $slot, $m)) {
+                        [$all, $from, $to] = $m;
+                        $q->orWhere(function (Builder $qq) use ($from, $to) {
+                            $qq->whereTime('departure_datetime', '>=', $from)
+                               ->whereTime('departure_datetime', '<=', $to);
+                        });
+                    }
+                }
+            });
+        }
+
+        if (!empty($criteria['coach_types']) && ($criteria['vehicle_type'] ?? 'bus') === 'bus') {
+            $query->whereHas('coaches', function (Builder $q) use ($criteria) {
+                $q->whereIn('coach_type', $criteria['coach_types']);
+            });
+        }
 
         return $query
                     ->with([

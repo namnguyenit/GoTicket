@@ -65,7 +65,7 @@ function AddressOption() {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const isSearchDisabled =
-    loading || !schedule.region?.from || !schedule.region?.to || !schedule.date;
+    loading || !(((schedule.region?.from && schedule.region?.to)) || !!schedule.date);
 
   const location = useLocation();
   useEffect(() => {

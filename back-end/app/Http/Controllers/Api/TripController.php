@@ -29,17 +29,23 @@ class TripController extends Controller
 
         $validated = $request->validated();
 
-        $origin = $this->locationService->findIdBYName($validated['origin_location']);
-        $destination = $this->locationService->findIdBYName($validated['destination_location']);
-
-        if (!$origin || !$destination) {
-            return $this->error(ApiError::NOT_FOUND, ['message' => 'Điểm đi hoặc điểm đến không hợp lệ.']);
+        $originId = null;
+        $destinationId = null;
+        if (!empty($validated['origin_location']) && !empty($validated['destination_location'])) {
+            $origin = $this->locationService->findIdBYName($validated['origin_location']);
+            $destination = $this->locationService->findIdBYName($validated['destination_location']);
+            if (!$origin || !$destination) {
+                return $this->error(ApiError::NOT_FOUND, ['message' => 'Điểm đi hoặc điểm đến không hợp lệ.']);
+            }
+            $originId = $origin->id;
+            $destinationId = $destination->id;
         }
 
-        $criteria = array_merge($validated, [
-            'origin_id' => $origin->id,
-            'destination_id' => $destination->id,
-        ]);
+        $criteria = $validated;
+        if ($originId && $destinationId) {
+            $criteria['origin_id'] = $originId;
+            $criteria['destination_id'] = $destinationId;
+        }
 
         $trips = $this->tripService->searchTrips($criteria);
         $requestedPage = $request->query('page', 1);
