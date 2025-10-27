@@ -10,6 +10,9 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Resources\Admin\VendorDetailResource;
+use App\Http\Resources\TripResource;
+use App\Models\Trips;
+use App\Models\VendorRoute;
 use App\Http\Requests\Api\Admin\CreateVendorRequest; 
 use App\Services\UserService;
 
@@ -40,13 +43,27 @@ class VendorController extends Controller
     }
 
 
+    public function index(Request $request)
+    {
+        $vendors = Vendor::with('user')->orderBy('company_name')->get(['id','user_id','company_name','status','logo_url']);
+        return $this->success($vendors, ApiSuccess::GET_DATA_SUCCESS);
+    }
+
     public function show(Vendor $vendor)
     {
-        
         $vendor->load('user', 'vendorRoutes');
-
-        
         return $this->success(new VendorDetailResource($vendor), ApiSuccess::GET_DATA_SUCCESS);
+    }
+
+    public function trips(int $vendor)
+    {
+        $routes = VendorRoute::where('vendor_id', $vendor)->pluck('id');
+        $trips = Trips::with(['vendorRoute.vendor.user','coaches.vehicle'])
+            ->whereIn('vendor_route_id', $routes)
+            ->latest('id')
+            ->limit(200)
+            ->get();
+        return $this->success(TripResource::collection($trips), ApiSuccess::GET_DATA_SUCCESS);
     }
     
     public function updateStatus(Request $request, Vendor $vendor)

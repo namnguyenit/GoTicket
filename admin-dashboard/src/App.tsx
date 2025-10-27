@@ -9,7 +9,7 @@ import VendorListPage from './pages/VendorListPage';
 import LoginPage from './pages/LoginPage'; // Import lại LoginPage
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext'; // Import useAuth để kiểm tra đăng nhập
-
+import BlogListPage from './pages/BlogListPage';
 // Layout chung cho các trang admin sau khi đăng nhập
 const AdminLayout = () => {
   const { isAuthenticated } = useAuth(); // Kiểm tra xem đã đăng nhập chưa
@@ -54,6 +54,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UserListPage />} />
           <Route path="/vendors" element={<VendorListPage />} />
+          <Route path="/blogs" element={<BlogListPage />} />
           {/* Thêm các route admin khác ở đây */}
         </Route>
       </Route>
