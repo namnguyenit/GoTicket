@@ -12,6 +12,9 @@ class TripSeats extends Model
     protected $primaryKey = null; // composite
 
     protected $fillable = [
-        'trip_id', 'seat_id', 'price', 'status'
+        'trip_id', 
+        'seat_id', 
+        'price', 
+        'status'
     ];
 }

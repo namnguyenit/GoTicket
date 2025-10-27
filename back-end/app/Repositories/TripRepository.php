@@ -66,6 +66,26 @@ class TripRepository implements TripRepositoryInterface
             }
         });
 
+        if (!empty($criteria['time_slots']) && is_array($criteria['time_slots'])) {
+            $query->where(function (Builder $q) use ($criteria) {
+                foreach ($criteria['time_slots'] as $slot) {
+                    if (preg_match('/^(\d{2}:\d{2})-(\d{2}:\d{2})$/', $slot, $m)) {
+                        [$all, $from, $to] = $m;
+                        $q->orWhere(function (Builder $qq) use ($from, $to) {
+                            $qq->whereTime('departure_datetime', '>=', $from)
+                               ->whereTime('departure_datetime', '<=', $to);
+                        });
+                    }
+                }
+            });
+        }
+
+        if (!empty($criteria['coach_types']) && ($criteria['vehicle_type'] ?? 'bus') === 'bus') {
+            $query->whereHas('coaches', function (Builder $q) use ($criteria) {
+                $q->whereIn('coach_type', $criteria['coach_types']);
+            });
+        }
+
         return $query
                     ->with([
                         'vendorRoute.vendor.user:id,name',

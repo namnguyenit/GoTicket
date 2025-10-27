@@ -358,3 +358,71 @@ Server error (500):
 - Pagination responses commonly include `{ data: [...], meta: { current_page, last_page, per_page, total }, links: {...} }`.
 - Several vendor endpoints validate ownership and return `FORBIDDEN` if the resource does not belong to the authenticated vendor.
 - All examples reflect current implementation and may evolve with services/resources.
+
+---
+
+## Elasticsearch Overview
+
+This project integrates Elasticsearch for full‑text and filtered search of Trips. The backend chooses the search driver at runtime via DI binding:
+- When `SEARCH_DRIVER=elasticsearch`, `TripRepositoryInterface` resolves to `TripSearchRepository` which calls `TripSearchService` to query ES and then hydrates results from the DB to return a `LengthAwarePaginator`.
+- Otherwise it falls back to Eloquent‑based `TripRepository`.
+
+Key components:
+- `app/Services/Elasticsearch/TripSearchQueryBuilder.php`: builds ES DSL (filters: origin_id, destination_id, vehicle_type, date range, prices, time of day; pagination via `from/size`).
+- `app/Services/Elasticsearch/TripSearchService.php`: executes `Client->search()` and returns `{ items, total, per_page, current_page }`.
+- `app/Services/Elasticsearch/TripResultHydrator.php`: hydrates ES IDs to Eloquent models with eager relations and returns a paginator compatible with API responses.
+- Binding: `AppServiceProvider@register` binds `TripRepositoryInterface` based on `SEARCH_DRIVER` and registers the ES client via `ELASTICSEARCH_HOSTS`.
+
+Environment:
+- `ELASTICSEARCH_HOSTS`: comma‑separated list, e.g. `http://localhost:9200` (or internal Docker names like `http://es-coord-1:9200`).
+- `SEARCH_DRIVER`: `elasticsearch` or `db`.
+
+---
+
+## Running with Elasticsearch
+
+1) Start the ES stack with Docker Compose
+- From `deploy/`: `docker compose up -d`
+- Services: `es-master-1`, `es-data-1`, `es-data-2`, `es-coord-1`, `es-coord-2`, `nginx-es` (proxy `:9200`), `kibana`, `metricbeat`.
+- Kibana: http://localhost:5601; ES proxy: http://localhost:9200.
+
+2) Configure backend to use Elasticsearch
+- In `back-end/.env` (or project env):
+  - `SEARCH_DRIVER=elasticsearch`
+  - `ELASTICSEARCH_HOSTS=http://localhost:9200` (or `http://es-coord-1:9200,http://es-coord-2:9200` when running inside Docker network)
+- Clear config cache: `php artisan config:clear`.
+
+3) Index bootstrap (optional if data is already synced)
+- The project exposes console commands (see `AppServiceProvider@boot`) for ES indices and sync:
+  - `php artisan es:init` (or `InitElasticsearch`)
+  - `php artisan es:sync-trips` (or `SyncTripsToElasticsearch`)
+  - `php artisan es:reindex-trips`
+
+4) Verify search via Kibana Dev Tools
+- Example:
+  ```
+  GET trips-read/_search
+  {
+    "track_total_hits": true,
+    "query": { "bool": { "filter": [
+      { "term": { "origin_id": "<id>" }},
+      { "term": { "destination_id": "<id>" }},
+      { "term": { "vehicle_type": "bus" }},
+      { "range": { "departure_time": { "gte": "2025-10-30T00:00:00Z", "lte": "2025-10-30T23:59:59Z" }}}
+    ]}},
+    "from": 0,
+    "size": 12,
+    "sort": [{ "departure_time": "asc" }]
+  }
+  ```
+
+5) Stack Monitoring (Kibana)
+- Metricbeat is included in `deploy/docker-compose.yml` and configured in `deploy/metricbeat.yml` to collect metrics for all nodes and Kibana.
+- After `docker compose up -d` and running setup (if needed):
+  - `docker compose run --rm metricbeat setup -E setup.kibana.host=http://kibana:5601 -E output.elasticsearch.hosts=["http://es-coord-1:9200","http://es-coord-2:9200"]`
+- Visit Kibana → Stack Monitoring to see nodes Online with CPU/Heap/Shards.
+
+Troubleshooting:
+- If nodes show Offline in Monitoring: ensure Metricbeat is running, check logs `docker logs -f metricbeat`, re‑run `setup` step.
+- If Kibana shows "remote cluster client role" error on coordinators: coordinators are set with `node.roles=remote_cluster_client` in compose.
+- API returning DB results instead of ES: check `.env` has `SEARCH_DRIVER=elasticsearch` and `ELASTICSEARCH_HOSTS` reachable; run `php artisan config:clear`.
