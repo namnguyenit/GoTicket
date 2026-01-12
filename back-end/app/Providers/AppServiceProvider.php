@@ -51,8 +51,13 @@ use App\Repositories\Vendor\CoachRepositoryInterface;
 use App\Repositories\Vendor\SeatRepository;
 use App\Repositories\Vendor\SeatRepositoryInterface;
 
+<<<<<<< HEAD
+use App\Repositories\Admin\BlogRepository;
+use App\Repositories\Admin\BlogRepositoryInterface;
+=======
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
+>>>>>>> f0da4853aa97868b179f09685aa372912422b05d
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -97,6 +102,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(SeatRepositoryInterface::class, SeatRepository::class);
 
+<<<<<<< HEAD
+
+        $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);
+=======
         // Elasticsearch client binding
         $this->app->singleton(Client::class, function () {
             $hosts = array_map('trim', explode(',', env('ELASTICSEARCH_HOSTS', 'http://localhost:9200')));
@@ -105,6 +114,7 @@ class AppServiceProvider extends ServiceProvider
                 ->setRetries((int) env('ES_RETRIES', 2))
                 ->build();
         });
+>>>>>>> f0da4853aa97868b179f09685aa372912422b05d
 
     }
 

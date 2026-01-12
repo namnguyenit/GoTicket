@@ -78,4 +78,47 @@ export const updateVendorDetail = (vendorId: number, data: any) => {
 export const createVendor = (data: any) => {
     return api.post('/admin/vendors', data);
 };
+
+
+export const getBlogs = () => {
+  return api.get('/admin/blogs');
+};
+
+// Hàm lấy chi tiết 1 Blog (GET /api/admin/blogs/{id})
+export const getBlogDetail = (id: number) => {
+  return api.get(`/admin/blogs/${id}`);
+};
+
+/**
+ * Hàm tạo mới Blog
+ * @param data FormData (chứa title, content, image)
+ */
+export const createBlog = (data: FormData) => {
+  return api.post('/admin/blogs', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+/**
+ * Hàm cập nhật Blog
+ * @param id ID của blog
+ * @param data FormData (chứa title, content, image, và _method: 'PUT')
+ */
+export const updateBlog = (id: number, data: FormData) => {
+  // Laravel thường dùng POST với _method='PUT' để xử lý file upload khi update
+  data.append('_method', 'PUT'); 
+  
+  return api.post(`/admin/blogs/${id}`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+// Hàm xóa Blog (DELETE /api/admin/blogs/{id})
+export const deleteBlog = (id: number) => {
+  return api.delete(`/admin/blogs/${id}`);
+};
 export default api;

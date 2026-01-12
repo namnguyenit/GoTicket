@@ -2,26 +2,54 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage; // Thêm dòng này
 
 class Blogs extends Model
 {
-    protected $table = 'blogs';
+    use HasFactory;
 
-    protected $primaryKey = 'id';
+    protected $fillable = [
+        'title',
+        'content',
+        'image',
+        // 'user_id', // <-- *** XÓA DÒNG NÀY ***
+    ];
 
+    /**
+     * Thêm 'image_url' vào mỗi response JSON
+     */
+    protected $appends = ['image_url'];
 
-    protected $fillable = ['title',
-                            'content',
-                            'author_id',
-                            'published_at'];
-
-    public function author(){
-        return $this->belongsTo(User::class, 'author_id');
+    /**
+     * Accessor để tạo image_url
+     * tự động chạy khi model được serialize
+     */
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            // Trả về URL đầy đủ của file
+            // Hãy chắc chắn bạn đã chạy `php artisan storage:link`
+            return Storage::url($this->image);
+        }
+        return null;
     }
 
-    public function trips(){
+    /* *** VÔ HIỆU HÓA QUAN HỆ NÀY ***
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    */
+
+    public function blogTrips()
+    {
+        return $this->hasMany(BlogTrip::class, 'blog_id');
+    }
+
+    public function trips()
+    {
         return $this->belongsToMany(Trips::class, 'blog_trip', 'blog_id', 'trip_id');
     }
-
 }
