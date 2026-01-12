@@ -1,0 +1,227 @@
+<mxfile host="app.diagrams.net" agent="opencode-ai" version="28.2.8">
+  <diagram id="GoTicketERD" name="GoTicket ERD">
+    <mxGraphModel dx="2021" dy="1111" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Legend -->
+        <mxCell id="legend_bg" value="Legend" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=8;shadow=1;fontSize=12;strokeWidth=1;fillColor=#ffffff;strokeColor=#94a3b8;opacity=95;" vertex="1" parent="1">
+          <mxGeometry x="2080" y="960" width="360" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_id_box" value="" style="rounded=1;shadow=0;fillColor=#E3F2FD;strokeColor=#1E88E5;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1000" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_id_txt" value="Identity &amp; Auth" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="996" width="200" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_geo_box" value="" style="rounded=1;shadow=0;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1030" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_geo_txt" value="Geography &amp; Routes" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="1026" width="200" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_vendor_box" value="" style="rounded=1;shadow=0;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1060" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_vendor_txt" value="Vendors &amp; Fleet" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="1056" width="200" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_trip_box" value="" style="rounded=1;shadow=0;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1090" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_trip_txt" value="Trips" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="1086" width="200" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_commerce_box" value="" style="rounded=1;shadow=0;fillColor=#FFEBEE;strokeColor=#C62828;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1120" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_commerce_txt" value="Commerce" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="1116" width="200" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_content_box" value="" style="rounded=1;shadow=0;fillColor=#EDE7F6;strokeColor=#4527A0;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="2100" y="1150" width="22" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="lg_content_txt" value="Content" style="whiteSpace=wrap;html=1;align=left;verticalAlign=middle;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="1146" width="200" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- USERS (Identity) -->
+        <mxCell id="tbl_users" value="&lt;b&gt;users&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;name: VARCHAR&lt;br/&gt;email: VARCHAR (UNIQUE)&lt;br/&gt;password: VARCHAR&lt;br/&gt;phone_number: VARCHAR(20) NULL&lt;br/&gt;role: ENUM('customer','vendor','admin') DEFAULT 'customer'&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;AuthController: register, login, getInfoAccout, updateProfile&lt;br/&gt;UserController: getAll, findByEmail, findByName, updateUser, delete&lt;br/&gt;Admin.UserController: getAll, findByEmail, findByName, update, delete" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;container=0;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E3F2FD;strokeColor=#1E88E5;" parent="1" vertex="1">
+          <mxGeometry x="70" y="25" width="420" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_tokens" value="&lt;b&gt;personal_access_tokens&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;tokenable_type: VARCHAR&lt;br/&gt;tokenable_id: BIGINT&lt;br/&gt;name: TEXT&lt;br/&gt;token: VARCHAR(64) (UNIQUE)&lt;br/&gt;abilities: TEXT NULL&lt;br/&gt;last_used_at: TIMESTAMP NULL&lt;br/&gt;expires_at: TIMESTAMP NULL (INDEX)&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E3F2FD;strokeColor=#1E88E5;" parent="1" vertex="1">
+          <mxGeometry x="40" y="260" width="360" height="220" as="geometry" />
+        </mxCell>
+
+        <!-- LOCATIONS, ROUTES (Geography) -->
+        <mxCell id="tbl_locations" value="&lt;b&gt;locations&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;name: VARCHAR (UNIQUE)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E8F5E9;strokeColor=#2E7D32;" parent="1" vertex="1">
+          <mxGeometry x="460" y="40" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_routes" value="&lt;b&gt;routes&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;origin_location_id: BIGINT (FK)&lt;br/&gt;destination_location_id: BIGINT (FK)&lt;br/&gt;UNIQUE(origin_location_id, destination_location_id)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E8F5E9;strokeColor=#2E7D32;" parent="1" vertex="1">
+          <mxGeometry x="460" y="160" width="360" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- VENDORS & FLEET -->
+        <mxCell id="tbl_vendors" value="&lt;b&gt;vendors&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;user_id: BIGINT (FK, UNIQUE)&lt;br/&gt;company_name: VARCHAR&lt;br/&gt;address: VARCHAR NULL&lt;br/&gt;status: ENUM('active','pending','suspended') DEFAULT 'pending'&lt;br/&gt;logo_url: VARCHAR(2048) NULL&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;Admin.VendorController: store, show, updateStatus, update&lt;br/&gt;Vendor.DashboardController: getStats, getInfo, uploadLogo" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFF3E0;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="880" y="40" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_stops" value="&lt;b&gt;stops&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vendor_id: BIGINT (FK)&lt;br/&gt;name: VARCHAR&lt;br/&gt;address: VARCHAR&lt;br/&gt;transport_type: ENUM('bus','train') DEFAULT 'bus'&lt;br/&gt;location_id: BIGINT (FK)&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;Vendor.StopController: index, store, show, update, destroy, listByLocation, listByLocationId" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E8F5E9;strokeColor=#2E7D32;" parent="1" vertex="1">
+          <mxGeometry x="880" y="220" width="360" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_vehicles" value="&lt;b&gt;vehicles&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vendor_id: BIGINT (FK)&lt;br/&gt;name: VARCHAR(100)&lt;br/&gt;vehicle_type: ENUM('bus','train')&lt;br/&gt;license_plate: VARCHAR(50) UNIQUE NULL&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;Vendor.ManagerVehicleController: index, store, show, update, destroy, showAllVerhicel, addCoaches, removeCoach" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFF3E0;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="1280" y="40" width="360" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_coaches" value="&lt;b&gt;coaches&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vehicle_id: BIGINT (FK)&lt;br/&gt;identifier: VARCHAR(50)&lt;br/&gt;coach_type: ENUM('sleeper_vip','sleeper_regular','limousine','seat_soft','seat_VIP')&lt;br/&gt;total_seats: INTEGER&lt;br/&gt;UNIQUE(vehicle_id, identifier)&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;Vendor.ManagerVehicleController: addCoaches, removeCoach" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFF3E0;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="1680" y="40" width="440" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_seats" value="&lt;b&gt;seats&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;coach_id: BIGINT (FK)&lt;br/&gt;seat_number: VARCHAR(10)&lt;br/&gt;UNIQUE(coach_id, seat_number)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFF3E0;strokeColor=#EF6C00;" parent="1" vertex="1">
+          <mxGeometry x="1680" y="260" width="320" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- VENDOR ROUTES (Geography) -->
+        <mxCell id="tbl_vendor_routes" value="&lt;b&gt;vendor_routes&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vendor_id: BIGINT (FK)&lt;br/&gt;route_id: BIGINT (FK)&lt;br/&gt;name: VARCHAR&lt;br/&gt;is_active: BOOLEAN DEFAULT TRUE&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E8F5E9;strokeColor=#2E7D32;" parent="1" vertex="1">
+          <mxGeometry x="460" y="320" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_vendor_route_stops" value="&lt;b&gt;vendor_route_stops&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vendor_route_id: BIGINT (FK)&lt;br/&gt;stop_id: BIGINT (FK)&lt;br/&gt;stop_type: ENUM('pickup','dropoff')&lt;br/&gt;stop_order: INTEGER&lt;br/&gt;offset_minutes_from_departure: INTEGER DEFAULT 0&lt;br/&gt;UNIQUE(vendor_route_id, stop_id, stop_type)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#E8F5E9;strokeColor=#2E7D32;" parent="1" vertex="1">
+          <mxGeometry x="880" y="400" width="460" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- TRIPS -->
+        <mxCell id="tbl_trips" value="&lt;b&gt;trips&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;vendor_route_id: BIGINT (FK)&lt;br/&gt;departure_datetime: DATETIME&lt;br/&gt;arrival_datetime: DATETIME&lt;br/&gt;base_price: DECIMAL(10,2)&lt;br/&gt;status: ENUM('scheduled','ongoing','completed','cancelled') DEFAULT 'scheduled'&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP&lt;hr/&gt;&lt;b&gt;Controllers/Methods&lt;/b&gt;&lt;br/&gt;Api.TripController: search, getTripDetail, getTripStops&lt;br/&gt;Vendor.TripController: index, store, show, update, destroy&lt;br/&gt;Vendor.TicketController: store, destroy" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" parent="1" vertex="1">
+          <mxGeometry x="460" y="540" width="420" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_trip_coaches" value="&lt;b&gt;trip_coaches&lt;/b&gt;&lt;hr/&gt;PK: (trip_id, coach_id)&lt;br/&gt;trip_id: BIGINT (FK)&lt;br/&gt;coach_id: BIGINT (FK)&lt;br/&gt;coach_order: INTEGER DEFAULT 1" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" parent="1" vertex="1">
+          <mxGeometry x="1680" y="440" width="360" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_trip_seats" value="&lt;b&gt;trip_seats&lt;/b&gt;&lt;hr/&gt;PK: (trip_id, seat_id)&lt;br/&gt;trip_id: BIGINT (FK)&lt;br/&gt;seat_id: BIGINT (FK)&lt;br/&gt;price: DECIMAL(10,2)&lt;br/&gt;status: ENUM('available','booked','locked','disabled') DEFAULT 'available'" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" parent="1" vertex="1">
+          <mxGeometry x="1680" y="600" width="420" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_trip_stops" value="&lt;b&gt;trip_stops&lt;/b&gt;&lt;hr/&gt;PK: (trip_id, stop_id, stop_type)&lt;br/&gt;trip_id: BIGINT (FK)&lt;br/&gt;stop_id: BIGINT (FK)&lt;br/&gt;stop_type: ENUM('pickup','dropoff')&lt;br/&gt;scheduled_time: TIME" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" parent="1" vertex="1">
+          <mxGeometry x="1280" y="440" width="380" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- COMMERCE -->
+        <mxCell id="tbl_bookings" value="&lt;b&gt;bookings&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;user_id: BIGINT (FK)&lt;br/&gt;trip_id: BIGINT (FK)&lt;br/&gt;booking_code: VARCHAR(50) UNIQUE&lt;br/&gt;total_price: DECIMAL(10,2)&lt;br/&gt;status: ENUM('pending','confirmed','cancelled') DEFAULT 'pending'&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFEBEE;strokeColor=#C62828;" parent="1" vertex="1">
+          <mxGeometry x="40" y="520" width="420" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_booking_details" value="&lt;b&gt;booking_details&lt;/b&gt;&lt;hr/&gt;PK: (booking_id, trip_id, seat_id)&lt;br/&gt;booking_id: BIGINT (FK)&lt;br/&gt;trip_id: BIGINT (FK to trip_seats)&lt;br/&gt;seat_id: BIGINT (FK to trip_seats)&lt;br/&gt;pickup_stop_id: BIGINT (FK)&lt;br/&gt;dropoff_stop_id: BIGINT (FK)&lt;br/&gt;price_at_booking: DECIMAL(10,2)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFEBEE;strokeColor=#C62828;" parent="1" vertex="1">
+          <mxGeometry x="40" y="740" width="520" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_payments" value="&lt;b&gt;payments&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;booking_id: BIGINT (FK, UNIQUE)&lt;br/&gt;transaction_id: VARCHAR(255) UNIQUE NULL&lt;br/&gt;amount: DECIMAL(10,2)&lt;br/&gt;payment_method: VARCHAR(50)&lt;br/&gt;status: ENUM('success','failed','pending') DEFAULT 'pending'&lt;br/&gt;paid_at: TIMESTAMP NULL" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFEBEE;strokeColor=#C62828;" parent="1" vertex="1">
+          <mxGeometry x="40" y="940" width="480" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_reviews" value="&lt;b&gt;reviews&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;trip_id: BIGINT (FK)&lt;br/&gt;user_id: BIGINT (FK)&lt;br/&gt;booking_id: BIGINT (FK, UNIQUE)&lt;br/&gt;rating: TINYINT UNSIGNED (1..5)&lt;br/&gt;comment: TEXT NULL&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#FFEBEE;strokeColor=#C62828;" parent="1" vertex="1">
+          <mxGeometry x="610" y="1040" width="520" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- CONTENT -->
+        <mxCell id="tbl_blogs" value="&lt;b&gt;blogs&lt;/b&gt;&lt;hr/&gt;id: BIGINT (PK)&lt;br/&gt;title: VARCHAR&lt;br/&gt;content: TEXT NULL&lt;br/&gt;author_id: BIGINT (FK, NULLABLE)&lt;br/&gt;published_at: TIMESTAMP NULL&lt;br/&gt;created_at: TIMESTAMP&lt;br/&gt;updated_at: TIMESTAMP" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#EDE7F6;strokeColor=#4527A0;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="1010" width="420" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="tbl_blog_trip" value="&lt;b&gt;blog_trip&lt;/b&gt;&lt;hr/&gt;PK: (blog_id, trip_id)&lt;br/&gt;blog_id: BIGINT (FK)&lt;br/&gt;trip_id: BIGINT (FK)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingTop=6;spacingLeft=8;spacingRight=8;spacingBottom=6;shadow=1;fontSize=12;strokeWidth=1.2;fillColor=#EDE7F6;strokeColor=#4527A0;" parent="1" vertex="1">
+          <mxGeometry x="1560" y="840" width="300" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES / RELATIONSHIPS (Orthogonal) -->
+        <mxCell id="e_vendor_user" value="vendors.user_id → users.id (1:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vendors" target="tbl_users" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_stops_vendor" value="stops.vendor_id → vendors.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_stops" target="tbl_vendors" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_stops_location" value="stops.location_id → locations.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_stops" target="tbl_locations" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_routes_origin" value="routes.origin_location_id → locations.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_routes" target="tbl_locations" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_routes_dest" value="routes.destination_location_id → locations.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;" parent="1" source="tbl_routes" target="tbl_locations" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vr_vendor" value="vendor_routes.vendor_id → vendors.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vendor_routes" target="tbl_vendors" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vr_route" value="vendor_routes.route_id → routes.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vendor_routes" target="tbl_routes" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vrs_vr" value="vendor_route_stops.vendor_route_id → vendor_routes.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vendor_route_stops" target="tbl_vendor_routes" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vrs_stop" value="vendor_route_stops.stop_id → stops.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vendor_route_stops" target="tbl_stops" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vehicles_vendor" value="vehicles.vendor_id → vendors.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_vehicles" target="tbl_vendors" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_coaches_vehicle" value="coaches.vehicle_id → vehicles.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_coaches" target="tbl_vehicles" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_seats_coach" value="seats.coach_id → coaches.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_seats" target="tbl_coaches" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_trips_vr" value="trips.vendor_route_id → vendor_routes.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trips" target="tbl_vendor_routes" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tc_trip" value="trip_coaches.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_coaches" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tc_coach" value="trip_coaches.coach_id → coaches.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_coaches" target="tbl_coaches" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ts_trip" value="trip_seats.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_seats" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ts_seat" value="trip_seats.seat_id → seats.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_seats" target="tbl_seats" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tst_trip" value="trip_stops.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_stops" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tst_stop" value="trip_stops.stop_id → stops.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_trip_stops" target="tbl_stops" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bookings_user" value="bookings.user_id → users.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_bookings" target="tbl_users" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bookings_trip" value="bookings.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_bookings" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bd_booking" value="booking_details.booking_id → bookings.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_booking_details" target="tbl_bookings" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bd_tripseat" value="booking_details.(trip_id,seat_id) → trip_seats.(trip_id,seat_id) (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;" parent="1" source="tbl_booking_details" target="tbl_trip_seats" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bd_pickup" value="booking_details.pickup_stop_id → stops.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_booking_details" target="tbl_stops" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_bd_dropoff" value="booking_details.dropoff_stop_id → stops.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;" parent="1" source="tbl_booking_details" target="tbl_stops" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pay_booking" value="payments.booking_id → bookings.id (1:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_payments" target="tbl_bookings" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_review_trip" value="reviews.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_reviews" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_review_user" value="reviews.user_id → users.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_reviews" target="tbl_users" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_review_booking" value="reviews.booking_id → bookings.id (1:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;" parent="1" source="tbl_reviews" target="tbl_bookings" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_blog_author" value="blogs.author_id → users.id (N:1, NULLABLE)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_blogs" target="tbl_users" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_blogtrip_blog" value="blog_trip.blog_id → blogs.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;" parent="1" source="tbl_blog_trip" target="tbl_blogs" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_blogtrip_trip" value="blog_trip.trip_id → trips.id (N:1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;elbow=horizontal;endArrow=block;endFill=1;html=1;strokeColor=#64748b;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#ffffff;dashed=1;" parent="1" source="tbl_blog_trip" target="tbl_trips" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
